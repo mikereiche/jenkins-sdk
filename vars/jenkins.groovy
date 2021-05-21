@@ -1,3 +1,5 @@
+import com.couchbase.fit.perf.main.Execute
+
 void execute() {
-    com.couchbase.fit.perf.main.execute()
+    Execute.execute()
 }
