@@ -13,8 +13,8 @@ abstract class Environment {
 
     @CompileDynamic
     Environment(config) {
-        this.executableOverrides = config.executables;
-        this.envvar = config.envvar
+        this.executableOverrides = config.executables != null ? config.executables : new HashMap<>();
+        this.envvar = config.envvar != null ? config.envvar : new HashMap<>()
     }
 
     abstract void execute(String command)

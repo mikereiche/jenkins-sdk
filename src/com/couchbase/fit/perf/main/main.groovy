@@ -19,7 +19,7 @@ import static java.util.stream.Collectors.groupingBy
 class Execute {
     @CompileStatic
     static List<Run> parseConfig(StageContext ctx) {
-        def config = ConfigParser.readPerfConfig("job-config.yaml")
+        def config = ConfigParser.readPerfConfig("config/job-config.yaml")
         def allPerms = ConfigParser.allPerms(config)
         return allPerms
     }
@@ -126,5 +126,9 @@ class Execute {
         root.finish(ctx)
     //run(ctx, planned)
     //print(planned)
+    }
+
+    public static void main(String[] args) {
+        execute()
     }
 }
