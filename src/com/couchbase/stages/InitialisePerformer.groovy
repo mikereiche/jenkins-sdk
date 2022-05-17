@@ -1,10 +1,13 @@
 package com.couchbase.stages
 
+import com.couchbase.fit.stages.BuildDockerGoSDKPerformer
+import com.couchbase.fit.stages.BuildDockerPythonSDKPerformer
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import com.couchbase.context.StageContext
 import com.couchbase.fit.perf.config.PerfConfig
 import com.couchbase.fit.stages.BuildDockerJavaFITPerformer
+import com.couchbase.fit.stages.BuildDockerJavaSDKPerformer
 import com.couchbase.fit.stages.StartDockerImagePerformer
 
 /**
@@ -14,6 +17,7 @@ import com.couchbase.fit.stages.StartDockerImagePerformer
 class InitialisePerformer extends Stage {
     private PerfConfig.Implementation impl
     private int port = 8060
+    private String hostname
 
     InitialisePerformer(PerfConfig.Implementation impl) {
         this.impl = impl
@@ -40,23 +44,17 @@ class InitialisePerformer extends Stage {
         }
         else {
             if (impl.language == "java") {
-                List<Stage> stages = []
-                def stage1 = new BuildDockerJavaFITPerformer(impl.version)
-
-                if (!skipDockerBuild(ctx)) {
-                    stages.add(stage1)
-                }
-
-                if (ctx.performerServer == "localhost") {
-                    stages.add(new StartDockerImagePerformer(stage1.imageName, port, impl.version))
-                } else {
-                    throw new IllegalArgumentException("Cannot handle running on performer remote server")
-                }
-
-                return stages
+                def stage1 = new BuildDockerJavaSDKPerformer(impl.version)
+                return produceStages(ctx, stage1, stage1.getImageName())
+            } else if (impl.language == "go"){
+                def stage1 = new BuildDockerGoSDKPerformer(impl.version)
+                return produceStages(ctx, stage1, stage1.getImageName())
+            } else if (impl.language == "python"){
+                def stage1 = new BuildDockerPythonSDKPerformer(impl.version)
+                return produceStages(ctx, stage1, stage1.getImageName())
+            } else{
+                throw new IllegalArgumentException("Unknown performer ${impl.language}")
             }
-
-            throw new IllegalArgumentException("Unknown performer ${impl.language}")
         }
     }
 
@@ -64,8 +62,9 @@ class InitialisePerformer extends Stage {
     void executeImpl(StageContext ctx) {}
 
     String hostname() {
-        // All we support currently
-        return "localhost"
+        //return hostname
+        //TODO change this
+        return "performer"
     }
 
     int port() {
@@ -74,5 +73,22 @@ class InitialisePerformer extends Stage {
 
     boolean isDocker() {
         return impl.port == null
+    }
+
+    List<Stage> produceStages(StageContext ctx,Stage stage1, String imageName){
+        List<Stage> stages = []
+
+        if (!skipDockerBuild(ctx)) {
+            stages.add(stage1)
+        }
+
+        if (ctx.performerServer == "localhost") {
+            stages.add(new StartDockerImagePerformer(imageName, port, impl.version))
+        } else {
+            throw new IllegalArgumentException("Cannot handle running on performer remote server")
+        }
+
+        return stages
+
     }
 }

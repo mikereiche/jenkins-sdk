@@ -61,8 +61,7 @@ class OutputPerformerConfig extends Stage {
             yaml {
                 uuid UUID.randomUUID().toString()
                 description run.description
-                transaction(run.workload.transaction)
-                variables(run.workload.variables)
+                operations(run.workload.operations)
             }
             yaml.content
         }).collect(Collectors.toList())
@@ -71,8 +70,12 @@ class OutputPerformerConfig extends Stage {
             .excludeNulls()
             .build()
         def json = new JsonBuilder(gen)
+        
+        //TODO when the database gets created in a stage remove this and get it from said stage
+        config.database.hostname = "timedb"
 
         json {
+            impl impl
             variables(config.variables)
             connections {
                 cluster {
@@ -87,10 +90,6 @@ class OutputPerformerConfig extends Stage {
                 }
 
                 database(config.database)
-            }
-            db {
-                cluster cluster
-                impl impl
             }
             runs runsAsYaml
         }

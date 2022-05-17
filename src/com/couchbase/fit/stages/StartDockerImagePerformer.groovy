@@ -25,16 +25,21 @@ class StartDockerImagePerformer extends Stage {
     @Override
     void executeImpl(StageContext ctx) {
         try {
-            ctx.env.execute("docker kill $imageName")
+            //TODO change "performer" to an image name or something, the driver isnt playing well with having the image name as a name atm
+            ctx.env.execute("docker kill performer")
         }
         catch(RuntimeException err) {
         }
 
-        ctx.env.execute("docker run --rm -d -p $port:8060 --name $imageName $imageName version=$version")
+        //TODO change "performer" to an image name or something, the driver isnt playing well with having the image name as a name atm
+        ctx.env.execute("docker run --rm --network perf -d -p $port:8060 --name performer $imageName version=$version")
     }
 
     @Override
     void finishImpl(StageContext ctx) {
-        ctx.env.execute("docker kill $imageName")
+        //TODO change "performer" to an image name or something, the driver isnt playing well with having the image name as a name atm
+        ctx.env.execute("docker kill performer")
+        // uncomment this when uploading to CI
+        //ctx.env.execute("docker system prune")
     }
 }

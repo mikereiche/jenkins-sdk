@@ -1,0 +1,9 @@
+build
+
+.idea
+
+.vscode
+
+.docker
+
+.gradle

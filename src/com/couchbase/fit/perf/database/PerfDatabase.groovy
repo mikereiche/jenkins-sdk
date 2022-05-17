@@ -29,7 +29,7 @@ class PerfDatabase {
     static List<RunFromDb> compareRunsAgainstDb(StageContext ctx, List <Run> runs) {
         def sql = getConnection(ctx)
 
-        if (sql.rows("SELECT * FROM pg_catalog.pg_tables WHERE schemaname = 'runs';").size() == 0) {
+        if (sql.rows("SELECT * FROM pg_catalog.pg_tables WHERE tablename = 'runs';").size() == 0) {
             ctx.env.log("`runs` table does not exist yet")
             return runs.stream()
                     .map(run -> {
@@ -40,7 +40,6 @@ class PerfDatabase {
                     })
                     .collect(Collectors.toList())
         }
-
 
         return runs.stream()
                 .map(run -> {

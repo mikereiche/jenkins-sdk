@@ -27,18 +27,15 @@ class ConfigParser {
         for (cluster in config.matrix.clusters) {
             for (impl in config.matrix.implementations) {
                 for (workload in config.matrix.workloads) {
-                    var setWorkloads = genSetWorkloadsUnrolledCustom(workload, [], workload.variables.custom);
+                    //var setWorkloads = genSetWorkloadsUnrolledCustom(workload, [], workload.variables.custom);
+                    def run = new Run()
+                    run.cluster = cluster
+                    run.impl = impl
+                    run.vars = config.variables
+                    run.workload = workload
+                    run.description = getTransactionDescription(run.workload)
 
-                    for (setWorkload in setWorkloads) {
-                        def run = new Run()
-                        run.cluster = cluster
-                        run.impl = impl
-                        run.workload = setWorkload
-                        run.description = getTransactionDescription(run.workload)
-
-                        out.add(run)
-
-                    }
+                    out.add(run)
                 }
             }
         }
@@ -46,50 +43,47 @@ class ConfigParser {
         return out
     }
 
-    static String getDocId(SetWorkload workload, PerfConfig.Workload.Transaction.Doc doc, int repeatIdx) {
-        switch (doc.from) {
-            case PerfConfig.Workload.Transaction.Doc.From.UUID:
-                return "__doc_" + repeatIdx
-            case PerfConfig.Workload.Transaction.Doc.From.POOL:
-                String ret = null
+//    static String getDocId(SetWorkload workload, PerfConfig.Workload.Transaction.Doc doc, int repeatIdx) {
+//        switch (doc.from) {
+//            case PerfConfig.Workload.Transaction.Doc.From.UUID:
+//                return "__doc_" + repeatIdx
+//            case PerfConfig.Workload.Transaction.Doc.From.POOL:
+//                String ret = null
+//
+//                for (def predefined : workload.variables.predefined) {
+//                    if (predefined.name == PerfConfig.Workload.PredefinedVariable.PredefinedVariableName.DOC_POOL_SIZE.name()) {
+//                        Integer poolSize = (Integer) predefined.value
+//                        ret = "__doc-" + ThreadLocalRandom.current().nextInt(poolSize)
+//                    }
+//                }
+//
+//                if (ret == null) {
+//                    throw new IllegalArgumentException("'pool' doc used but doc_pool_size is not specified")
+//                }
+//
+//                return ret
+//            default:
+//                throw new IllegalArgumentException("Unknown doc " + doc.from)
+//        }
+//    }
 
-                for (def predefined : workload.variables.predefined) {
-                    if (predefined.name == PerfConfig.Workload.PredefinedVariable.PredefinedVariableName.DOC_POOL_SIZE.name()) {
-                        Integer poolSize = (Integer) predefined.value
-                        ret = "__doc-" + ThreadLocalRandom.current().nextInt(poolSize)
-                    }
-                }
-
-                if (ret == null) {
-                    throw new IllegalArgumentException("'pool' doc used but doc_pool_size is not specified")
-                }
-
-                return ret
-            default:
-                throw new IllegalArgumentException("Unknown doc " + doc.from)
-        }
-    }
-
-    static private def addOp(@Nullable StringBuilder sb, SetWorkload workload, PerfConfig.Workload.Transaction.Operation op, int repeatIdx) {
-        String docId = getDocId(workload, op.doc, repeatIdx)
+    static private def addOp(@Nullable StringBuilder sb, PerfConfig.Workload workload, PerfConfig.Workload.Operation op, int repeatIdx) {
+        String docId = "__doc_" + repeatIdx
 
         switch (op.op) {
-            case PerfConfig.Workload.Transaction.Operation.Op.INSERT:
+            case PerfConfig.Workload.Operation.Op.INSERT:
                 if (sb != null) {
-                    sb.append("inserting ")
-                    sb.append(op.doc.toString())
+                    sb.append("inserting")
                 }
                 break
-            case PerfConfig.Workload.Transaction.Operation.Op.REPLACE:
+            case PerfConfig.Workload.Operation.Op.REPLACE:
                 if (sb != null) {
-                    sb.append("replacing ")
-                    sb.append(op.doc.toString())
+                    sb.append("replacing")
                 }
                 break
-            case PerfConfig.Workload.Transaction.Operation.Op.REMOVE:
+            case PerfConfig.Workload.Operation.Op.REMOVE:
                 if (sb != null) {
-                    sb.append("removing ")
-                    sb.append(op.doc.toString())
+                    sb.append("removing")
                 }
                 break
             default:
@@ -98,25 +92,11 @@ class ConfigParser {
     }
 
 
-    static private String getTransactionDescription(SetWorkload workload) {
+    static private String getTransactionDescription(PerfConfig.Workload workload) {
         StringBuilder sb = new StringBuilder();
 //        var ops = new ArrayList<Op>();
 
-        workload.transaction.operations.forEach(op -> {
-            if (op.repeat != null) {
-//                op.repeat.forEach(repeatedOp -> {
-                int count = evaluateCount(workload, op.repeat.count);
-                sb.append("Repeating ");
-                sb.append(op.repeat.count);
-                sb.append(' ');
-                for (int i = 0; i < count; i++) {
-                    addOp(i == 0 ? sb : null, workload, op.repeat, i)
-//                        ops.add();
-                }
-                sb.append("; ");
-//                });
-            }
-
+        workload.operations.forEach(op -> {
             if (op.op != null) {
                 addOp(sb, workload, op, 0)
 //                ops.add();
@@ -182,50 +162,50 @@ class ConfigParser {
      * 50 5 1000 P
      */
 
-    @CompileStatic
-    static List<SetWorkload> genSetWorkloadsUnrolledCustom(PerfConfig.Workload workload,
-                                                           List<SetCustomVariable> setSoFar,
-                                                           List<PerfConfig.Workload.CustomVariable> varsRest) {
-        if (varsRest.size() == 0) {
-            return genSetWorkloadsUnrolledPredefined(workload, setSoFar, new ArrayList<SetPredefinedVariable>(), workload.variables.predefined)
-        } else {
-            def head = varsRest.get(0)
-            def rest = varsRest.subList(1, varsRest.size())
-            def out = new ArrayList<SetWorkload>()
+    // @CompileStatic
+    // static List<SetWorkload> genSetWorkloadsUnrolledCustom(PerfConfig.Workload workload,
+    //                                                        List<SetCustomVariable> setSoFar,
+    //                                                        List<PerfConfig.Workload.CustomVariable> varsRest) {
+    //     if (varsRest.size() == 0) {
+    //         return genSetWorkloadsUnrolledPredefined(workload, setSoFar, new ArrayList<SetPredefinedVariable>(), workload.variables.predefined)
+    //     } else {
+    //         def head = varsRest.get(0)
+    //         def rest = varsRest.subList(1, varsRest.size())
+    //         def out = new ArrayList<SetWorkload>()
 
-            head.values.forEach(value -> {
-                def cloned = new ArrayList(setSoFar)
-                cloned.add(new SetCustomVariable(head.name, value))
-                out.addAll(genSetWorkloadsUnrolledCustom(workload, cloned, rest))
-            })
+    //         head.values.forEach(value -> {
+    //             def cloned = new ArrayList(setSoFar)
+    //             cloned.add(new SetCustomVariable(head.name, value))
+    //             out.addAll(genSetWorkloadsUnrolledCustom(workload, cloned, rest))
+    //         })
 
-            return out
-        }
-    }
+    //         return out
+    //     }
+    // }
 
-    @CompileStatic
-    static List<SetWorkload> genSetWorkloadsUnrolledPredefined(PerfConfig.Workload workload,
-                                                               List<SetCustomVariable> custom,
-                                                               List<SetPredefinedVariable> setSoFar,
-                                                               List<PerfConfig.Workload.PredefinedVariable> varsRest) {
-        if (varsRest.size() == 0) {
-            def sw = new SetWorkload(workload.transaction, new SetVariables(setSoFar, custom))
-            return [sw]
-        }
-        else {
-            def head = varsRest.get(0)
-            def rest = varsRest.subList(1, varsRest.size())
-            def out = new ArrayList<SetWorkload>()
+    // @CompileStatic
+    // static List<SetWorkload> genSetWorkloadsUnrolledPredefined(PerfConfig.Workload workload,
+    //                                                            List<SetCustomVariable> custom,
+    //                                                            List<SetPredefinedVariable> setSoFar,
+    //                                                            List<PerfConfig.Workload.PredefinedVariable> varsRest) {
+    //     if (varsRest.size() == 0) {
+    //         def sw = new SetWorkload(workload.transaction, new SetVariables(setSoFar, custom))
+    //         return [sw]
+    //     }
+    //     else {
+    //         def head = varsRest.get(0)
+    //         def rest = varsRest.subList(1, varsRest.size())
+    //         def out = new ArrayList<SetWorkload>()
 
-            head.values.forEach(value -> {
-                def cloned = new ArrayList(setSoFar)
-                cloned.add(new SetPredefinedVariable(head.name, value))
-                out.addAll(genSetWorkloadsUnrolledPredefined(workload, custom, cloned, rest))
-            })
+    //         head.values.forEach(value -> {
+    //             def cloned = new ArrayList(setSoFar)
+    //             cloned.add(new SetPredefinedVariable(head.name, value))
+    //             out.addAll(genSetWorkloadsUnrolledPredefined(workload, custom, cloned, rest))
+    //         })
 
-            return out
-        }
-    }
+    //         return out
+    //     }
+    // }
 
     private static <T extends HasName> List<List<T>> createVariablePerms(ArrayList<T> predefinedVars) {
         var grouped = predefinedVars.stream()

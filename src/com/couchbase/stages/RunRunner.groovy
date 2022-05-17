@@ -30,29 +30,15 @@ class RunRunner extends Stage {
     void executeImpl(StageContext ctx) {
         def json = new JsonBuilder()
 
-        def hostname = stageCluster.hostname()
-        if (hostname.equals("localhost") && stagePerf.isDocker()) {
-            // Note Docker requirement of host.docker.internal - https://stackoverflow.com/questions/24319662/from-inside-of-a-docker-container-how-do-i-connect-to-the-localhost-of-the-mach
-            hostname = "host.docker.internal"
-        }
-
-        json {
-          cluster hostname
-          bucket {
-            bucketName "default"
-          }
-          performerPorts([stagePerf.port()])
-          excludeTests(["situational"])
-          loggerLevel "all:Info"
-          "performance" {
-            "config" stageOutput.absoluteConfigFilename()
-          }
-        }
-
+        //def hostname = stageCluster.hostname()
+        // if (hostname.equals("localhost") && stagePerf.isDocker()) {
+        //     // Note Docker requirement of host.docker.internal - https://stackoverflow.com/questions/24319662/from-inside-of-a-docker-container-how-do-i-connect-to-the-localhost-of-the-mach
+        //     hostname = "host.docker.internal"
+        // }
         ctx.inSourceDir {
-            ctx.env.dir("/txn-driver", {
-                new File("${ctx.env.currentDir()}/TransactionFITConfiguration.json").write(json.toPrettyString())
-                ctx.env.execute("mvn -Dtest=PerfRunnerTest test")
+            ctx.env.execute("docker build -f sdk-driver/Dockerfile -t driver .")
+            ctx.env.dir("/sdk-driver", {
+                ctx.env.execute("docker run --rm --network perf -v " + stageOutput.absoluteConfigFilename() + ":/testSuite.yaml driver /testSuite.yaml")
             })
         }
     }
