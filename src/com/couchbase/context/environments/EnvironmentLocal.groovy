@@ -93,8 +93,6 @@ class EnvironmentLocal extends Environment {
         def stdoutFile = new FileWriter(stdout)
         def stderrFile = new FileWriter(stderr)
 
-        //TODO as building the docker container takes quite a long time, on my machine anyway,
-        // this should output each line as well as write it to a file
         def proc = command.execute(envvarConverted, fullWd)
         proc.consumeProcessOutput(stdoutFile, stderrFile)
         proc.waitFor()
@@ -133,7 +131,7 @@ class EnvironmentLocal extends Environment {
 
         def sout = new StringBuilder(), serr = new StringBuilder()
 
-        def proc = command.execute(envvarConverted, fullWd)
+        def proc = ['bash', '-c', command].execute(envvarConverted, fullWd)
         proc.consumeProcessOutput(sout, serr)
         proc.waitForOrKill(120000)
 

@@ -35,7 +35,6 @@ class PerfConfig {
     @ToString(includeNames = true, includePackage = false)
     static class PredefinedVariable {
         PredefinedVariableName name
-        //FIXME This should take an Object and cast it to an int
         Object value
 
         enum PredefinedVariableName {
@@ -52,7 +51,6 @@ class PerfConfig {
     @ToString(includeNames = true, includePackage = false)
     static class CustomVariable {
         String name
-        //FIXME This should take an Object and cast it to an int
         Object value
     }
 

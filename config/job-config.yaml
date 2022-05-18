@@ -18,11 +18,12 @@ servers:
 
 
 # Generally only CI should be talking to production database.  For local performance testing, spin up a localhost database.
+# The password gets replaced by an environment variable when running on CI
 database:
-  hostname: localhost
+  hostname: "54.193.85.254"
   port: 5432
   username: postgres
-  password: password # TODO replace with Jenkins credentials
+  password: password
   database: perf
 
 environment:
@@ -51,7 +52,7 @@ matrix:
   clusters:
     # Supported types: cbdyncluster, unmanaged
     - type: cbdyncluster
-      version: 6.6-stable
+      version: 7.0-stable
       replicas: 0
       nodes: 1
 #    - type: unmanaged
@@ -62,13 +63,6 @@ matrix:
     # E.g. this is for localhost testing.
     # Otherwise, specify language and version, and this tool will spinup a performer running at location servers.performer.
 #    - port: 8060
-    - language: go
-      version: 2.4.1
-    - language: java
-      version: 3.2.7
-#      version: 1.1.5-SNAPSHOT
-#    - language: cxx
-#      version: 1.0.0
 
   workloads:
     - operations:

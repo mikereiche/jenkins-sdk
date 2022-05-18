@@ -17,6 +17,50 @@ import static java.util.stream.Collectors.groupingBy
 
 
 class Execute {
+    static void jcPrep(StageContext ctx){
+        //Get timescaledb password from jenkins credential
+        String dbPwd = ctx.env.executeSimple("echo \$TIMEDB_PWD")
+
+        //Find most recent Python version
+        // This might be an incorrect way to note down what version is being tested as it just bases it on the most recent release rather than what is being currently worked on
+        String currentPythonVersion = ctx.env.executeSimple("python3 -m pip index versions couchbase| tail -1 | sed 's/  LATEST:    //g'")
+        String mostRecentCommit = ctx.env.executeSimple("git ls-remote git@github.com:couchbase/couchbase-python-client.git HEAD | tail -1 | sed 's/HEAD//g'")
+        ctx.env.log("Found: ${currentPythonVersion}-${mostRecentCommit}")
+
+
+        def jobConfig = new File("config/job-config.yaml")
+        def lines = jobConfig.readLines()
+        def addImpl = false
+        def changePwd = false
+
+        jobConfig.write("")
+
+        //TODO This is bad, currently we read job config twice. Once to write to it and once to put it in to the PerfConfig class
+        // we should Ideally be putting any new implementations into the class after it has been written.
+        // I tried to do this but was getting some errors when creating a constructor for PerfConfig.Implementation.
+        for (int i = 0; i < lines.size(); i++) {
+            def line = lines[i]
+
+            if (addImpl) {
+                jobConfig.append("    - language: python\n")
+                jobConfig.append("      version: ${currentPythonVersion}-${mostRecentCommit}\n")
+                jobConfig.append(line + "\n")
+                addImpl = false
+            } else if (line.contains("  implementations:")) {
+                addImpl = true
+                jobConfig.append(line + "\n")
+            } else if (line.contains("database:")){
+                changePwd = true
+                jobConfig.append(line + "\n")
+            } else if (changePwd && line.contains("password") && dbPwd != ""){
+                jobConfig.append("  password: " + dbPwd)
+                dbPwd = false
+            } else {
+                jobConfig.append(line + "\n")
+            }
+        }
+    }
+
     @CompileStatic
     static List<Run> parseConfig(StageContext ctx) {
         def config = ConfigParser.readPerfConfig("config/job-config.yaml")
@@ -105,6 +149,7 @@ class Execute {
         ctx.performerServer = jc.servers.performer
         ctx.dryRun = jc.settings.dryRun
         ctx.force = jc.settings.force
+        jcPrep(ctx)
         def allPerms = parseConfig(ctx)
         def db = PerfDatabase.compareRunsAgainstDb(ctx, allPerms)
         def parsed2 = parseConfig2(ctx, db)

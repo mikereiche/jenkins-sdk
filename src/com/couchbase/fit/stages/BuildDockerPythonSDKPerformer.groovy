@@ -33,29 +33,29 @@ class BuildDockerPythonSDKPerformer extends Stage{
         imp.tempDir() {
             // Build context needs to be perf-sdk as we need the .proto files
             ctx.inSourceDir {
-                imp.dir('performers/python') {
-                    writeRequirementsFile(imp)
-                }
+//                imp.dir('performers/python') {
+//                    writeRequirementsFile(imp)
+//                }
                 imp.execute("docker build -f performers/python/Dockerfile -t $imageName .")
             }
         }
     }
 
-    private List writeRequirementsFile(Environment imp) {
-        def requirements = new File("${imp.currentDir()}/requirements.txt")
-        def lines = requirements.readLines()
-        requirements.write("")
-
-        for (int i = 0; i < lines.size(); i++) {
-            def line = lines[i]
-
-            if (line.contains("couchbase")) {
-                requirements.append("couchbase==${sdkVersion}\n")
-            } else {
-                requirements.append(line + "\n")
-            }
-        }
-    }
+//    private List writeRequirementsFile(Environment imp) {
+//        def requirements = new File("${imp.currentDir()}/requirements.txt")
+//        def lines = requirements.readLines()
+//        requirements.write("")
+//
+//        for (int i = 0; i < lines.size(); i++) {
+//            def line = lines[i]
+//
+//            if (line.contains("couchbase")) {
+//                requirements.append("couchbase==${sdkVersion}\n")
+//            } else {
+//                requirements.append(line + "\n")
+//            }
+//        }
+//    }
 
     String getImageName(){
         return imageName
