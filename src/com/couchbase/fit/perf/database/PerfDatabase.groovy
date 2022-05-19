@@ -32,22 +32,23 @@ class PerfDatabase {
     static List<RunFromDb> compareRunsAgainstDb(StageContext ctx, List <Run> runs, String[] args) {
         def sql = getConnection(ctx, args)
 
-        if (sql.rows('SELECT * FROM pg_catalog.pg_tables WHERE tablename = "runs";').size() == 0) {
-            ctx.env.log("`runs` table does not exist yet")
-            return runs.stream()
-                    .map(run -> {
-                        def r = new RunFromDb()
-                        r.run = run
-                        r.dbRunIds = new ArrayList<String>()
-                        return r
-                    })
-                    .collect(Collectors.toList())
-        }
+        // the database runs on a persistent AWS instance so we dont need to check if runs exists
+//        if (sql.rows('SELECT * FROM pg_catalog.pg_tables WHERE tablename = "runs";').size() == 0) {
+//            ctx.env.log("`runs` table does not exist yet")
+//            return runs.stream()
+//                    .map(run -> {
+//                        def r = new RunFromDb()
+//                        r.run = run
+//                        r.dbRunIds = new ArrayList<String>()
+//                        return r
+//                    })
+//                    .collect(Collectors.toList())
+//        }
 
         return runs.stream()
                 .map(run -> {
                     def json = run.toJson()
-                    def statement = 'SELECT id FROM runs WHERE params @> "$json"::jsonb'
+                    def statement = "SELECT id FROM runs WHERE params @> ${json}::jsonb"
                     def dbRunIds = new ArrayList<String>()
                     sql.eachRow(statement) {
                         dbRunIds.add(it.getString("id"))

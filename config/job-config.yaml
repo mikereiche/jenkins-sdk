@@ -23,7 +23,7 @@ database:
   hostname: 54.193.85.254
   port: 5432
   username: postgres
-  password: CBsdkX23i-529
+  password: password
   database: perf
 
 environment:
