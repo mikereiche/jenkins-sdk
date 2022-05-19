@@ -127,11 +127,11 @@ class Execute {
         return groupedByCluster
     }
 
-    static List<Stage> plan(StageContext ctx, Map<PerfConfig.Cluster, List<Run>> input, jc) {
+    static List<Stage> plan(StageContext ctx, Map<PerfConfig.Cluster, List<Run>> input, jc, String ip) {
         def stages = new ArrayList<Stage>()
 
         input.forEach((cluster, runsForCluster) -> {
-            def clusterStage = new InitialiseCluster(cluster)
+            def clusterStage = new InitialiseCluster(cluster, ip)
             def clusterChildren = new ArrayList<Stage>()
 
             def groupedByPerformer = runsForCluster.stream()
@@ -181,7 +181,7 @@ class Execute {
         def allPerms = parseConfig(ctx)
         def db = PerfDatabase.compareRunsAgainstDb(ctx, allPerms, args)
         def parsed2 = parseConfig2(ctx, db)
-        def planned = plan(ctx, parsed2, jc)
+        def planned = plan(ctx, parsed2, jc, args[1])
         def root = new Stage() {
             @Override
             String name() {

@@ -12,13 +12,13 @@ class InitialiseCluster extends Stage {
     private PerfConfig.Cluster cluster
     private List<Stage> stages = []
 
-    InitialiseCluster(PerfConfig.Cluster cluster) {
+    InitialiseCluster(PerfConfig.Cluster cluster, String ip) {
         this.cluster = cluster
         if (cluster.type == "unmanaged") {
             // no-op
         }
         else if (cluster.type == "cbdyncluster") {
-            Stage stage = new StartCbdyncluster(cluster.nodes, cluster.version, cluster.replicas)
+            Stage stage = new StartCbdyncluster(cluster.nodes, cluster.version, cluster.replicas, ip)
             stages.add(stage)
         }
         else {
