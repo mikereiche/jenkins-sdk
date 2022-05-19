@@ -20,10 +20,10 @@ servers:
 # Generally only CI should be talking to production database.  For local performance testing, spin up a localhost database.
 # The password gets replaced by an environment variable when running on CI
 database:
-  hostname: "54.193.85.254"
+  hostname: 54.193.85.254
   port: 5432
   username: postgres
-  password: password
+  password: CBsdkX23i-529
   database: perf
 
 environment:
@@ -50,7 +50,7 @@ settings:
 
 matrix:
   clusters:
-    # Supported types: cbdyncluster, unmanaged
+     Supported types: cbdyncluster, unmanaged
     - type: cbdyncluster
       version: 7.0-stable
       replicas: 0

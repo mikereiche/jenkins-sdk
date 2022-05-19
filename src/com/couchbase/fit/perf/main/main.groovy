@@ -66,6 +66,29 @@ class Execute {
         }
     }
 
+    //The password gets written to job config and as Jenkins keeps the jobconfig file it needs to get removed
+    static void jcCleanup(){
+        def jobConfig = new File("config/job-config.yaml")
+        def lines = jobConfig.readLines()
+        def changePwd = false
+
+        jobConfig.write("")
+
+        for (int i = 0; i < lines.size(); i++) {
+            def line = lines[i]
+
+            if (line.contains("database:")){
+                changePwd = true
+                jobConfig.append(line + "\n")
+            } else if (changePwd && line.contains("password")){
+                jobConfig.append("  password: password\n")
+                changePwd = false
+            } else {
+                jobConfig.append(line + "\n")
+            }
+        }
+    }
+
     @CompileStatic
     static List<Run> parseConfig(StageContext ctx) {
         def config = ConfigParser.readPerfConfig("config/job-config.yaml")
@@ -156,7 +179,7 @@ class Execute {
         ctx.force = jc.settings.force
         jcPrep(ctx, args)
         def allPerms = parseConfig(ctx)
-        def db = PerfDatabase.compareRunsAgainstDb(ctx, allPerms)
+        def db = PerfDatabase.compareRunsAgainstDb(ctx, allPerms, args)
         def parsed2 = parseConfig2(ctx, db)
         def planned = plan(ctx, parsed2, jc)
         def root = new Stage() {
@@ -174,6 +197,7 @@ class Execute {
         }
         root.execute(ctx)
         root.finish(ctx)
+        jcCleanup()
     //run(ctx, planned)
     //print(planned)
     }

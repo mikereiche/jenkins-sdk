@@ -16,18 +16,22 @@ class RunFromDb {
 @CompileStatic
 class PerfDatabase {
     @CompileDynamic
-    static Sql getConnection(StageContext ctx) {
+    static Sql getConnection(StageContext ctx, String[] args) {
         def dbUrl = "jdbc:postgresql://${ctx.jc.database.hostname}:${ctx.jc.database.port}/${ctx.jc.database.database}"
         def dbUser = ctx.jc.database.username
         def dbPassword = ctx.jc.database.password
+        if (args.length > 0) {
+            // TODO we are parsing the args twice, it will only ever be one item so not too big a deal.
+            dbPassword = args[0]
+        }
         def dbDriver = "org.postgresql.Driver"
-
+        ctx.env.log(dbUrl + " " +  dbUser + " " +  dbPassword + " " + dbDriver)
         def sql = Sql.newInstance(dbUrl, dbUser, dbPassword, dbDriver)
         return sql
     }
 
-    static List<RunFromDb> compareRunsAgainstDb(StageContext ctx, List <Run> runs) {
-        def sql = getConnection(ctx)
+    static List<RunFromDb> compareRunsAgainstDb(StageContext ctx, List <Run> runs, String[] args) {
+        def sql = getConnection(ctx, args)
 
         if (sql.rows("SELECT * FROM pg_catalog.pg_tables WHERE tablename = 'runs';").size() == 0) {
             ctx.env.log("`runs` table does not exist yet")
