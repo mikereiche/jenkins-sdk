@@ -50,7 +50,6 @@ settings:
 
 matrix:
   clusters:
-     Supported types: cbdyncluster, unmanaged
     - type: cbdyncluster
       version: 7.0-stable
       replicas: 0
