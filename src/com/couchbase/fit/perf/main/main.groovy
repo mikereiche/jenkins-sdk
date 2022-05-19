@@ -17,9 +17,13 @@ import static java.util.stream.Collectors.groupingBy
 
 
 class Execute {
-    static void jcPrep(StageContext ctx){
+    static void jcPrep(StageContext ctx, String[] args){
         //Get timescaledb password from jenkins credential
-        String dbPwd = ctx.env.executeSimple("sudo printenv TIMEDB_PWD")
+        //String dbPwd = ctx.env.executeSimple("printenv TIMEDB_PWD")
+        String dbPwd = ""
+        if (args.length > 0) {
+            dbPwd = args[0]
+        }
 
         //Find most recent Python version
         // This might be an incorrect way to note down what version is being tested as it just bases it on the most recent release rather than what is being currently worked on
@@ -55,7 +59,7 @@ class Execute {
             //&& dbPwd != ""
             } else if (changePwd && line.contains("password")){
                 jobConfig.append("  password: " + dbPwd)
-                dbPwd = false
+                changePwd = false
             } else {
                 jobConfig.append(line + "\n")
             }
@@ -139,7 +143,7 @@ class Execute {
     }
 
 
-    static void execute() {
+    static void execute(String[] args) {
         def ys = new YamlSlurper()
         def jc = ys.parse(new File("config/job-config.yaml"))
         def env = new EnvironmentLocal(jc.environment)
@@ -150,7 +154,7 @@ class Execute {
         ctx.performerServer = jc.servers.performer
         ctx.dryRun = jc.settings.dryRun
         ctx.force = jc.settings.force
-        jcPrep(ctx)
+        jcPrep(ctx, args)
         def allPerms = parseConfig(ctx)
         def db = PerfDatabase.compareRunsAgainstDb(ctx, allPerms)
         def parsed2 = parseConfig2(ctx, db)
@@ -175,6 +179,6 @@ class Execute {
     }
 
     public static void main(String[] args) {
-        execute()
+        execute(args)
     }
 }
