@@ -23,8 +23,8 @@ class Execute {
 
         //Find most recent Python version
         // This might be an incorrect way to note down what version is being tested as it just bases it on the most recent release rather than what is being currently worked on
-        String currentPythonVersion = ctx.env.executeSimple("python3 -m pip index versions couchbase| tail -1 | sed 's/  LATEST:    //g'")
-        String mostRecentCommit = ctx.env.executeSimple("git ls-remote git@github.com:couchbase/couchbase-python-client.git HEAD | tail -1 | sed 's/HEAD//g'")
+        String currentPythonVersion = ctx.env.executeSimple("python3 -m yolk -V couchbase | sed 's/couchbase //g'")
+        String mostRecentCommit = ctx.env.executeSimple("git ls-remote https://github.com/couchbase/couchbase-python-client.git HEAD | tail -1 | sed 's/HEAD//g'")
         ctx.env.log("Found: ${currentPythonVersion}-${mostRecentCommit}")
 
 
