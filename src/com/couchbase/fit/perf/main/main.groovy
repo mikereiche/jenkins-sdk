@@ -52,7 +52,8 @@ class Execute {
             } else if (line.contains("database:")){
                 changePwd = true
                 jobConfig.append(line + "\n")
-            } else if (changePwd && line.contains("password") && dbPwd != ""){
+            //&& dbPwd != ""
+            } else if (changePwd && line.contains("password")){
                 jobConfig.append("  password: " + dbPwd)
                 dbPwd = false
             } else {
