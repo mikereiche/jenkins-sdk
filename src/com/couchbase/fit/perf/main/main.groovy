@@ -58,7 +58,7 @@ class Execute {
                 jobConfig.append(line + "\n")
             //&& dbPwd != ""
             } else if (changePwd && line.contains("password")){
-                jobConfig.append("  password: " + dbPwd)
+                jobConfig.append("  password: " + dbPwd + "\n")
                 changePwd = false
             } else {
                 jobConfig.append(line + "\n")
