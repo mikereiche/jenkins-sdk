@@ -29,8 +29,8 @@ database:
 environment:
   # Can override any executables here, to workaround environmental/path issues.
   executables:
-    # cbdyncluster: d:\dev\Couchbase\cbdyncluster-windows.exe --config d:\dev\Couchbase\.cbdyncluster.toml
-#    docker: /usr/local/bin/docker
+    cbdyncluster: /usr/local/bin/cbdyncluster
+    docker: /usr/local/bin/docker
 
   # These will be added to environment variables when running executables
   envvar:
