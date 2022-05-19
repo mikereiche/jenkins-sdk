@@ -19,7 +19,7 @@ import static java.util.stream.Collectors.groupingBy
 class Execute {
     static void jcPrep(StageContext ctx){
         //Get timescaledb password from jenkins credential
-        String dbPwd = ctx.env.executeSimple("echo \$TIMEDB_PWD")
+        String dbPwd = ctx.env.executeSimple("sudo echo \$TIMEDB_PWD")
 
         //Find most recent Python version
         // This might be an incorrect way to note down what version is being tested as it just bases it on the most recent release rather than what is being currently worked on
