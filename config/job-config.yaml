@@ -13,8 +13,8 @@ servers:
 
     # Either the location of a checked-out transactions-fit-performer / perf-sdk project, or "https://github.com/couchbaselabs/transactions-fit-performer"
     # source: https://github.com/couchbaselabs/transactions-fit-performer
-    source: /Users/charliehayes/Documents/GitHub/perf-sdk
-#    source: /home/couchbase/jenkins/workspace/performance/sdk-performance
+#    source: /Users/charliehayes/Documents/GitHub/perf-sdk
+    source: /home/couchbase/jenkins/workspace/performance/sdk-performance
 
 
 # Generally only CI should be talking to production database.  For local performance testing, spin up a localhost database.
@@ -23,14 +23,17 @@ database:
   hostname: 54.193.85.254
   port: 5432
   username: postgres
-  password: CBsdkX23i-529
+  password: password
   database: perf
 
 environment:
   # Can override any executables here, to workaround environmental/path issues.
   executables:
-    cbdyncluster: /Users/charliehayes/Documents/GitHub/cbdynclusterd/bin/cbdynclusterd.darwin_amd64
-    docker: /usr/local/bin/docker
+    getent: /usr/bin/getent
+    cbdyncluster: /usr/local/bin/cbdyncluster
+#    cbdyncluster: /Users/charliehayes/documents/Test/cbdyncluster-macos
+#    docker: /usr/local/bin/docker
+    docker: /usr/bin/docker
 
   # These will be added to environment variables when running executables
   envvar:
@@ -58,10 +61,6 @@ matrix:
 #      hostname: 10.112.212.101
 
   implementations:
-    - language: python
-      version: 4.0.0-18f8c4931f4047fa8a6761ccb4056acf2e2a012e
-    - language: python
-      version: 4.0.0-18f8c4931f4047fa8a6761ccb4056acf2e2a012e
     # If just port is specified: the performer is expected to be running already at location servers.performer.
     # E.g. this is for localhost testing.
     # Otherwise, specify language and version, and this tool will spinup a performer running at location servers.performer.

@@ -60,7 +60,7 @@ class StartCbdyncluster extends Stage {
     void finishImpl(StageContext ctx) {
         // Easy to run out of resources during iterating, so cleanup even
         // though cluster will be auto-removed after a time
-        ctx.env.execute("cbdyncluster rm $clusterId")
+//        ctx.env.execute("cbdyncluster rm $clusterId")
     }
 
     String clusterIp() {
