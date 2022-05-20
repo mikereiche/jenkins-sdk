@@ -30,7 +30,7 @@ class BuildDockerPythonSDKPerformer extends Stage{
     @Override
     void executeImpl(StageContext ctx) {
         def imp = ctx.env
-        imp.tempDir() {
+//        imp.tempDir() {
             // Build context needs to be perf-sdk as we need the .proto files
             ctx.inSourceDir {
 //                imp.dir('performers/python') {
@@ -38,7 +38,7 @@ class BuildDockerPythonSDKPerformer extends Stage{
 //                }
                 imp.execute("172.23.104.43:2376 docker build -f performers/python/Dockerfile -t $imageName .")
             }
-        }
+//        }
     }
 
 //    private List writeRequirementsFile(Environment imp) {
