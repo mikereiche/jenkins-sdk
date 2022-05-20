@@ -37,8 +37,7 @@ environment:
 
   # These will be added to environment variables when running executables
   envvar:
-    # JAVA_HOME: C:\Program Files\Amazon Corretto\jdk15.0.2_7
-    #PATH: $PATH:/usr/local/bin/docker
+#    DOCKER_HOST: cbdyncluster docker-host docker ps
 
 # These settings will not be saved to the database
 settings:

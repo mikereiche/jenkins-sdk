@@ -91,7 +91,9 @@ class EnvironmentLocal extends Environment {
         log("Executing '$command' logging to ${stdout} in directory ${fullWd.getAbsolutePath()} with envvar ${envvarConverted} ")
         def stdoutFile = new FileWriter(stdout)
         def stderrFile = new FileWriter(stderr)
-        def proc = command.execute(envvarConverted,  fullWd)
+        def env = new ArrayList<String>()
+        env.add(null)
+        def proc = command.execute(env, fullWd)
         proc.consumeProcessOutput(stdoutFile, stderrFile)
         proc.waitFor()
 
