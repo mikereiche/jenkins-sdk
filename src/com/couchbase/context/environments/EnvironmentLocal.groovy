@@ -94,8 +94,8 @@ class EnvironmentLocal extends Environment {
         def env = new ArrayList<String>()
         env.add(null)
         def proc = command.execute(env, fullWd)
-        proc.consumeProcessOutput(stdoutFile, stderrFile)
-        proc.waitForOrKill(600000)
+        proc.waitForProcessOutput(stdoutFile, stderrFile)
+//        proc.waitForOrKill(600000)
 
         stdoutFile.close()
         stderrFile.close()
