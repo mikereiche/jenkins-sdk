@@ -32,7 +32,7 @@ class StartDockerImagePerformer extends Stage {
         }
 
         //TODO change "performer" to an image name or something, the driver isnt playing well with having the image name as a name atm
-        ctx.env.executeSimple("DOCKER_HOST=172.23.104.43:2376 docker run --rm -d -p $port:8060 --name performer $imageName")
+        ctx.env.executeSimple("DOCKER_HOST=172.23.104.43:2376 docker run --rm --network perf -d -p $port:8060 --name performer $imageName")
     }
 
     @Override
