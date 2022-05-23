@@ -139,7 +139,7 @@ class EnvironmentLocal extends Environment {
             log("Process '$command' failed with error ${proc.exitValue()}")
             throw new RuntimeException("Process '$command' failed with error ${proc.exitValue()}")
         }
-        return sout.toString().trim()
+        return serr.toString().trim()
     }
 
     @Override
