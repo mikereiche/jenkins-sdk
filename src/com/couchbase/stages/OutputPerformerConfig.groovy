@@ -74,9 +74,6 @@ class OutputPerformerConfig extends Stage {
             .excludeNulls()
             .build()
         def json = new JsonBuilder(gen)
-        
-        //TODO when the database gets created in a stage remove this and get it from said stage
-        config.database.hostname = "timedb"
 
         json {
             impl impl
