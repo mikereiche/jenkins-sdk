@@ -132,8 +132,8 @@ class EnvironmentLocal extends Environment {
         def sout = new StringBuilder(), serr = new StringBuilder()
 
         def proc = ['bash', '-c', command].execute(envvarConverted, fullWd)
-        proc.consumeProcessOutput(sout, serr)
-        proc.waitForOrKill(120000)
+        proc.waitForProcessOutput(sout, serr)
+
 
         if (proc.exitValue() != 0) {
             log("Process '$command' failed with error ${proc.exitValue()}")
