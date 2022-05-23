@@ -36,7 +36,7 @@ class BuildDockerPythonSDKPerformer extends Stage{
 //                imp.dir('performers/python') {
 //                    writeRequirementsFile(imp)
 //                }
-                imp.execute("172.23.104.43:2376 docker build -f performers/python/Dockerfile -t $imageName .")
+                imp.execute("DOCKER_HOST=172.23.104.43:2376 docker build -f performers/python/Dockerfile -t $imageName .")
             }
 //        }
     }
