@@ -23,6 +23,7 @@ class Execute {
         String dbPwd = ""
         if (args.length > 0) {
             dbPwd = args[0]
+            ctx.jc.database.password = args[0]
         }
 
         //Find most recent Python version

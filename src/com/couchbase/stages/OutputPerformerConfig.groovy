@@ -53,6 +53,10 @@ class OutputPerformerConfig extends Stage {
         return absoluteOutputFilename
     }
 
+    String outputFilename() {
+        return outputFilename
+    }
+
     @Override
     @CompileDynamic
     void executeImpl(StageContext ctx) {
@@ -96,7 +100,7 @@ class OutputPerformerConfig extends Stage {
 
         def converted = YamlConverter.convertJsonToYaml(new StringReader(json.toString()))
 
-        ctx.env.tempDir {
+        ctx.inSourceDir {
             absoluteOutputFilename = ctx.env.currentDir() + "/" + outputFilename
             new File(absoluteOutputFilename).write(converted)
         }

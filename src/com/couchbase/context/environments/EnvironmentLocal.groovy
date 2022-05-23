@@ -137,7 +137,7 @@ class EnvironmentLocal extends Environment {
 
         if (proc.exitValue() != 0) {
             log("Process '$command' failed with error ${proc.exitValue()}")
-            throw new RuntimeException("Process '$command' failed with error ${proc.exitValue()}, ${sout.toString().trim()}")
+            throw new RuntimeException("Process '$command' failed with error ${proc.exitValue()}, ${serr.toString().trim()}")
         }
         return sout.toString().trim()
     }
