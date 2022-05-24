@@ -86,6 +86,11 @@ class ConfigParser {
                     sb.append("removing")
                 }
                 break
+            case PerfConfig.Workload.Operation.Op.GET:
+                if (sb != null) {
+                    sb.append("getting")
+                }
+                break
             default:
                 throw new IllegalArgumentException("Unknown op " + op)
         }
