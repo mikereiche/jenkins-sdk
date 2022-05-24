@@ -101,7 +101,8 @@ class PerfConfig {
             static enum Op {
                 @JsonProperty("insert") INSERT,
                 @JsonProperty("replace") REPLACE,
-                @JsonProperty("remove") REMOVE
+                @JsonProperty("remove") REMOVE,
+                @JsonProperty("get") GET
 
                 @Override
                 String toString() {
