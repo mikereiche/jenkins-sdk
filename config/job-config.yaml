@@ -69,8 +69,16 @@ matrix:
     - operations:
       - op: insert
         count: $doc_num
-      - op: remove
-        count: $doc_num
+    - operations:
+        - op: get
+          count: $doc_num
+    - operations:
+        - op: remove
+          count: $doc_num
+    - operations:
+        - op: replace
+          count: $doc_num
+
 
   # workloads:
   #   - transaction:
@@ -88,7 +96,7 @@ matrix:
 variables:
   custom:
     - name: doc_num
-      value: 100
+      value: 1000000
   predefined:
     - name: horizontal_scaling
       value: 1
