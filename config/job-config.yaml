@@ -61,7 +61,7 @@ matrix:
 
   implementations:
     - language: python
-      version: 3.2.5
+      version: 3.2.4
     # If just port is specified: the performer is expected to be running already at location servers.performer.
     # E.g. this is for localhost testing.
     # Otherwise, specify language and version, and this tool will spinup a performer running at location servers.performer.
@@ -81,19 +81,6 @@ matrix:
         - op: replace
           count: $doc_num
 
-
-  # workloads:
-  #   - transaction:
-  #       operations:
-  #         - repeat:
-  #             op: insert
-  #             doc:
-  #               from: uuid
-  #             count: $number_of_inserts
-  #         - op: replace
-  #           doc:
-  #             from: pool
-  #             distribution: uniform
 
 variables:
   custom:
