@@ -36,8 +36,8 @@ class RunRunner extends Stage {
         //     hostname = "host.docker.internal"
         // }
         ctx.inSourceDir {
-            ctx.env.executeSimple("DOCKER_HOST=172.23.104.43:2376 docker build -f sdk-driver/Dockerfile -t driver .")
-            ctx.env.log(ctx.env.executeSimple("DOCKER_HOST=172.23.104.43:2376 docker run --rm --network perf driver /app/" + stageOutput.outputFilename()))
+            ctx.env.executeSimple("docker build -f sdk-driver/Dockerfile -t driver .")
+            ctx.env.log(ctx.env.executeSimple("docker run --rm --network perf driver /app/" + stageOutput.outputFilename()))
         }
     }
 }
