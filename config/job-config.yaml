@@ -57,7 +57,7 @@ matrix:
 #      replicas: 0
 #      nodes: 1
     - type: unmanaged
-      hostname: "gocaves:8080"
+      hostname: "gocavestest:8080"
 
   implementations:
     - language: python
