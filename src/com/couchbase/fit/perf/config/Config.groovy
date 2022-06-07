@@ -75,7 +75,9 @@ class PerfConfig {
         Integer nodes
         Integer replicas
         String type
+        String source
         String hostname
+        Integer port
     }
 
     @ToString(includeNames = true, includePackage = false)

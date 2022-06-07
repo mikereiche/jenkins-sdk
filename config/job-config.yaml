@@ -56,8 +56,12 @@ matrix:
 #      version: 7.0-stable
 #      replicas: 0
 #      nodes: 1
-    - type: unmanaged
-      hostname: "gocavestest:8080"
+#    - type: unmanaged
+#      hostname: some ip
+    - type: gocaves
+      source: /home/ec2-user/workspace/performance/sdk-performance/gocaves
+      hostname: "localhost"
+      port: 8080
 
   implementations:
     - language: python

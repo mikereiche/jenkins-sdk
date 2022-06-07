@@ -19,7 +19,6 @@ import static java.util.stream.Collectors.groupingBy
 class Execute {
     static void jcPrep(StageContext ctx, String[] args){
         //Get timescaledb password from jenkins credential
-        //String dbPwd = ctx.env.executeSimple("printenv TIMEDB_PWD")
         String dbPwd = ""
         if (args.length > 0) {
             dbPwd = args[0]
@@ -58,7 +57,7 @@ class Execute {
                 changePwd = true
                 jobConfig.append(line + "\n")
             //&& dbPwd != ""
-            } else if (changePwd && line.contains("password")){
+            } else if (changePwd && line.contains("password") && dbPwd != ""){
                 jobConfig.append("  password: " + dbPwd + "\n")
                 changePwd = false
             } else {
@@ -128,11 +127,11 @@ class Execute {
         return groupedByCluster
     }
 
-    static List<Stage> plan(StageContext ctx, Map<PerfConfig.Cluster, List<Run>> input, jc, String ip) {
+    static List<Stage> plan(StageContext ctx, Map<PerfConfig.Cluster, List<Run>> input, jc) {
         def stages = new ArrayList<Stage>()
 
         input.forEach((cluster, runsForCluster) -> {
-            def clusterStage = new InitialiseCluster(cluster, ip)
+            def clusterStage = new InitialiseCluster(cluster)
             def clusterChildren = new ArrayList<Stage>()
 
             def groupedByPerformer = runsForCluster.stream()

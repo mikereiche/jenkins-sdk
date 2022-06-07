@@ -12,13 +12,18 @@ class InitialiseCluster extends Stage {
     private PerfConfig.Cluster cluster
     private List<Stage> stages = []
 
-    InitialiseCluster(PerfConfig.Cluster cluster, String ip) {
+    InitialiseCluster(PerfConfig.Cluster cluster) {
         this.cluster = cluster
         if (cluster.type == "unmanaged") {
             // no-op
         }
-        else if (cluster.type == "cbdyncluster") {
-            Stage stage = new StartCbdyncluster(cluster.nodes, cluster.version, cluster.replicas, ip)
+        // currently doesn't work with cbdyncluster
+//        else if (cluster.type == "cbdyncluster") {
+//            Stage stage = new StartCbdyncluster(cluster.nodes, cluster.version, cluster.replicas)
+//            stages.add(stage)
+//        }
+        else if (cluster.type == "gocaves") {
+            Stage stage = new StartGocaves(cluster.source, cluster.port, cluster.hostname)
             stages.add(stage)
         }
         else {
@@ -42,8 +47,10 @@ class InitialiseCluster extends Stage {
     String hostname() {
         if (cluster.type == "unmanaged") {
             return cluster.hostname
+        } else if (cluster.type == "gocaves") {
+            return ((StartGocaves) stages[0]).clusterIp()
+        } else {
+            throw new IllegalArgumentException("Unknown cluster type ${cluster.type}")
         }
-
-        return ((StartCbdyncluster) stages[0]).clusterIp()
     }
 }
