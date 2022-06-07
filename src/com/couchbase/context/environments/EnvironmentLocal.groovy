@@ -20,6 +20,9 @@ class EnvironmentLocal extends Environment {
         envvar.forEach((k,v) -> {
             envvarConverted.add(k + "=" + v)
         })
+        if (envvarConverted.size() == 0){
+            envvarConverted = null
+        }
 
         initialDir = System.getProperty("user.dir")
         log("Working directory: $initialDir")
@@ -91,11 +94,10 @@ class EnvironmentLocal extends Environment {
         log("Executing '$command' logging to ${stdout} in directory ${fullWd.getAbsolutePath()} with envvar ${envvarConverted} ")
         def stdoutFile = new FileWriter(stdout)
         def stderrFile = new FileWriter(stderr)
-        def env = new ArrayList<String>()
-        env.add(null)
-        def proc = command.execute(env, fullWd)
+
+        def proc = ['bash', '-c', command].execute(envvarConverted, fullWd)
         proc.consumeProcessOutput(stdoutFile, stderrFile)
-        proc.waitForOrKill(600000)
+        proc.waitFor()
 
         stdoutFile.close()
         stderrFile.close()
@@ -137,10 +139,15 @@ class EnvironmentLocal extends Environment {
 
         if (proc.exitValue() != 0) {
             log("Process '$command' failed with error ${proc.exitValue()}")
-            throw new RuntimeException("Process '$command' failed with error ${proc.exitValue()}, ${sout.toString().trim()}")
+            throw new RuntimeException("Process '$command' failed with error ${proc.exitValue()}, ${serr.toString().trim()}")
         }
         return sout.toString().trim()
     }
+
+//    @Override
+//    void noBlockExecute(){
+//
+//    }
 
     @Override
     void log(String toLog) {
