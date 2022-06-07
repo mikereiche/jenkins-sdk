@@ -28,9 +28,9 @@ class StartGocaves extends Stage {
         def imp = ctx.env
 
         imp.dir(source) {
-            imp.execute("go mod download")
-            imp.execute("go run tools/prebuildstep.go")
-            imp.execute("go run main.go -mock-only -force-port $port")
+            imp.executeSimple("go mod download")
+            imp.executeSimple("go run tools/prebuildstep.go")
+            imp.executeSimple("go run main.go -mock-only -force-port $port")
         }
     }
 
