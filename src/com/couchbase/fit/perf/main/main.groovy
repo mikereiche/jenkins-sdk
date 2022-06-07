@@ -181,7 +181,7 @@ class Execute {
         def allPerms = parseConfig(ctx)
         def db = PerfDatabase.compareRunsAgainstDb(ctx, allPerms, args)
         def parsed2 = parseConfig2(ctx, db)
-        def planned = plan(ctx, parsed2, jc, args[1])
+        def planned = plan(ctx, parsed2, jc)
         def root = new Stage() {
             @Override
             String name() {
