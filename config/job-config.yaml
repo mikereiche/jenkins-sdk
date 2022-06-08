@@ -23,17 +23,17 @@ database:
   hostname: 54.193.85.254
   port: 5432
   username: postgres
-  password: CBsdkX23i-529
+  password: password
   database: perf
 
 environment:
   # Can override any executables here, to workaround environmental/path issues.
   executables:
-    getent: /usr/bin/getent
-    cbdyncluster: /usr/local/bin/cbdyncluster
+#    getent: /usr/bin/getent
+#    cbdyncluster: /usr/local/bin/cbdyncluster
 #    cbdyncluster: /Users/charliehayes/documents/Test/cbdyncluster-macos
 #    docker: /usr/local/bin/docker
-    docker: /usr/bin/docker
+#    docker: /usr/bin/docker
 
   # These will be added to environment variables when running executables
   envvar:
@@ -60,6 +60,7 @@ matrix:
 #      hostname: some ip
     - type: gocaves
       source: /home/ec2-user/workspace/performance/sdk-performance/gocaves
+#      source: /Users/charliehayes/Documents/GitHub/gocaves
       hostname: "localhost"
       port: 8080
 

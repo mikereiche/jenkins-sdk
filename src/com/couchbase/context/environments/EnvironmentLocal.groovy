@@ -97,7 +97,7 @@ class EnvironmentLocal extends Environment {
 
         def proc = ['bash', '-c', command].execute(envvarConverted, fullWd)
         proc.consumeProcessOutput(stdoutFile, stderrFile)
-        proc.waitFor()
+        proc.waitForProcessOutput()
 
         stdoutFile.close()
         stderrFile.close()
