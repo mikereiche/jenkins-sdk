@@ -61,7 +61,7 @@ matrix:
     - type: gocaves
       source: /home/ec2-user/workspace/performance/sdk-performance/gocaves
 #      source: /Users/charliehayes/Documents/GitHub/gocaves
-      hostname: "localhost"
+      hostname: gocaves
       port: 8080
 
   implementations:
