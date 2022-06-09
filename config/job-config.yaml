@@ -29,10 +29,6 @@ database:
 environment:
   # Can override any executables here, to workaround environmental/path issues.
   executables:
-#    getent: /usr/bin/getent
-#    cbdyncluster: /usr/local/bin/cbdyncluster
-#    cbdyncluster: /Users/charliehayes/documents/Test/cbdyncluster-macos
-#    docker: /usr/local/bin/docker
 #    docker: /usr/bin/docker
 
   # These will be added to environment variables when running executables
@@ -65,8 +61,8 @@ matrix:
       port: 8080
 
   implementations:
-    - language: python
-      version: 3.2.6
+    - language: java
+      version: 3.2.5
     # If just port is specified: the performer is expected to be running already at location servers.performer.
     # E.g. this is for localhost testing.
     # Otherwise, specify language and version, and this tool will spinup a performer running at location servers.performer.
