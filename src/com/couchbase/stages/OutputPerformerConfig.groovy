@@ -74,22 +74,16 @@ class OutputPerformerConfig extends Stage {
             yaml.content
         }).collect(Collectors.toList())
 
-        var variablesAsYaml = predefinedVars.stream().map(run -> {
-            def yaml = new YamlBuilder()
-            yaml {
-                custom config.variables.custom
-                predefined predefinedVars
-            }
-            yaml.content
-        }).collect(Collectors.toList())
-
         def gen = new JsonGenerator.Options()
             .excludeNulls()
             .build()
         def json = new JsonBuilder(gen)
         json {
             impl impl
-            variables variablesAsYaml
+            variables {
+                predefined predefinedVars
+                custom config.variables.custom
+            }
             connections {
                 cluster {
                     hostname stageCluster.hostname()
