@@ -1,5 +1,6 @@
 package com.couchbase.fit.perf.config
 
+import com.couchbase.context.StageContext
 import com.fasterxml.jackson.annotation.JsonProperty
 import groovy.json.JsonGenerator
 import groovy.json.JsonOutput
@@ -35,7 +36,7 @@ class PerfConfig {
     @ToString(includeNames = true, includePackage = false)
     static class PredefinedVariable {
         PredefinedVariableName name
-        Object value
+        List<Object> values
 
         enum PredefinedVariableName {
             @JsonProperty("horizontal_scaling") HORIZONTAL_SCALING,
@@ -175,6 +176,27 @@ class PerfConfig {
     }
 }
 
+@ToString(includeNames = true, includePackage = false)
+class PredefinedVariablePermutation {
+    String name
+    Object value
+
+    PredefinedVariablePermutation(String name, Object value){
+        this.name = name
+        this.value = value
+    }
+
+    enum PredefinedVariableName {
+        @JsonProperty("horizontal_scaling") HORIZONTAL_SCALING,
+        @JsonProperty("doc_pool_size") DOC_POOL_SIZE,
+        @JsonProperty("durability") DURABILITY
+
+        String toString() {
+            return this.name().toLowerCase()
+        }
+    }
+}
+
 @CompileStatic
 @ToString(includeNames = true, includePackage = false)
 class SetWorkload {
@@ -273,14 +295,16 @@ class SetCustomVariable implements HasName {
 class Run {
     PerfConfig.Cluster cluster
     PerfConfig.Implementation impl
+    //TODO passing in predefined variables twice, find a better way to do this
     PerfConfig.Variables vars
+    List<PredefinedVariablePermutation> predefined
     String description
     PerfConfig.Workload workload
 
     def toJson() {
         Map<String, Object> jsonVars = new HashMap<>()
-        vars.custom.forEach(v -> jsonVars[v.name] = v.value);
-        vars.predefined.forEach(v -> jsonVars[v.name.toString()] = v.value);
+        vars.custom.forEach(v -> jsonVars[v.name] = v.value)
+        predefined.forEach(v -> jsonVars[v.name.toString()] = v.value)
 
         Map<String, String> clusterVars = new HashMap<>()
         clusterVars["hostname"] = cluster.hostname

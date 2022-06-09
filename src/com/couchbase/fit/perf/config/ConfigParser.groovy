@@ -1,5 +1,7 @@
 package com.couchbase.fit.perf.config
 
+import com.couchbase.context.StageContext
+import com.couchbase.stages.Stage
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
@@ -16,30 +18,34 @@ class ConfigParser {
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     private final static ObjectMapper jsonMapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    private static List<List<PredefinedVariablePermutation>> predefinedPerms = new ArrayList<List<PredefinedVariablePermutation>>()
 
     static PerfConfig readPerfConfig(String filename) {
         return yamlMapper.readValue(new File(filename), PerfConfig.class)
     }
 
-    static List<Run> allPerms(PerfConfig config) {
+    static List<Run> allPerms(StageContext ctx, PerfConfig config) {
         def out = new ArrayList<Run>()
-
+        def varPermLst = getPredefinedPerms(ctx, config.variables.predefined)
         for (cluster in config.matrix.clusters) {
             for (impl in config.matrix.implementations) {
                 for (workload in config.matrix.workloads) {
-                    //var setWorkloads = genSetWorkloadsUnrolledCustom(workload, [], workload.variables.custom);
-                    def run = new Run()
-                    run.cluster = cluster
-                    run.impl = impl
-                    run.vars = config.variables
-                    run.workload = workload
-                    run.description = getTransactionDescription(run.workload)
+                    for (permutation in varPermLst){
+                        //var setWorkloads = genSetWorkloadsUnrolledCustom(workload, [], workload.variables.custom);
+                        def run = new Run()
+                        run.cluster = cluster
+                        run.impl = impl
+                        run.vars = new PerfConfig.Variables()
+                        run.vars.custom = config.variables.custom
+                        run.predefined = permutation
+                        run.workload = workload
+                        run.description = getOperationDescription(run.workload)
 
-                    out.add(run)
+                        out.add(run)
+                    }
                 }
             }
         }
-
         return out
     }
 
@@ -97,7 +103,7 @@ class ConfigParser {
     }
 
 
-    static private String getTransactionDescription(PerfConfig.Workload workload) {
+    static private String getOperationDescription(PerfConfig.Workload workload) {
         StringBuilder sb = new StringBuilder();
 //        var ops = new ArrayList<Op>();
 
@@ -123,29 +129,51 @@ class ConfigParser {
         }
     }
 
-    @CompileDynamic
-    static List<SetWorkload> genSetWorkloadsRolled(PerfConfig.Workload workload) {
-        var customVars = new ArrayList<SetCustomVariable>()
-        var predefinedVars = new ArrayList<SetPredefinedVariable>()
-
-        workload.variables.custom.forEach(custom ->
-                custom.values.forEach(value -> {
-                    customVars.add(new SetCustomVariable(custom.name, value))
-                }))
-
-        workload.variables.predefined.forEach(predefined ->
-                predefined.values.forEach(value ->
-                        predefinedVars.add(
-                                new SetPredefinedVariable(predefined.name, value))))
-
-        var customVarsPerms = createVariablePerms(customVars)
-        var predefinedVarsPerms = createVariablePerms(predefinedVars)
-
-        return customVarsPerms.stream().flatMap(cv ->
-                predefinedVarsPerms.stream().map(nc ->
-                        new SetWorkload(workload.transaction, new SetVariables(nc, cv))))
-                .collect(Collectors.toList())
+    static private List<List<PredefinedVariablePermutation>> getPredefinedPerms(StageContext ctx, List < PerfConfig.PredefinedVariable > vars){
+        cartesianProduct(ctx, vars, new ArrayList<PredefinedVariablePermutation>())
+        return predefinedPerms
     }
+
+    static private cartesianProduct(StageContext ctx, List<PerfConfig.PredefinedVariable> inputSet, List<PredefinedVariablePermutation> result){
+        if (inputSet.empty){
+            List<PredefinedVariablePermutation> copy = new ArrayList<PredefinedVariablePermutation>()
+
+            for (PredefinedVariablePermutation variable : result){
+                copy.add(variable)
+            }
+            predefinedPerms.add(copy)
+        }else {
+            for (Object value : inputSet.get(0).values){
+                result.add(new PredefinedVariablePermutation(inputSet.get(0).name.toString(), value))
+                cartesianProduct(ctx, inputSet.subList(1, inputSet.size()), result)
+                result.removeLast()
+            }
+        }
+    }
+
+//    @CompileDynamic
+//    static List<List<PerfConfig.PredefinedVariable>> genSetWorkloadsRolled(PerfConfig workload) {
+//        var customVars = new ArrayList<SetCustomVariable>()
+//        var predefinedVars = new ArrayList<SetPredefinedVariable>()
+//
+//        workload.variables.custom.forEach(custom ->
+//                custom.values.forEach(value -> {
+//                    customVars.add(new SetCustomVariable(custom.name, value))
+//                }))
+//
+//        workload.variables.predefined.forEach(predefined ->
+//                predefined.values.forEach(value ->
+//                        predefinedVars.add(
+//                                new SetPredefinedVariable(predefined.name, value))))
+//
+//        var customVarsPerms = createVariablePerms(customVars)
+//        return createVariablePerms(predefinedVars)
+//
+//        return customVarsPerms.stream().flatMap(cv ->
+//                predefinedVarsPerms.stream().map(nc ->
+//                        new SetWorkload(workload.transaction, new SetVariables(nc, cv))))
+//                .collect(Collectors.toList())
+//    }
 
     /**
      * Want

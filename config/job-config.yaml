@@ -42,7 +42,7 @@ environment:
 # These settings will not be saved to the database
 settings:
   # Outputs what would be performed, without actually performing it.  Config files still get written.
-  dryRun: false
+  dryRun: true
 
   # Whether to ignore whatever runs are already in the database
   force: false
@@ -57,7 +57,7 @@ matrix:
 #      replicas: 0
 #      nodes: 1
 #    - type: unmanaged
-#      hostname: some ip
+#      hostname: 0.0.0.0
     - type: gocaves
       source: /home/ec2-user/workspace/performance/sdk-performance/gocaves
 #      source: /Users/charliehayes/Documents/GitHub/gocaves
@@ -65,8 +65,8 @@ matrix:
       port: 8080
 
   implementations:
-    - language: python
-      version: 3.2.7
+    - language: java
+      version: 3.2.6
     # If just port is specified: the performer is expected to be running already at location servers.performer.
     # E.g. this is for localhost testing.
     # Otherwise, specify language and version, and this tool will spinup a performer running at location servers.performer.
@@ -93,4 +93,10 @@ variables:
       value: 100000
   predefined:
     - name: horizontal_scaling
-      value: 1
+      values:
+        - 1
+        - 2
+#    - name: durability
+#      values:
+#        - MAJORITY
+#        - PERSIST

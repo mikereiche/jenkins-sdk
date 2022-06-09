@@ -53,6 +53,7 @@ class PerfDatabase {
                     sql.eachRow(statement) {
                         dbRunIds.add(it.getString("id"))
                     }
+                    // TODO commented for testing, uncomment this
                     ctx.env.log("Found ${dbRunIds.size()} entries for run $statement")
                     def r = new RunFromDb()
                     r.run = run

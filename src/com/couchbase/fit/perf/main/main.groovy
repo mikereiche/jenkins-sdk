@@ -92,7 +92,7 @@ class Execute {
     @CompileStatic
     static List<Run> parseConfig(StageContext ctx) {
         def config = ConfigParser.readPerfConfig("config/job-config.yaml")
-        def allPerms = ConfigParser.allPerms(config)
+        def allPerms = ConfigParser.allPerms(ctx, config)
         return allPerms
     }
 
@@ -123,7 +123,6 @@ class Execute {
                 .collect(groupingBy((Run run) -> run.cluster))
 
         ctx.env.log("Have ${toRun.size()} runs not in database, requiring ${groupedByCluster.size()} clusters")
-
         return groupedByCluster
     }
 
@@ -140,23 +139,28 @@ class Execute {
             ctx.env.log("Cluster ${cluster} requires ${groupedByPerformer.size()} performers")
 
             groupedByPerformer.forEach((performer, runsForClusterAndPerformer) -> {
-                def performerStage = new InitialisePerformer(performer)
-                def runId = UUID.randomUUID().toString()
-                def configFilename = runId + ".yaml"
-                def performerRuns = []
+                def groupedByPredefined = runsForClusterAndPerformer.stream()
+                        .collect(groupingBy((Run run) -> run.predefined))
+                groupedByPredefined.forEach((variable, runsForClusterPerformerPre) ->{
+                    def performerStage = new InitialisePerformer(performer)
+                    def runId = UUID.randomUUID().toString()
+                    def configFilename = runId + ".yaml"
+                    def performerRuns = []
 
-                def output = new OutputPerformerConfig(
-                                    clusterStage,
-                                    performerStage,
-                                    jc,
-                                    cluster,
-                                    performer,
-                                    runsForClusterAndPerformer,
-                                    configFilename)
-                performerRuns.add(output)
-                performerRuns.add(new RunRunner(clusterStage, performerStage, output))
+                    def output = new OutputPerformerConfig(
+                            clusterStage,
+                            performerStage,
+                            jc,
+                            cluster,
+                            performer,
+                            runsForClusterPerformerPre,
+                            variable,
+                            configFilename)
+                    performerRuns.add(output)
+                    performerRuns.add(new RunRunner(clusterStage, performerStage, output))
 
-                clusterChildren.add(new ScopedStage(performerStage, performerRuns))
+                    clusterChildren.add(new ScopedStage(performerStage, performerRuns))
+                })
             })
 
             stages.add(new ScopedStage(clusterStage, clusterChildren))

@@ -1,5 +1,6 @@
 package com.couchbase.stages
 
+import com.couchbase.fit.perf.config.PredefinedVariablePermutation
 import groovy.json.JsonBuilder
 import groovy.json.JsonGenerator
 import groovy.transform.CompileDynamic
@@ -20,6 +21,7 @@ import java.util.stream.Collectors
 @CompileStatic
 class OutputPerformerConfig extends Stage {
     private final List<Run> runs
+    private final List<PredefinedVariablePermutation> predefinedVars
     private final String outputFilename
     private String absoluteOutputFilename = null
     private final PerfConfig.Cluster cluster
@@ -34,12 +36,14 @@ class OutputPerformerConfig extends Stage {
                           PerfConfig.Cluster cluster,
                           PerfConfig.Implementation impl,
                           List<Run> runs,
+                          List<PredefinedVariablePermutation> predefined,
                           String outputFilename) {
         this.stagePerformer = stagePerformer
         this.stageCluster = stageCluster
         this.impl = impl
         this.cluster = cluster
         this.runs = runs
+        this.predefinedVars = predefined
         this.outputFilename = outputFilename
         this.config = config
     }
@@ -70,14 +74,22 @@ class OutputPerformerConfig extends Stage {
             yaml.content
         }).collect(Collectors.toList())
 
+        var variablesAsYaml = predefinedVars.stream().map(run -> {
+            def yaml = new YamlBuilder()
+            yaml {
+                custom config.variables.custom
+                predefined predefinedVars
+            }
+            yaml.content
+        }).collect(Collectors.toList())
+
         def gen = new JsonGenerator.Options()
             .excludeNulls()
             .build()
         def json = new JsonBuilder(gen)
-
         json {
             impl impl
-            variables(config.variables)
+            variables variablesAsYaml
             connections {
                 cluster {
                     hostname stageCluster.hostname()
