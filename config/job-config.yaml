@@ -53,7 +53,7 @@ matrix:
 #      replicas: 0
 #      nodes: 1
 #    - type: unmanaged
-#      hostname: 0.0.0.0
+#      hostname: 127.0.0.1:8080
     - type: gocaves
       source: /home/ec2-user/workspace/performance/sdk-performance/gocaves
 #      source: /Users/charliehayes/Documents/GitHub/gocaves
