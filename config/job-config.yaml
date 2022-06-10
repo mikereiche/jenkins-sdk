@@ -61,12 +61,12 @@ matrix:
       port: 8080
 
   implementations:
-    - language: python
-      version: 3.2.7
-    - language: python
-      version: 3.2.6
-    - language: python
-      version: 3.2.5
+#    - language: python
+#      version: 3.2.7
+#    - language: python
+#      version: 3.2.6
+#    - language: python
+#      version: 3.2.5
     - language: python
       version: 3.2.4
     # If just port is specified: the performer is expected to be running already at location servers.performer.
@@ -78,15 +78,15 @@ matrix:
     - operations:
       - op: insert
         count: $doc_num
-    - operations:
-        - op: get
-          count: $doc_num
-    - operations:
-        - op: remove
-          count: $doc_num
-    - operations:
-        - op: replace
-          count: $doc_num
+#    - operations:
+#        - op: get
+#          count: $doc_num
+#    - operations:
+#        - op: remove
+#          count: $doc_num
+#    - operations:
+#        - op: replace
+#          count: $doc_num
 
 
 variables:
