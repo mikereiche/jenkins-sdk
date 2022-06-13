@@ -61,14 +61,14 @@ matrix:
       port: 8080
 
   implementations:
-#    - language: python
-#      version: 3.2.7
-#    - language: python
-#      version: 3.2.6
+    - language: python
+      version: 3.2.7
+    - language: python
+      version: 3.2.6
     - language: python
       version: 3.2.5
-#    - language: python
-#      version: 3.2.4
+    - language: python
+      version: 3.2.4
     # If just port is specified: the performer is expected to be running already at location servers.performer.
     # E.g. this is for localhost testing.
     # Otherwise, specify language and version, and this tool will spinup a performer running at location servers.performer.
@@ -97,6 +97,7 @@ variables:
     - name: horizontal_scaling
       values:
         - 1
+#        - 2
 #    - name: durability
 #      values:
 #        - MAJORITY
