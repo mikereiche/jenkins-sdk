@@ -65,10 +65,10 @@ matrix:
 #      version: 3.2.7
 #    - language: python
 #      version: 3.2.6
-#    - language: python
-#      version: 3.2.5
     - language: python
-      version: 3.2.4
+      version: 3.2.5
+#    - language: python
+#      version: 3.2.4
     # If just port is specified: the performer is expected to be running already at location servers.performer.
     # E.g. this is for localhost testing.
     # Otherwise, specify language and version, and this tool will spinup a performer running at location servers.performer.
@@ -92,7 +92,7 @@ matrix:
 variables:
   custom:
     - name: doc_num
-      value: 1000000
+      value: 100
   predefined:
     - name: horizontal_scaling
       values:

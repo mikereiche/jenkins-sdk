@@ -307,7 +307,13 @@ class Run {
         predefined.forEach(v -> jsonVars[v.name.toString()] = v.value)
 
         Map<String, String> clusterVars = new HashMap<>()
-        clusterVars["hostname"] = cluster.hostname
+        if(cluster.type == "gocaves"){
+            String hostname = "$cluster.hostname:$cluster.port"
+            clusterVars["hostname"] = hostname
+        }
+        else{
+            clusterVars["hostname"] = cluster.hostname
+        }
 
         def gen = new JsonGenerator.Options()
                 .excludeNulls()

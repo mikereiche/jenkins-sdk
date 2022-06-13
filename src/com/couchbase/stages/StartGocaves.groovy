@@ -34,7 +34,9 @@ class StartGocaves extends Stage {
     }
 
     @Override
-    void finishImpl(StageContext ctx) {}
+    void finishImpl(StageContext ctx) {
+        ctx.env.execute("docker kill $hostname")
+    }
 
     String clusterIp() {
         return "$hostname:$port"

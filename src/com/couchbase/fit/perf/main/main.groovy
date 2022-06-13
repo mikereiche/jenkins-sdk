@@ -199,8 +199,11 @@ class Execute {
             @Override
             protected void executeImpl(StageContext _) {}
         }
-        root.execute(ctx)
-        root.finish(ctx)
+        try {
+            root.execute(ctx)
+        }finally {
+            root.finish(ctx)
+        }
         jcCleanup()
     //run(ctx, planned)
     //print(planned)
