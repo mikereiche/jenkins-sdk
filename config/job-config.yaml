@@ -53,7 +53,7 @@ matrix:
 #      replicas: 0
 #      nodes: 1
     - type: unmanaged
-      hostname: cbs
+      hostname: reproducable
 #    - type: gocaves
 #      source: /home/ec2-user/workspace/performance/sdk-performance/gocaves
 ##      source: /Users/charliehayes/Documents/GitHub/gocaves
@@ -61,26 +61,26 @@ matrix:
 #      port: 8080
 
   implementations:
-#    - language: python
-#      version: 4.0.1
-#    - language: python
-#      version: 4.0.0
-#    - language: python
-#      version: 3.2.7
-#    - language: python
-#      version: 3.2.6
-#    - language: python
-#      version: 3.2.5
-    - language: java
+    - language: python
+      version: 4.0.1
+    - language: python
+      version: 4.0.0
+    - language: python
       version: 3.2.7
-    - language: java
+    - language: python
       version: 3.2.6
-    - language: java
+    - language: python
       version: 3.2.5
-    - language: java
-      version: 3.3.0
-    - language: java
-      version: 3.3.1
+#    - language: java
+#      version: 3.2.7
+#    - language: java
+#      version: 3.2.6
+#    - language: java
+#      version: 3.2.5
+#    - language: java
+#      version: 3.3.0
+#    - language: java
+#      version: 3.3.1
     # If just port is specified: the performer is expected to be running already at location servers.performer.
     # E.g. this is for localhost testing.
     # Otherwise, specify language and version, and this tool will spinup a performer running at location servers.performer.
