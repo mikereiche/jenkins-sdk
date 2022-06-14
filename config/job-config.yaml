@@ -61,16 +61,24 @@ matrix:
 #      port: 8080
 
   implementations:
+#    - language: python
+#      version: 4.0.1
+#    - language: python
+#      version: 4.0.0
+#    - language: python
+#      version: 3.2.7
+#    - language: python
+#      version: 3.2.6
+#    - language: python
+#      version: 3.2.5
     - language: python
-      version: 4.0.1
+      version: 48c354cfe540b4f0f170a7de4df1bba54a896d0e
     - language: python
-      version: 4.0.0
+      version: 40c4e4d5d5081dcceb7e03bff84aa4be462d680d
     - language: python
-      version: 3.2.7
+      version: 7b43a9de5adb2debf4fb6981b9b82f01506e6b8c
     - language: python
-      version: 3.2.6
-    - language: python
-      version: 3.2.5
+      version: 913cf3fcc60239e83a4c3bf63f6c10025f953579
 #    - language: java
 #      version: 3.2.7
 #    - language: java
@@ -87,18 +95,18 @@ matrix:
 #    - port: 8060
 
   workloads:
-#    - operations:
-#      - op: insert
-#        count: $doc_num
+    - operations:
+      - op: insert
+        count: $doc_num
 #    - operations:
 #        - op: get
 #          count: $doc_num
 #    - operations:
 #        - op: remove
 #          count: $doc_num
-    - operations:
-        - op: replace
-          count: $doc_num
+#    - operations:
+#        - op: replace
+#          count: $doc_num
 
 
 variables:
