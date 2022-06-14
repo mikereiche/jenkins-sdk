@@ -93,12 +93,12 @@ matrix:
 #    - operations:
 #        - op: get
 #          count: $doc_num
-    - operations:
-        - op: remove
-          count: $doc_num
 #    - operations:
-#        - op: replace
+#        - op: remove
 #          count: $doc_num
+    - operations:
+        - op: replace
+          count: $doc_num
 
 
 variables:
