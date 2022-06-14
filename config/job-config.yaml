@@ -87,12 +87,12 @@ matrix:
 #    - port: 8060
 
   workloads:
-    - operations:
-      - op: insert
-        count: $doc_num
 #    - operations:
-#        - op: get
-#          count: $doc_num
+#      - op: insert
+#        count: $doc_num
+    - operations:
+        - op: get
+          count: $doc_num
 #    - operations:
 #        - op: remove
 #          count: $doc_num
