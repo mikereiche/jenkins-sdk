@@ -63,14 +63,14 @@ matrix:
   implementations:
     - language: python
       version: 4.0.1
-#    - language: python
-#      version: 4.0.0
+    - language: python
+      version: 4.0.0
     - language: python
       version: 3.2.7
     - language: python
       version: 3.2.6
-#    - language: python
-#      version: 3.2.5
+    - language: python
+      version: 3.2.5
 #    - language: python
 #      version: 15056ea8dd6e172eab332fa29f83e3df29f4c4b5
 #    - language: python
@@ -112,7 +112,7 @@ matrix:
 variables:
   custom:
     - name: doc_num
-      value: 6000000
+      value: 1000000
   predefined:
     - name: horizontal_scaling
       values:

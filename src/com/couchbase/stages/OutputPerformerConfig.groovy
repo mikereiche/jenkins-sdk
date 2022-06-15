@@ -78,7 +78,7 @@ class OutputPerformerConfig extends Stage {
             .excludeNulls()
             .build()
 
-        impl.version = "4.0.0"+impl.version
+//        impl.version = "4.0.0"+impl.version
         def json = new JsonBuilder(gen)
         json {
             impl impl
