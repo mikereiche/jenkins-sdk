@@ -72,13 +72,13 @@ matrix:
 #    - language: python
 #      version: 3.2.5
     - language: python
-      version: 48c354cfe540b4f0f170a7de4df1bba54a896d0e
-    - language: python
-      version: 40c4e4d5d5081dcceb7e03bff84aa4be462d680d
+      version: 15056ea8dd6e172eab332fa29f83e3df29f4c4b5
     - language: python
       version: 7b43a9de5adb2debf4fb6981b9b82f01506e6b8c
     - language: python
-      version: 913cf3fcc60239e83a4c3bf63f6c10025f953579
+      version: 18f8c4931f4047fa8a6761ccb4056acf2e2a012e
+    - language: python
+      version: 3ac9421131629239af815296ef0c98ec3a20d407
 #    - language: java
 #      version: 3.2.7
 #    - language: java
