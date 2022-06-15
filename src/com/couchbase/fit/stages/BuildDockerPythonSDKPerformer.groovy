@@ -50,11 +50,7 @@ class BuildDockerPythonSDKPerformer extends Stage{
             def line = lines[i]
 
             if (line.contains("git+https://github.com/couchbase/couchbase-python-client.git")) {
-                if (sdkVersion.contains(".")){
-                    requirements.append("git+https://github.com/couchbase/couchbase-python-client.git@v${sdkVersion}\n")
-                }else {
-                    requirements.append("git+https://github.com/couchbase/couchbase-python-client.git@${sdkVersion}\n")
-                }
+                requirements.append("git+https://github.com/couchbase/couchbase-python-client.git@${sdkVersion}\n")
             } else {
                 requirements.append(line + "\n")
             }
