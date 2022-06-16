@@ -65,10 +65,10 @@ matrix:
       version: 4.0.1
 #    - language: python
 #      version: 4.0.0
-    - language: python
-      version: 3.2.7
-    - language: python
-      version: 3.2.6
+#    - language: python
+#      version: 3.2.7
+#    - language: python
+#      version: 3.2.6
 #    - language: python
 #      version: 3.2.5
 #    - language: python
