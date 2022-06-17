@@ -16,7 +16,6 @@ servers:
 #    source: /Users/charliehayes/Documents/GitHub/perf-sdk
     source: /home/ec2-user/workspace/performance/sdk-performance/perf-sdk
 
-
 # Generally only CI should be talking to production database.  For local performance testing, spin up a localhost database.
 # The password gets replaced by an environment variable when running on CI
 database:
@@ -41,7 +40,7 @@ settings:
   dryRun: false
 
   # Whether to ignore whatever runs are already in the database
-  force: false
+  force: true
 
   # If confident that all Docker images are built and up-to-date
   skipDockerBuild: false
@@ -61,12 +60,12 @@ matrix:
 #      port: 8080
 
   implementations:
-    - language: python
-      version: 4.0.1
+#    - language: python
+#      version: 4.0.1
 #    - language: python
 #      version: 4.0.0
-#    - language: python
-#      version: 3.2.7
+    - language: python
+      version: 3.2.7
 #    - language: python
 #      version: 3.2.6
 #    - language: python
@@ -112,7 +111,7 @@ matrix:
 variables:
   custom:
     - name: doc_num
-      value: 6000000
+      value: 10000
   predefined:
     - name: horizontal_scaling
       values:
