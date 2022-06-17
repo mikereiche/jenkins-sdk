@@ -12,6 +12,7 @@ import groovy.transform.CompileStatic
 import groovy.yaml.YamlSlurper
 
 import java.util.stream.Collectors
+import java.time.Instant
 
 import static java.util.stream.Collectors.groupingBy
 
@@ -24,13 +25,6 @@ class Execute {
             dbPwd = args[0]
             ctx.jc.database.password = args[0]
         }
-
-//        //Find most recent Python version
-//        // This might be an incorrect way to note down what version is being tested as it just bases it on the most recent release rather than what is being currently worked on
-//        String currentPythonVersion = ctx.env.executeSimple("python3 -m yolk -V couchbase | sed 's/couchbase //g'")
-//        String mostRecentCommit = ctx.env.executeSimple("git ls-remote https://github.com/couchbase/couchbase-python-client.git HEAD | tail -1 | sed 's/HEAD//g'")
-//        ctx.env.log("Found: ${currentPythonVersion}-${mostRecentCommit}")
-
 
         def jobConfig = new File("config/job-config.yaml")
         def lines = jobConfig.readLines()
@@ -45,17 +39,18 @@ class Execute {
         for (int i = 0; i < lines.size(); i++) {
             def line = lines[i]
 
-//            if (addImpl) {
-//                jobConfig.append("    - language: python\n")
-//                jobConfig.append("      version: ${currentPythonVersion}-${mostRecentCommit}\n")
-//                jobConfig.append(line + "\n")
-//                addImpl = false
-//            } else if (line.contains("  implementations:")) {
-//                addImpl = true
-//                jobConfig.append(line + "\n")
-            if (line.contains("database:")){
+            if (addImpl) {
+                jobConfig.append("    - language: python\n")
+                jobConfig.append("      version: ${mostRecentCommit}\n")
+                jobConfig.append(line + "\n")
+                addImpl = false
+            } else if (line.contains("  implementations:")) {
+                addImpl = true
+                jobConfig.append(line + "\n")
+            if (line.contains("database:")) {
                 changePwd = true
                 jobConfig.append(line + "\n")
+            }
             //&& dbPwd != ""
             } else if (changePwd && line.contains("password") && dbPwd != ""){
                 jobConfig.append("  password: " + dbPwd + "\n")
@@ -126,7 +121,7 @@ class Execute {
         return groupedByCluster
     }
 
-    static List<Stage> plan(StageContext ctx, Map<PerfConfig.Cluster, List<Run>> input, jc) {
+    static List<Stage> plan(StageContext ctx, Map<PerfConfig.Cluster, List<Run>> input, jc, String version) {
         def stages = new ArrayList<Stage>()
 
         input.forEach((cluster, runsForCluster) -> {
@@ -181,7 +176,7 @@ class Execute {
         ctx.performerServer = jc.servers.performer
         ctx.dryRun = jc.settings.dryRun
         ctx.force = jc.settings.force
-        jcPrep(ctx, args)
+        String version = jcPrep(ctx, args)
         def allPerms = parseConfig(ctx)
         def db = PerfDatabase.compareRunsAgainstDb(ctx, allPerms, args)
         def parsed2 = parseConfig2(ctx, db)

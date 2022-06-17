@@ -13,7 +13,7 @@ servers:
 
     # Either the location of a checked-out transactions-fit-performer / perf-sdk project, or "https://github.com/couchbaselabs/transactions-fit-performer"
     # source: https://github.com/couchbaselabs/transactions-fit-performer
-#    source: /Users/charliehayes/Documents/GitHub/perf-sdk
+    #    source: /Users/charliehayes/Documents/GitHub/perf-sdk
     source: /home/ec2-user/workspace/performance/sdk-performance/perf-sdk
 
 # Generally only CI should be talking to production database.  For local performance testing, spin up a localhost database.
@@ -28,7 +28,7 @@ database:
 environment:
   # Can override any executables here, to workaround environmental/path issues.
   executables:
-#    docker: /usr/bin/docker
+  #    docker: /usr/bin/docker
 
   # These will be added to environment variables when running executables
   envvar:
@@ -47,56 +47,56 @@ settings:
 
 matrix:
   clusters:
-#    - type: cbdyncluster
-#      version: 7.0-stable
-#      replicas: 0
-#      nodes: 1
+    #    - type: cbdyncluster
+    #      version: 7.0-stable
+    #      replicas: 0
+    #      nodes: 1
     - type: unmanaged
       hostname: cbs
-#    - type: gocaves
-#      source: /home/ec2-user/workspace/performance/sdk-performance/gocaves
-##      source: /Users/charliehayes/Documents/GitHub/gocaves
-#      hostname: gocaves
-#      port: 8080
+  #    - type: gocaves
+  #      source: /home/ec2-user/workspace/performance/sdk-performance/gocaves
+  ##      source: /Users/charliehayes/Documents/GitHub/gocaves
+  #      hostname: gocaves
+  #      port: 8080
 
   implementations:
+#        - language: python
+#          version: 4.0.1
+    #    - language: python
+    #      version: 4.0.0
 #    - language: python
-#      version: 4.0.1
-#    - language: python
-#      version: 4.0.0
-    - language: python
-      version: 3.2.7
-#    - language: python
-#      version: 3.2.6
-#    - language: python
-#      version: 3.2.5
-#    - language: python
-#      version: 15056ea8dd6e172eab332fa29f83e3df29f4c4b5
-#    - language: python
-#      version: 7b43a9de5adb2debf4fb6981b9b82f01506e6b8c
-#    - language: python
-#      version: 18f8c4931f4047fa8a6761ccb4056acf2e2a012e
-#    - language: python
-#      version: 3ac9421131629239af815296ef0c98ec3a20d407
-#    - language: java
 #      version: 3.2.7
-#    - language: java
-#      version: 3.2.6
-#    - language: java
-#      version: 3.2.5
-#    - language: java
-#      version: 3.3.0
-#    - language: java
-#      version: 3.3.1
+    #    - language: python
+    #      version: 3.2.6
+    #    - language: python
+    #      version: 3.2.5
+    #    - language: python
+    #      version: 15056ea8dd6e172eab332fa29f83e3df29f4c4b5
+    #    - language: python
+    #      version: 7b43a9de5adb2debf4fb6981b9b82f01506e6b8c
+    #    - language: python
+    #      version: 18f8c4931f4047fa8a6761ccb4056acf2e2a012e
+    #    - language: python
+    #      version: 3ac9421131629239af815296ef0c98ec3a20d407
+    #    - language: java
+    #      version: 3.2.7
+    #    - language: java
+    #      version: 3.2.6
+    #    - language: java
+    #      version: 3.2.5
+    #    - language: java
+    #      version: 3.3.0
+    #    - language: java
+    #      version: 3.3.1
     # If just port is specified: the performer is expected to be running already at location servers.performer.
     # E.g. this is for localhost testing.
     # Otherwise, specify language and version, and this tool will spinup a performer running at location servers.performer.
-#    - port: 8060
+  #    - port: 8060
 
   workloads:
     - operations:
-      - op: insert
-        count: $doc_num
+        - op: insert
+          count: $doc_num
 #    - operations:
 #        - op: get
 #          count: $doc_num
