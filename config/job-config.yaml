@@ -13,8 +13,8 @@ servers:
 
     # Either the location of a checked-out transactions-fit-performer / perf-sdk project, or "https://github.com/couchbaselabs/transactions-fit-performer"
     # source: https://github.com/couchbaselabs/transactions-fit-performer
-    source: /Users/charliehayes/Documents/GitHub/perf-sdk
-#    source: /home/ec2-user/workspace/performance/sdk-performance/perf-sdk
+#    source: /Users/charliehayes/Documents/GitHub/perf-sdk
+    source: /home/ec2-user/workspace/performance/sdk-performance/perf-sdk
 
 # Generally only CI should be talking to production database.  For local performance testing, spin up a localhost database.
 # The password gets replaced by an environment variable when running on CI
