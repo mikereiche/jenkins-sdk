@@ -40,7 +40,7 @@ settings:
   dryRun: false
 
   # Whether to ignore whatever runs are already in the database
-  force: true
+  force: false
 
   # If confident that all Docker images are built and up-to-date
   skipDockerBuild: false
@@ -111,7 +111,7 @@ matrix:
 variables:
   custom:
     - name: doc_num
-      value: 10000
+      value: 6000000
   predefined:
     - name: horizontal_scaling
       values:
