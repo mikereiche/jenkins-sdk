@@ -12,15 +12,84 @@ import groovy.transform.CompileStatic
 import groovy.yaml.YamlSlurper
 
 import java.util.stream.Collectors
+import java.time.Instant
 
 import static java.util.stream.Collectors.groupingBy
 
 
 class Execute {
+    static void jcPrep(StageContext ctx, String[] args){
+        //Get timescaledb password from jenkins credential
+        String dbPwd = ""
+        if (args.length > 0) {
+            dbPwd = args[0]
+            ctx.jc.database.password = args[0]
+        }
+
+        String mostRecentCommit = ctx.env.executeSimple("git ls-remote https://github.com/couchbase/couchbase-python-client.git HEAD | tail -1 | sed 's/HEAD//g'")
+
+        def jobConfig = new File("config/job-config.yaml")
+        def lines = jobConfig.readLines()
+        def addImpl = false
+        def changePwd = false
+
+        jobConfig.write("")
+
+        //TODO This is bad, currently we read job config twice. Once to write to it and once to put it in to the PerfConfig class
+        // we should Ideally be putting any new implementations into the class after it has been written.
+        // I tried to do this but was getting some errors when creating a constructor for PerfConfig.Implementation.
+        for (int i = 0; i < lines.size(); i++) {
+            def line = lines[i]
+
+            if (addImpl) {
+                jobConfig.append("    - language: python\n")
+                jobConfig.append("      version: ${mostRecentCommit}\n")
+                jobConfig.append(line + "\n")
+                addImpl = false
+            } else if (line.contains("  implementations:")) {
+                addImpl = true
+                jobConfig.append(line + "\n")
+            if (line.contains("database:")) {
+                changePwd = true
+                jobConfig.append(line + "\n")
+            }
+            //&& dbPwd != ""
+            } else if (changePwd && line.contains("password") && dbPwd != ""){
+                jobConfig.append("  password: " + dbPwd + "\n")
+                changePwd = false
+            } else {
+                jobConfig.append(line + "\n")
+            }
+        }
+    }
+
+    //The password gets written to job config and as Jenkins keeps the jobconfig file it needs to get removed
+    static void jcCleanup(){
+        def jobConfig = new File("config/job-config.yaml")
+        def lines = jobConfig.readLines()
+        def changePwd = false
+
+        jobConfig.write("")
+
+        for (int i = 0; i < lines.size(); i++) {
+            def line = lines[i]
+
+            if (line.contains("database:")){
+                changePwd = true
+                jobConfig.append(line + "\n")
+            } else if (changePwd && line.contains("password")){
+                jobConfig.append("  password: password\n")
+                changePwd = false
+            } else {
+                jobConfig.append(line + "\n")
+            }
+        }
+    }
+
     @CompileStatic
     static List<Run> parseConfig(StageContext ctx) {
         def config = ConfigParser.readPerfConfig("config/job-config.yaml")
-        def allPerms = ConfigParser.allPerms(config)
+        def allPerms = ConfigParser.allPerms(ctx, config)
         return allPerms
     }
 
@@ -51,7 +120,6 @@ class Execute {
                 .collect(groupingBy((Run run) -> run.cluster))
 
         ctx.env.log("Have ${toRun.size()} runs not in database, requiring ${groupedByCluster.size()} clusters")
-
         return groupedByCluster
     }
 
@@ -68,23 +136,28 @@ class Execute {
             ctx.env.log("Cluster ${cluster} requires ${groupedByPerformer.size()} performers")
 
             groupedByPerformer.forEach((performer, runsForClusterAndPerformer) -> {
-                def performerStage = new InitialisePerformer(performer)
-                def runId = UUID.randomUUID().toString()
-                def configFilename = runId + ".yaml"
-                def performerRuns = []
+                def groupedByPredefined = runsForClusterAndPerformer.stream()
+                        .collect(groupingBy((Run run) -> run.predefined))
+                groupedByPredefined.forEach((variable, runsForClusterPerformerPre) ->{
+                    def performerStage = new InitialisePerformer(performer)
+                    def runId = UUID.randomUUID().toString()
+                    def configFilename = runId + ".yaml"
+                    def performerRuns = []
 
-                def output = new OutputPerformerConfig(
-                                    clusterStage,
-                                    performerStage,
-                                    jc,
-                                    cluster,
-                                    performer,
-                                    runsForClusterAndPerformer,
-                                    configFilename)
-                performerRuns.add(output)
-                performerRuns.add(new RunRunner(clusterStage, performerStage, output))
+                    def output = new OutputPerformerConfig(
+                            clusterStage,
+                            performerStage,
+                            jc,
+                            cluster,
+                            performer,
+                            runsForClusterPerformerPre,
+                            variable,
+                            configFilename)
+                    performerRuns.add(output)
+                    performerRuns.add(new RunRunner(clusterStage, performerStage, output))
 
-                clusterChildren.add(new ScopedStage(performerStage, performerRuns))
+                    clusterChildren.add(new ScopedStage(performerStage, performerRuns))
+                })
             })
 
             stages.add(new ScopedStage(clusterStage, clusterChildren))
@@ -94,7 +167,7 @@ class Execute {
     }
 
 
-    static void execute() {
+    static void execute(String[] args) {
         def ys = new YamlSlurper()
         def jc = ys.parse(new File("config/job-config.yaml"))
         def env = new EnvironmentLocal(jc.environment)
@@ -105,8 +178,9 @@ class Execute {
         ctx.performerServer = jc.servers.performer
         ctx.dryRun = jc.settings.dryRun
         ctx.force = jc.settings.force
+        String version = jcPrep(ctx, args)
         def allPerms = parseConfig(ctx)
-        def db = PerfDatabase.compareRunsAgainstDb(ctx, allPerms)
+        def db = PerfDatabase.compareRunsAgainstDb(ctx, allPerms, args)
         def parsed2 = parseConfig2(ctx, db)
         def planned = plan(ctx, parsed2, jc)
         def root = new Stage() {
@@ -122,13 +196,17 @@ class Execute {
             @Override
             protected void executeImpl(StageContext _) {}
         }
-        root.execute(ctx)
-        root.finish(ctx)
+        try {
+            root.execute(ctx)
+        }finally {
+            root.finish(ctx)
+        }
+        jcCleanup()
     //run(ctx, planned)
     //print(planned)
     }
 
     public static void main(String[] args) {
-        execute()
+        execute(args)
     }
 }

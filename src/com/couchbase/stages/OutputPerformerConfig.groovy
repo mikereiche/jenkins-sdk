@@ -1,5 +1,6 @@
 package com.couchbase.stages
 
+import com.couchbase.fit.perf.config.PredefinedVariablePermutation
 import groovy.json.JsonBuilder
 import groovy.json.JsonGenerator
 import groovy.transform.CompileDynamic
@@ -12,6 +13,7 @@ import com.couchbase.fit.stages.BuildDockerJavaFITPerformer
 import com.couchbase.fit.stages.StartDockerImagePerformer
 import org.apache.groovy.yaml.util.YamlConverter
 
+import java.time.Instant
 import java.util.stream.Collectors
 
 /**
@@ -20,6 +22,7 @@ import java.util.stream.Collectors
 @CompileStatic
 class OutputPerformerConfig extends Stage {
     private final List<Run> runs
+    private final List<PredefinedVariablePermutation> predefinedVars
     private final String outputFilename
     private String absoluteOutputFilename = null
     private final PerfConfig.Cluster cluster
@@ -34,12 +37,14 @@ class OutputPerformerConfig extends Stage {
                           PerfConfig.Cluster cluster,
                           PerfConfig.Implementation impl,
                           List<Run> runs,
+                          List<PredefinedVariablePermutation> predefined,
                           String outputFilename) {
         this.stagePerformer = stagePerformer
         this.stageCluster = stageCluster
         this.impl = impl
         this.cluster = cluster
         this.runs = runs
+        this.predefinedVars = predefined
         this.outputFilename = outputFilename
         this.config = config
     }
@@ -53,6 +58,10 @@ class OutputPerformerConfig extends Stage {
         return absoluteOutputFilename
     }
 
+    String outputFilename() {
+        return outputFilename
+    }
+
     @Override
     @CompileDynamic
     void executeImpl(StageContext ctx) {
@@ -61,8 +70,7 @@ class OutputPerformerConfig extends Stage {
             yaml {
                 uuid UUID.randomUUID().toString()
                 description run.description
-                transaction(run.workload.transaction)
-                variables(run.workload.variables)
+                operations(run.workload.operations)
             }
             yaml.content
         }).collect(Collectors.toList())
@@ -70,10 +78,21 @@ class OutputPerformerConfig extends Stage {
         def gen = new JsonGenerator.Options()
             .excludeNulls()
             .build()
-        def json = new JsonBuilder(gen)
 
+        if (impl.language == "python" && !(impl.version.contains("."))){
+            //Find most recent Python version
+            // This might be an incorrect way to note down what version is being tested as it just bases it on the most recent release rather than what is being currently worked on
+            String currentPythonVersion = ctx.env.executeSimple("python3 -m yolk -V couchbase | sed 's/couchbase //g'")
+            String mostRecentCommit = ctx.env.executeSimple("git ls-remote https://github.com/couchbase/couchbase-python-client.git HEAD | tail -1 | sed 's/HEAD//g'")
+            impl.version = "${currentPythonVersion}-${Instant.now()}-${mostRecentCommit}"
+        }
+        def json = new JsonBuilder(gen)
         json {
-            variables(config.variables)
+            impl impl
+            variables {
+                predefined predefinedVars
+                custom config.variables.custom
+            }
             connections {
                 cluster {
                     hostname stageCluster.hostname()
@@ -88,16 +107,12 @@ class OutputPerformerConfig extends Stage {
 
                 database(config.database)
             }
-            db {
-                cluster cluster
-                impl impl
-            }
             runs runsAsYaml
         }
 
         def converted = YamlConverter.convertJsonToYaml(new StringReader(json.toString()))
 
-        ctx.env.tempDir {
+        ctx.inSourceDir {
             absoluteOutputFilename = ctx.env.currentDir() + "/" + outputFilename
             new File(absoluteOutputFilename).write(converted)
         }

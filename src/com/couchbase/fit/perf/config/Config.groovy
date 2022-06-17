@@ -1,5 +1,6 @@
 package com.couchbase.fit.perf.config
 
+import com.couchbase.context.StageContext
 import com.fasterxml.jackson.annotation.JsonProperty
 import groovy.json.JsonGenerator
 import groovy.json.JsonOutput
@@ -8,7 +9,7 @@ import groovy.transform.ToString
 
 import java.time.Duration
 
-import static com.couchbase.fit.perf.config.PerfConfig.Workload.PredefinedVariable.*
+//import static com.couchbase.fit.perf.config.PerfConfig.Variable.PredefinedVariable.*
 
 @CompileStatic
 @ToString(includeNames = true, includePackage = false)
@@ -28,19 +29,30 @@ class PerfConfig {
 
     @ToString(includeNames = true, includePackage = false)
     static class Variables {
-        String runtime
+        List<PredefinedVariable> predefined
+        List<CustomVariable> custom
+    }
 
-        Duration runtimeAsDuration() {
-            var trimmed = runtime.trim()
-            char suffix = trimmed.charAt(trimmed.length() - 1)
-            var rawNum = Integer.parseInt(trimmed.substring(0, trimmed.length() - 1))
-            switch (suffix) {
-                case 's': return Duration.ofSeconds(rawNum)
-                case 'm': return Duration.ofMinutes(rawNum)
-                case 'h': return Duration.ofHours(rawNum)
-                default: throw new IllegalArgumentException("Could not handle runtime " + runtime)
+    @ToString(includeNames = true, includePackage = false)
+    static class PredefinedVariable {
+        PredefinedVariableName name
+        List<Object> values
+
+        enum PredefinedVariableName {
+            @JsonProperty("horizontal_scaling") HORIZONTAL_SCALING,
+            @JsonProperty("doc_pool_size") DOC_POOL_SIZE,
+            @JsonProperty("durability") DURABILITY
+
+            String toString() {
+                return this.name().toLowerCase()
             }
         }
+    }
+
+    @ToString(includeNames = true, includePackage = false)
+    static class CustomVariable {
+        String name
+        Object value
     }
 
     @ToString(includeNames = true, includePackage = false)
@@ -64,7 +76,9 @@ class PerfConfig {
         Integer nodes
         Integer replicas
         String type
+        String source
         String hostname
+        Integer port
     }
 
     @ToString(includeNames = true, includePackage = false)
@@ -77,36 +91,29 @@ class PerfConfig {
     @ToString(includeNames = true, includePackage = false)
     static class Workload {
 //        String description
-        Transaction transaction
-        Variables variables
-
+        List<Operation> operations
+        //Transaction transaction
+        //Variables variables
+        
         @ToString(includeNames = true, includePackage = false)
-        static class Variables {
-            List<PredefinedVariable> predefined
-            List<CustomVariable> custom
-        }
+        static class Operation {
+            Op op
+            String count
 
-        @ToString(includeNames = true, includePackage = false)
-        static class PredefinedVariable {
-            PredefinedVariableName name
-            List<Object> values
+            @ToString(includeNames = true, includePackage = false)
+            static enum Op {
+                @JsonProperty("insert") INSERT,
+                @JsonProperty("replace") REPLACE,
+                @JsonProperty("remove") REMOVE,
+                @JsonProperty("get") GET
 
-            enum PredefinedVariableName {
-                @JsonProperty("horizontal_scaling") HORIZONTAL_SCALING,
-                @JsonProperty("doc_pool_size") DOC_POOL_SIZE,
-                @JsonProperty("durability") DURABILITY
-
+                @Override
                 String toString() {
                     return this.name().toLowerCase()
                 }
             }
         }
-
-        @ToString(includeNames = true, includePackage = false)
-        static class CustomVariable {
-            String name
-            List<Object> values
-        }
+    
 
         @ToString(includeNames = true, includePackage = false)
         static class Transaction {
@@ -169,6 +176,27 @@ class PerfConfig {
     }
 }
 
+@ToString(includeNames = true, includePackage = false)
+class PredefinedVariablePermutation {
+    String name
+    Object value
+
+    PredefinedVariablePermutation(String name, Object value){
+        this.name = name
+        this.value = value
+    }
+
+    enum PredefinedVariableName {
+        @JsonProperty("horizontal_scaling") HORIZONTAL_SCALING,
+        @JsonProperty("doc_pool_size") DOC_POOL_SIZE,
+        @JsonProperty("durability") DURABILITY
+
+        String toString() {
+            return this.name().toLowerCase()
+        }
+    }
+}
+
 @CompileStatic
 @ToString(includeNames = true, includePackage = false)
 class SetWorkload {
@@ -215,7 +243,7 @@ class SetVariables {
         return raw
     }
 
-    private Object predefinedVar(PredefinedVariableName name) {
+    private Object predefinedVar(PerfConfig.PredefinedVariable.PredefinedVariableName name) {
         return predefined.stream()
                 .filter(v -> v.name == name.name())
                 .findFirst()
@@ -231,10 +259,10 @@ interface HasName {
 
 @ToString(includeNames = true, includePackage = false)
 class SetPredefinedVariable implements HasName {
-    PredefinedVariableName name
+    PerfConfig.PredefinedVariable.PredefinedVariableName name
     Object value
 
-    SetPredefinedVariable(PredefinedVariableName name, Object value) {
+    SetPredefinedVariable(PerfConfig.PredefinedVariable.PredefinedVariableName name, Object value) {
         this.name = name
         this.value = value
     }
@@ -267,25 +295,37 @@ class SetCustomVariable implements HasName {
 class Run {
     PerfConfig.Cluster cluster
     PerfConfig.Implementation impl
+    //TODO passing in predefined variables twice, find a better way to do this
+    PerfConfig.Variables vars
+    List<PredefinedVariablePermutation> predefined
     String description
-    SetWorkload workload
+    PerfConfig.Workload workload
 
     def toJson() {
         Map<String, Object> jsonVars = new HashMap<>()
-        workload.variables.custom.forEach(v -> jsonVars[v.name] = v.value);
-        workload.variables.predefined.forEach(v -> jsonVars[v.name] = v.value);
+        vars.custom.forEach(v -> jsonVars[v.name] = v.value)
+        predefined.forEach(v -> jsonVars[v.name.toString()] = v.value)
+
+        Map<String, String> clusterVars = new HashMap<>()
+        if(cluster.type == "gocaves"){
+            String hostname = "$cluster.hostname:$cluster.port"
+            clusterVars["hostname"] = hostname
+        }
+        else{
+            clusterVars["hostname"] = cluster.hostname
+        }
 
         def gen = new JsonGenerator.Options()
                 .excludeNulls()
                 .build()
 
         return gen.toJson([
-                "cluster"  : cluster,
                 "impl"     : impl,
+                "vars"     : jsonVars,
+                "cluster"  : clusterVars,
                 "workload" : [
                         "description": description
                 ],
-                "vars"     : jsonVars
         ])
     }
 }
