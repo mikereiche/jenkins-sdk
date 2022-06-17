@@ -26,6 +26,8 @@ class Execute {
             ctx.jc.database.password = args[0]
         }
 
+        String mostRecentCommit = ctx.env.executeSimple("git ls-remote https://github.com/couchbase/couchbase-python-client.git HEAD | tail -1 | sed 's/HEAD//g'")
+
         def jobConfig = new File("config/job-config.yaml")
         def lines = jobConfig.readLines()
         def addImpl = false
@@ -121,7 +123,7 @@ class Execute {
         return groupedByCluster
     }
 
-    static List<Stage> plan(StageContext ctx, Map<PerfConfig.Cluster, List<Run>> input, jc, String version) {
+    static List<Stage> plan(StageContext ctx, Map<PerfConfig.Cluster, List<Run>> input, jc) {
         def stages = new ArrayList<Stage>()
 
         input.forEach((cluster, runsForCluster) -> {
