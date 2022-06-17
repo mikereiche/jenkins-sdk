@@ -60,10 +60,6 @@ matrix:
   #      port: 8080
 
   implementations:
-    - language: python
-      version: 115c4219c45a44cf3ded9c08eaedd0f92b2f35a4
-    - language: python
-      version: 115c4219c45a44cf3ded9c08eaedd0f92b2f35a4
 #        - language: python
 #          version: 4.0.1
     #    - language: python
@@ -115,7 +111,7 @@ matrix:
 variables:
   custom:
     - name: doc_num
-      value: 6000000
+      value: 1000000
   predefined:
     - name: horizontal_scaling
       values:
