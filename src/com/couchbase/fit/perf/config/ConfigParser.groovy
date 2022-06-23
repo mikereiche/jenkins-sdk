@@ -240,14 +240,14 @@ class ConfigParser {
     //     }
     // }
 
-    private static <T extends HasName> List<List<T>> createVariablePerms(ArrayList<T> predefinedVars) {
-        var grouped = predefinedVars.stream()
-                .collect(Collectors.groupingBy((HasName a) -> a.getName()))
-
-        def next = []
-        grouped.values().forEach(list -> list.forEach(v -> next.add(v)))
-        return createVariablePerms(next) as List<List<T>>
-    }
+//    private static <T extends HasName> List<List<T>> createVariablePerms(ArrayList<T> predefinedVars) {
+//        var grouped = predefinedVars.stream()
+//                .collect(Collectors.groupingBy((HasName a) -> a.getName()))
+//
+//        def next = []
+//        grouped.values().forEach(list -> list.forEach(v -> next.add(v)))
+//        return createVariablePerms(next) as List<List<T>>
+//    }
 
 // In:  [[A1,A2],[B1,B2],[C1,C2]]
 // Out: [[A1,B1,C1],[A1,B1,C2],[A1,B2,C1]...]
