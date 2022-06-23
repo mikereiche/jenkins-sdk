@@ -42,7 +42,7 @@ abstract class Environment {
 
     void tempDir(Closure voidClosure) {
         def tempDir = "temp-${UUID.randomUUID().toString().substring(0, 4)}"
-        execute("mkdir -p $tempDir")
+        executeSimple("mkdir -p $tempDir")
         dir(tempDir, voidClosure)
     }
 

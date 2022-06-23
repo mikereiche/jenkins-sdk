@@ -39,7 +39,7 @@ class StageContext {
         def sd = sourceDir()
         if (sd.startsWith("http")) {
             env.tempDir {
-                env.checkout("https://github.com/couchbaselabs/transactions-fit-performer")
+                env.checkout("https://github.com/charlie-hayes/perf-sdk")
                 closure.run()
             }
         }
