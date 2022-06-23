@@ -1,5 +1,6 @@
-package com.couchbase.stages
+package com.couchbase.stages.servers
 
+import com.couchbase.stages.Stage
 import groovy.transform.CompileStatic
 import com.couchbase.context.StageContext
 

@@ -1,13 +1,10 @@
-package com.couchbase.fit.perf.config
+package com.couchbase.perf.shared.config
 
-import com.couchbase.context.StageContext
+
 import com.fasterxml.jackson.annotation.JsonProperty
 import groovy.json.JsonGenerator
-import groovy.json.JsonOutput
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
-
-import java.time.Duration
 
 //import static com.couchbase.fit.perf.config.PerfConfig.Variable.PredefinedVariable.*
 

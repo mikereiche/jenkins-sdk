@@ -1,10 +1,10 @@
-package com.couchbase.fit.perf.database
+package com.couchbase.perf.shared.database
 
 import groovy.sql.Sql
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import com.couchbase.context.StageContext
-import com.couchbase.fit.perf.config.Run
+import com.couchbase.perf.shared.config.Run
 
 import java.util.stream.Collectors
 

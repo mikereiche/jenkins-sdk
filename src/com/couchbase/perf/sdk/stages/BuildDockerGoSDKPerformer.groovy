@@ -1,4 +1,4 @@
-package com.couchbase.fit.stages
+package com.couchbase.perf.sdk.stages
 
 import com.couchbase.context.StageContext
 import com.couchbase.context.environments.Environment

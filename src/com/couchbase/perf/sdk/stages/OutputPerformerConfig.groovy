@@ -1,16 +1,17 @@
-package com.couchbase.stages
+package com.couchbase.perf.sdk.stages
 
-import com.couchbase.fit.perf.config.PredefinedVariablePermutation
+
+import com.couchbase.perf.shared.config.PredefinedVariablePermutation
+import com.couchbase.stages.servers.InitialiseCluster
+import com.couchbase.stages.Stage
 import groovy.json.JsonBuilder
 import groovy.json.JsonGenerator
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.yaml.YamlBuilder
 import com.couchbase.context.StageContext
-import com.couchbase.fit.perf.config.PerfConfig
-import com.couchbase.fit.perf.config.Run
-import com.couchbase.fit.stages.BuildDockerJavaFITPerformer
-import com.couchbase.fit.stages.StartDockerImagePerformer
+import com.couchbase.perf.shared.config.PerfConfig
+import com.couchbase.perf.shared.config.Run
 import org.apache.groovy.yaml.util.YamlConverter
 
 import java.time.Instant
@@ -29,11 +30,11 @@ class OutputPerformerConfig extends Stage {
     private final PerfConfig.Implementation impl
     private final config
     private final InitialiseCluster stageCluster
-    private final InitialisePerformer stagePerformer
+    private final InitialiseSDKPerformer stagePerformer
 
     OutputPerformerConfig(InitialiseCluster stageCluster,
-                          InitialisePerformer stagePerformer,
-                                  config,
+                          InitialiseSDKPerformer stagePerformer,
+                          config,
                           PerfConfig.Cluster cluster,
                           PerfConfig.Implementation impl,
                           List<Run> runs,

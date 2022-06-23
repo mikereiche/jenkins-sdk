@@ -3,8 +3,7 @@ package com.couchbase.context
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import com.couchbase.context.environments.Environment
-import com.couchbase.fit.perf.config.PerfConfig
-import com.couchbase.stages.OutputPerformerConfig
+import com.couchbase.perf.sdk.stages.OutputPerformerConfig
 import com.couchbase.stages.Stage
 
 @CompileStatic

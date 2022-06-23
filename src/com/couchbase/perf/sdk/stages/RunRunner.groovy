@@ -1,5 +1,8 @@
-package com.couchbase.stages
+package com.couchbase.perf.sdk.stages
 
+
+import com.couchbase.stages.servers.InitialiseCluster
+import com.couchbase.stages.Stage
 import groovy.json.JsonBuilder
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
@@ -11,10 +14,10 @@ import com.couchbase.context.StageContext
 @CompileStatic
 class RunRunner extends Stage {
     private final InitialiseCluster stageCluster
-    private final InitialisePerformer stagePerf
+    private final InitialiseSDKPerformer stagePerf
     private final OutputPerformerConfig stageOutput
 
-    RunRunner(InitialiseCluster cluster, InitialisePerformer stagePerf, OutputPerformerConfig stageOutput) {
+    RunRunner(InitialiseCluster cluster, InitialiseSDKPerformer stagePerf, OutputPerformerConfig stageOutput) {
         this.stageCluster = cluster
         this.stagePerf = stagePerf
         this.stageOutput = stageOutput

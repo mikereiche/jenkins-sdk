@@ -1,4 +1,4 @@
-package com.couchbase.fit.stages
+package com.couchbase.perf.shared.stages
 
 import groovy.transform.CompileStatic
 import com.couchbase.context.StageContext

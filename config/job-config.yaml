@@ -60,6 +60,8 @@ matrix:
   #      port: 8080
 
   implementations:
+    - language: python
+      version: 41f71dce093ea0efa60a9fda59da4e4eaa3f5128
 #        - language: python
 #          version: 4.0.1
     #    - language: python

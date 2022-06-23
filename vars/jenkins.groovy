@@ -1,4 +1,4 @@
-import com.couchbase.fit.perf.main.Execute
+import com.couchbase.perf.shared.main.Execute
 
 def info(message) {
     echo "INFO: ${message}"

@@ -1,18 +1,21 @@
-package com.couchbase.fit.perf.main
+package com.couchbase.perf.shared.main
 
 import com.couchbase.context.StageContext
 import com.couchbase.context.environments.EnvironmentLocal
-import com.couchbase.fit.perf.config.ConfigParser
-import com.couchbase.fit.perf.config.PerfConfig
-import com.couchbase.fit.perf.config.Run
-import com.couchbase.fit.perf.database.PerfDatabase
-import com.couchbase.fit.perf.database.RunFromDb
+import com.couchbase.perf.sdk.stages.InitialiseSDKPerformer
+import com.couchbase.perf.sdk.stages.OutputPerformerConfig
+import com.couchbase.perf.sdk.stages.RunRunner
+import com.couchbase.perf.shared.config.ConfigParser
+import com.couchbase.perf.shared.config.PerfConfig
+import com.couchbase.perf.shared.config.Run
+import com.couchbase.perf.shared.database.PerfDatabase
+import com.couchbase.perf.shared.database.RunFromDb
 import com.couchbase.stages.*
+import com.couchbase.stages.servers.InitialiseCluster
 import groovy.transform.CompileStatic
 import groovy.yaml.YamlSlurper
 
 import java.util.stream.Collectors
-import java.time.Instant
 
 import static java.util.stream.Collectors.groupingBy
 
@@ -139,7 +142,7 @@ class Execute {
                 def groupedByPredefined = runsForClusterAndPerformer.stream()
                         .collect(groupingBy((Run run) -> run.predefined))
                 groupedByPredefined.forEach((variable, runsForClusterPerformerPre) ->{
-                    def performerStage = new InitialisePerformer(performer)
+                    def performerStage = new InitialiseSDKPerformer(performer)
                     def runId = UUID.randomUUID().toString()
                     def configFilename = runId + ".yaml"
                     def performerRuns = []

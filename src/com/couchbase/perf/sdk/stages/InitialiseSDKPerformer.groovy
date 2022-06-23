@@ -1,25 +1,25 @@
-package com.couchbase.stages
+package com.couchbase.perf.sdk.stages
 
-import com.couchbase.fit.stages.BuildDockerGoSDKPerformer
-import com.couchbase.fit.stages.BuildDockerPythonSDKPerformer
+import com.couchbase.perf.sdk.stages.BuildDockerGoSDKPerformer
+import com.couchbase.perf.sdk.stages.BuildDockerPythonSDKPerformer
+import com.couchbase.stages.Stage
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import com.couchbase.context.StageContext
-import com.couchbase.fit.perf.config.PerfConfig
-import com.couchbase.fit.stages.BuildDockerJavaFITPerformer
-import com.couchbase.fit.stages.BuildDockerJavaSDKPerformer
-import com.couchbase.fit.stages.StartDockerImagePerformer
+import com.couchbase.perf.shared.config.PerfConfig
+import com.couchbase.perf.sdk.stages.BuildDockerJavaSDKPerformer
+import com.couchbase.perf.shared.stages.StartDockerImagePerformer
 
 /**
  * Builds, copies (if needed), and runs a performer
  */
 @CompileStatic
-class InitialisePerformer extends Stage {
+class InitialiseSDKPerformer extends Stage {
     private PerfConfig.Implementation impl
     private int port = 8060
     private String hostname
 
-    InitialisePerformer(PerfConfig.Implementation impl) {
+    InitialiseSDKPerformer(PerfConfig.Implementation impl) {
         this.impl = impl
         if (impl.port != null) {
             port = impl.port

@@ -1,7 +1,6 @@
-package com.couchbase.fit.perf.config
+package com.couchbase.perf.shared.config
 
 import com.couchbase.context.StageContext
-import com.couchbase.stages.Stage
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
@@ -9,7 +8,6 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovyjarjarantlr4.v4.runtime.misc.Nullable
 
-import java.util.concurrent.ThreadLocalRandom
 import java.util.stream.Collectors
 
 @CompileStatic

@@ -1,8 +1,9 @@
-package com.couchbase.stages
+package com.couchbase.stages.servers
 
+import com.couchbase.stages.Stage
 import groovy.transform.CompileStatic
 import com.couchbase.context.StageContext
-import com.couchbase.fit.perf.config.PerfConfig
+import com.couchbase.perf.shared.config.PerfConfig
 
 /**
  * Initialises a cluster based on config settings
