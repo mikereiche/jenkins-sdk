@@ -75,6 +75,7 @@ class PerfConfig {
         String type
         String source
         String hostname
+        String hostname_docker
         Integer port
     }
 

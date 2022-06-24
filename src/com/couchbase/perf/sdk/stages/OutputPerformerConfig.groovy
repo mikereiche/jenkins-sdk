@@ -92,12 +92,14 @@ class OutputPerformerConfig extends Stage {
             connections {
                 cluster {
                     hostname stageCluster.hostname()
+                    hostname_docker stageCluster.hostname_docker()
                     username 'Administrator'
                     password 'password'
                 }
 
                 performer {
-                    hostname stagePerformer.hostname()
+                    hostname "localhost"
+                    hostname_docker stagePerformer.hostname()
                     port stagePerformer.port()
                 }
 

@@ -32,14 +32,12 @@ class BuildDockerJavaSDKPerformer extends Stage {
     @Override
     void executeImpl(StageContext ctx) {
         def imp = ctx.env
-        imp.tempDir() {
-            // Build context needs to be perf-sdk as we need the .proto files
-            ctx.inSourceDir {
-                imp.dir('performers/java') {
-                    writePomFile(imp)
-                }
-                imp.execute("docker build -f performers/java/Dockerfile -t $imageName .")
+        // Build context needs to be perf-sdk as we need the .proto files
+        ctx.inSourceDir {
+            imp.dir('performers/java/sdk-performer-java') {
+                writePomFile(imp)
             }
+            imp.execute("docker build -f performers/java/Dockerfile -t $imageName .")
         }
     }
 
@@ -47,33 +45,31 @@ class BuildDockerJavaSDKPerformer extends Stage {
      * Updates pom.xml to build with the transaction library under test.
      */
     private List writePomFile(Environment imp) {
-        imp.dir("sdk-performer-java") {
-            /*
-                <dependency>
-                  <groupId>com.couchbase.client</groupId>
-                  <artifactId>couchbase-transactions</artifactId>
-                  <version>1.1.6</version>
-                </dependency>
-             */
-            def pom = new File("${imp.currentDir()}/pom.xml")
-            def lines = pom.readLines()
-            def replaceVersion = false
+        /*
+            <dependency>
+              <groupId>com.couchbase.client</groupId>
+              <artifactId>couchbase-transactions</artifactId>
+              <version>1.1.6</version>
+            </dependency>
+         */
+        def pom = new File("${imp.currentDir()}/pom.xml")
+        def lines = pom.readLines()
+        def replaceVersion = false
 
-            pom.write("")
+        pom.write("")
 
-            for (int i = 0; i < lines.size(); i++) {
-                def line = lines[i]
+        for (int i = 0; i < lines.size(); i++) {
+            def line = lines[i]
 
-                if (replaceVersion) {
-                    assert (line.contains("<version>"))
-                    pom.append("\t\t\t<version>${sdkVersion}</version>\n")
-                    replaceVersion = false
-                } else if (line.contains("<artifactId>java-client</artifactId>")) {
-                    replaceVersion = true
-                    pom.append(line + "\n")
-                } else {
-                    pom.append(line + "\n")
-                }
+            if (replaceVersion) {
+                assert (line.contains("<version>"))
+                pom.append("\t\t\t<version>${sdkVersion}</version>\n")
+                replaceVersion = false
+            } else if (line.contains("<artifactId>java-client</artifactId>")) {
+                replaceVersion = true
+                pom.append(line + "\n")
+            } else {
+                pom.append(line + "\n")
             }
         }
     }

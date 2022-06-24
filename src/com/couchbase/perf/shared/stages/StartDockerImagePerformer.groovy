@@ -8,38 +8,41 @@ import com.couchbase.stages.Stage
 class StartDockerImagePerformer extends Stage {
 
     private String imageName
+    private String containerName
     private int port
     private final String version
 
-    StartDockerImagePerformer(String imageName, int port, String version) {
+    StartDockerImagePerformer(String imageName, String containerName, int port, String version) {
         this.version = version
         this.imageName = imageName
+        this.containerName = containerName
         this.port = port
     }
 
     @Override
     String name() {
-        return "Start docker image $imageName on $port"
+        return "Start docker image $imageName with name ${containerName} on $port"
     }
 
     @Override
     void executeImpl(StageContext ctx) {
         try {
-            //TODO change "performer" to an image name or something, the driver isnt playing well with having the image name as a name atm
-            ctx.env.executeSimple("docker kill performer")
+            ctx.env.execute("docker kill ${containerName}", false, false)
         }
         catch(RuntimeException err) {
         }
 
-        //TODO change "performer" to an image name or something, the driver isnt playing well with having the image name as a name atm
-        ctx.env.executeSimple("docker run --rm --network perf -d -p $port:8060 --name performer $imageName")
+        try {
+            ctx.env.execute("docker rm ${containerName}", false, false)
+        }
+        catch(RuntimeException err) {
+        }
+
+        ctx.env.executeSimple("docker run --rm --network perf -d -p $port:8060 --name ${containerName} $imageName")
     }
 
     @Override
     void finishImpl(StageContext ctx) {
-        //TODO change "performer" to an image name or something, the driver isnt playing well with having the image name as a name atm
-        ctx.env.executeSimple("docker kill performer")
-        // uncomment this when uploading to CI
-        //ctx.env.execute("docker system prune")
+        ctx.env.executeSimple("docker kill ${containerName}")
     }
 }

@@ -9,17 +9,13 @@ import groovy.transform.CompileStatic
 import com.couchbase.context.StageContext
 
 /**
- * Outputs the runner config
+ * Runs the driver and waits for the result.
  */
 @CompileStatic
 class RunRunner extends Stage {
-    private final InitialiseCluster stageCluster
-    private final InitialiseSDKPerformer stagePerf
     private final OutputPerformerConfig stageOutput
 
-    RunRunner(InitialiseCluster cluster, InitialiseSDKPerformer stagePerf, OutputPerformerConfig stageOutput) {
-        this.stageCluster = cluster
-        this.stagePerf = stagePerf
+    RunRunner(OutputPerformerConfig stageOutput) {
         this.stageOutput = stageOutput
     }
 
@@ -31,9 +27,8 @@ class RunRunner extends Stage {
     @CompileDynamic
     @Override
     void executeImpl(StageContext ctx) {
-        ctx.inSourceDir {
-            ctx.env.executeSimple("docker build -f sdk-driver/Dockerfile -t driver .")
-            ctx.env.log(ctx.env.executeSimple("docker run --rm --network perf driver /app/" + stageOutput.outputFilenameAbs()))
-        }
+        // Make Docker happy on Windows
+        def source = stageOutput.outputFilenameAbs()//.replace('\\', '/')
+        ctx.env.execute("docker run --rm --network perf -v ${source}:/app/run-config.yaml driver /app/run-config.yaml")
     }
 }

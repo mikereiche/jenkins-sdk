@@ -34,7 +34,8 @@ environment:
   envvar:
 #    DOCKER_HOST: cbdyncluster docker-host docker ps
 
-  workspace: .\workspace
+  # The workspace directory is where all temporary files will be placed
+  workspace: workspace
 
 # These settings will not be saved to the database
 settings:
@@ -54,7 +55,8 @@ matrix:
     #      replicas: 0
     #      nodes: 1
     - type: unmanaged
-      hostname: cbs
+      hostname: localhost
+      hostname_docker: couchbase
   #    - type: gocaves
   #      source: /home/ec2-user/workspace/performance/sdk-performance/gocaves
   ##      source: /Users/charliehayes/Documents/GitHub/gocaves

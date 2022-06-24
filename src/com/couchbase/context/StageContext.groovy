@@ -47,4 +47,9 @@ class StageContext {
             env.dirAbsolute(sd, closure)
         }
     }
+
+    @CompileDynamic
+    boolean skipDockerBuild() {
+        return jc.settings.skipDockerBuild
+    }
 }

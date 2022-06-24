@@ -31,11 +31,6 @@ class InitialiseSDKPerformer extends Stage {
         return "Init performer $impl"
     }
 
-    @CompileDynamic
-    boolean skipDockerBuild(StageContext ctx) {
-        return ctx.jc.settings.skipDockerBuild
-    }
-
     @Override
     List<Stage> stagesPre(StageContext ctx) {
         if (impl.port != null) {
@@ -71,19 +66,15 @@ class InitialiseSDKPerformer extends Stage {
         return port
     }
 
-    boolean isDocker() {
-        return impl.port == null
-    }
-
-    List<Stage> produceStages(StageContext ctx,Stage stage1, String imageName){
+    List<Stage> produceStages(StageContext ctx, Stage stage1, String imageName){
         List<Stage> stages = []
 
-        if (!skipDockerBuild(ctx)) {
+        if (!ctx.skipDockerBuild()) {
             stages.add(stage1)
         }
 
         if (ctx.performerServer == "localhost") {
-            stages.add(new StartDockerImagePerformer(imageName, port, impl.version))
+            stages.add(new StartDockerImagePerformer(imageName, imageName, port, impl.version))
         } else {
             throw new IllegalArgumentException("Cannot handle running on performer remote server")
         }

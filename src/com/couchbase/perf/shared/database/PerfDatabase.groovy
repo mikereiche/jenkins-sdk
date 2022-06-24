@@ -16,8 +16,13 @@ class RunFromDb {
 @CompileStatic
 class PerfDatabase {
     @CompileDynamic
+    static String databaseUrl(StageContext ctx) {
+        return "jdbc:postgresql://${ctx.jc.database.hostname}:${ctx.jc.database.port}/${ctx.jc.database.database}";
+    }
+
+    @CompileDynamic
     static Sql getConnection(StageContext ctx, String[] args) {
-        def dbUrl = "jdbc:postgresql://${ctx.jc.database.hostname}:${ctx.jc.database.port}/${ctx.jc.database.database}"
+        def dbUrl = databaseUrl(ctx)
         def dbUser = ctx.jc.database.username
         def dbPassword = ctx.jc.database.password
         if (args.length > 0) {
@@ -30,20 +35,8 @@ class PerfDatabase {
     }
 
     static List<RunFromDb> compareRunsAgainstDb(StageContext ctx, List <Run> runs, String[] args) {
+        ctx.env.log("Connecting to database ${databaseUrl(ctx)} to check existing runs")
         def sql = getConnection(ctx, args)
-
-        // the database runs on a persistent AWS instance so we dont need to check if runs exists
-//        if (sql.rows('SELECT * FROM pg_catalog.pg_tables WHERE tablename = "runs";').size() == 0) {
-//            ctx.env.log("`runs` table does not exist yet")
-//            return runs.stream()
-//                    .map(run -> {
-//                        def r = new RunFromDb()
-//                        r.run = run
-//                        r.dbRunIds = new ArrayList<String>()
-//                        return r
-//                    })
-//                    .collect(Collectors.toList())
-//        }
 
         return runs.stream()
                 .map(run -> {
@@ -53,7 +46,6 @@ class PerfDatabase {
                     sql.eachRow(statement) {
                         dbRunIds.add(it.getString("id"))
                     }
-                    // TODO commented for testing, uncomment this
                     ctx.env.log("Found ${dbRunIds.size()} entries for run $statement")
                     def r = new RunFromDb()
                     r.run = run

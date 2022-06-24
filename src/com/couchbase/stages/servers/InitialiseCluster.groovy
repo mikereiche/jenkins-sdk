@@ -54,4 +54,8 @@ class InitialiseCluster extends Stage {
             throw new IllegalArgumentException("Unknown cluster type ${cluster.type}")
         }
     }
+
+    String hostname_docker() {
+        return cluster.hostname_docker
+    }
 }

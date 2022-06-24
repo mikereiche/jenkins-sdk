@@ -33,11 +33,16 @@ class Environment {
 
         initialDir = System.getProperty("user.dir")
         workspaceAbs = new File(config.environment.workspace + File.separatorChar + UUID.randomUUID().toString().substring(0, 6)).getAbsolutePath()
-        logFile = workspaceAbs + File.separatorChar + "log.txt"
+        logFile = new File(workspaceAbs + File.separatorChar + "log.txt")
 
         mkdirs(workspaceAbs)
 
         log("Working directory: $initialDir, workspace: $workspaceAbs, log: ${logFile.absolutePath}")
+
+        try {
+            log("Shell: ${executeSimple("echo \$SHELL")}")
+        }
+        catch (RuntimeException err) {}
     }
 
     void mkdirs(String path) {
@@ -75,9 +80,13 @@ class Environment {
         }
     }
 
-    void execute(String command) {
+    String execute(String command,
+                   boolean saveOutputToFile = true,
+                   boolean logFailure = true) {
         def exeOrig = command.split(" ")[0]
         def exe = exeOrig
+
+        boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows")
 
         if (executableOverrides.containsKey(exe) && executableOverrides.get(exe) != null) {
             def replaceWith = executableOverrides.get(exe)
@@ -99,60 +108,81 @@ class Environment {
                 .replaceAll(':', '-')
                 .replaceAll('\\.', "-")
                 .replaceAll(' ', "-")
-        String stdout = output + ".stdout.log"
-        String stderr = output + ".stderr.log"
 
+        Process proc = null
+        if (isWindows) {
+            proc = ['cmd', '/c', command].execute(envvarConverted, fullWd)
+        }
+        else {
+            proc = ['bash', '-c', command].execute(envvarConverted, fullWd)
+        }
 
-        log("Executing '$command' logging to ${stdout} in directory ${fullWd.getAbsolutePath()} with envvar ${envvarConverted} ")
-        def stdoutFile = new FileWriter(stdout)
-        def stderrFile = new FileWriter(stderr)
+        String ret = null
 
-        def proc = ['bash', '-c', command].execute(envvarConverted, fullWd)
-        proc.consumeProcessOutput(stdoutFile, stderrFile)
-        proc.waitForProcessOutput()
+        log("Executing '$command' with envvar ${envvarConverted}")
 
-        stdoutFile.close()
-        stderrFile.close()
+        if (saveOutputToFile) {
+            String stdout = workspaceAbs + File.separatorChar + output + ".stdout.log"
+            String stderr = workspaceAbs + File.separatorChar + output + ".stderr.log"
+
+            def stdoutFile = new FileWriter(stdout)
+            def stderrFile = new FileWriter(stderr)
+
+            if (saveOutputToFile) {
+                proc.consumeProcessOutput(stdoutFile, stderrFile)
+            }
+            proc.waitForProcessOutput()
+
+            stdoutFile.close()
+            stderrFile.close()
+
+            def stdoutFileAfter = new File(stdout)
+            def stderrFileAfter = new File(stderr)
+
+            // Keep tidy by removing useless empty files
+            if (stdoutFileAfter.size() == 0) {
+                stdoutFileAfter.delete()
+            }
+            // Useful to print the output directly to logs if it's not too large
+            else if (proc.exitValue() != 0 && logFailure) {
+                if (stdoutFileAfter.size() < 5000) {
+                    log(stdoutFileAfter.readLines().join("\n"))
+                } else {
+                    log("Output of ${stdout} is too large to log")
+                }
+            }
+
+            if (stderrFileAfter.size() == 0) {
+                stderrFileAfter.delete()
+            }
+            else if (proc.exitValue() != 0 && logFailure) {
+                if (stderrFileAfter.size() < 5000) {
+                    log(stderrFileAfter.readLines().join("\n"))
+                } else {
+                    log("Output of ${stderr} is too large to log")
+                }
+            }
+        }
+        else {
+            def sout = new StringBuilder(), serr = new StringBuilder()
+
+            proc.waitForProcessOutput(sout, serr)
+
+            ret = sout.toString().trim() + serr.toString().trim()
+        }
 
         if (proc.exitValue() != 0) {
-            log("Process '$command' failed with error ${proc.exitValue()}")
+            if (logFailure) {
+                log("Process '$command' failed with error ${proc.exitValue()}")
+            }
             throw new RuntimeException("Process '$command' failed with error ${proc.exitValue()}")
         }
+
+        return ret
     }
 
     String executeSimple(String command) {
-        def exe = command.split(" ")[0]
-
-        if (executableOverrides.containsKey(exe) && executableOverrides.get(exe) != null) {
-            def replaceWith = executableOverrides.get(exe)
-            // log("Overriding command $exe to $replaceWith")
-            command = command.replace(exe, replaceWith)
-            exe = replaceWith
-        }
-
-        // This hangs sometimes...
-//        def which = "which $exe".execute().text.trim()
-
-        File wd = null
-        if (!workingDirectory.empty()) {
-            wd = workingDirectory.peek()
-        }
-        File fullWd = wd != null ? wd : new File(initialDir)
-        String output = "logs/" + UUID.randomUUID().toString()
-
-        log("Executing '$command' logging to ${output} in directory ${fullWd.getAbsolutePath()} with envvar ${envvarConverted} ")
-
-        def sout = new StringBuilder(), serr = new StringBuilder()
-
-        def proc = ['bash', '-c', command].execute(envvarConverted, fullWd)
-        proc.waitForProcessOutput(sout, serr)
-
-
-        if (proc.exitValue() != 0) {
-            log("Process '$command' failed with error ${proc.exitValue()}")
-            throw new RuntimeException("Process '$command' failed with error ${proc.exitValue()}, ${serr.toString().trim()}")
-        }
-        return sout.toString().trim()
+        return execute(command, false)
     }
 
 //    @Override
@@ -167,7 +197,7 @@ class Environment {
         }
         def str = "${LocalDateTime.now().toString().padRight(30, '0')} ${" " * logIndent}${bonusIndent}$toLog"
         println(str)
-        logFile.println(str)
+        // logFile.println(str)
     }
 
     default startStage(Stage stage) {
