@@ -25,22 +25,15 @@ class RunRunner extends Stage {
 
     @Override
     String name() {
-        return "Run for ${stageOutput.absoluteConfigFilename()}"
+        return "Run for ${stageOutput.outputFilenameAbs()}"
     }
 
     @CompileDynamic
     @Override
     void executeImpl(StageContext ctx) {
-        def json = new JsonBuilder()
-
-        //def hostname = stageCluster.hostname()
-        // if (hostname.equals("localhost") && stagePerf.isDocker()) {
-        //     // Note Docker requirement of host.docker.internal - https://stackoverflow.com/questions/24319662/from-inside-of-a-docker-container-how-do-i-connect-to-the-localhost-of-the-mach
-        //     hostname = "host.docker.internal"
-        // }
         ctx.inSourceDir {
             ctx.env.executeSimple("docker build -f sdk-driver/Dockerfile -t driver .")
-            ctx.env.log(ctx.env.executeSimple("docker run --rm --network perf driver /app/" + stageOutput.outputFilename()))
+            ctx.env.log(ctx.env.executeSimple("docker run --rm --network perf driver /app/" + stageOutput.outputFilenameAbs()))
         }
     }
 }

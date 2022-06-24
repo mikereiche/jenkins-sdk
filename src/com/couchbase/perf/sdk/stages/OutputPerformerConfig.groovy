@@ -24,8 +24,7 @@ import java.util.stream.Collectors
 class OutputPerformerConfig extends Stage {
     private final List<Run> runs
     private final List<PredefinedVariablePermutation> predefinedVars
-    private final String outputFilename
-    private String absoluteOutputFilename = null
+    private final String outputFilenameAbs
     private final PerfConfig.Cluster cluster
     private final PerfConfig.Implementation impl
     private final config
@@ -39,28 +38,24 @@ class OutputPerformerConfig extends Stage {
                           PerfConfig.Implementation impl,
                           List<Run> runs,
                           List<PredefinedVariablePermutation> predefined,
-                          String outputFilename) {
+                          String outputFilenameAbs) {
         this.stagePerformer = stagePerformer
         this.stageCluster = stageCluster
         this.impl = impl
         this.cluster = cluster
         this.runs = runs
         this.predefinedVars = predefined
-        this.outputFilename = outputFilename
+        this.outputFilenameAbs = outputFilenameAbs
         this.config = config
     }
 
     @Override
     String name() {
-        return "Output performer config for ${runs.size()} runs to $outputFilename"
+        return "Output performer config for ${runs.size()} runs to $outputFilenameAbs"
     }
 
-    String absoluteConfigFilename() {
-        return absoluteOutputFilename
-    }
-
-    String outputFilename() {
-        return outputFilename
+    String outputFilenameAbs() {
+        return outputFilenameAbs
     }
 
     @Override
@@ -113,9 +108,6 @@ class OutputPerformerConfig extends Stage {
 
         def converted = YamlConverter.convertJsonToYaml(new StringReader(json.toString()))
 
-        ctx.inSourceDir {
-            absoluteOutputFilename = ctx.env.currentDir() + "/" + outputFilename
-            new File(absoluteOutputFilename).write(converted)
-        }
+        new File(outputFilenameAbs).write(converted)
     }
 }
