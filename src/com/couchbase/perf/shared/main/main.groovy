@@ -1,7 +1,7 @@
 package com.couchbase.perf.shared.main
 
 import com.couchbase.context.StageContext
-import com.couchbase.context.environments.EnvironmentLocal
+import com.couchbase.context.environments.Environment
 import com.couchbase.perf.sdk.stages.InitialiseSDKPerformer
 import com.couchbase.perf.sdk.stages.OutputPerformerConfig
 import com.couchbase.perf.sdk.stages.RunRunner
@@ -29,41 +29,9 @@ class Execute {
             ctx.jc.database.password = args[0]
         }
 
-        String mostRecentCommit = ctx.env.executeSimple("git ls-remote https://github.com/couchbase/couchbase-python-client.git HEAD | tail -1 | sed 's/HEAD//g'")
+        // todo needs to move
+        // String mostRecentCommit = ctx.env.executeSimple("git ls-remote https://github.com/couchbase/couchbase-python-client.git HEAD | tail -1 | sed 's/HEAD//g'")
 
-        def jobConfig = new File("config/job-config.yaml")
-        def lines = jobConfig.readLines()
-        def addImpl = false
-        def changePwd = false
-
-        jobConfig.write("")
-
-        //TODO This is bad, currently we read job config twice. Once to write to it and once to put it in to the PerfConfig class
-        // we should Ideally be putting any new implementations into the class after it has been written.
-        // I tried to do this but was getting some errors when creating a constructor for PerfConfig.Implementation.
-        for (int i = 0; i < lines.size(); i++) {
-            def line = lines[i]
-
-            if (addImpl) {
-                jobConfig.append("    - language: python\n")
-                jobConfig.append("      version: ${mostRecentCommit}\n")
-                jobConfig.append(line + "\n")
-                addImpl = false
-            } else if (line.contains("  implementations:")) {
-                addImpl = true
-                jobConfig.append(line + "\n")
-            if (line.contains("database:")) {
-                changePwd = true
-                jobConfig.append(line + "\n")
-            }
-            //&& dbPwd != ""
-            } else if (changePwd && line.contains("password") && dbPwd != ""){
-                jobConfig.append("  password: " + dbPwd + "\n")
-                changePwd = false
-            } else {
-                jobConfig.append(line + "\n")
-            }
-        }
     }
 
     //The password gets written to job config and as Jenkins keeps the jobconfig file it needs to get removed
@@ -99,7 +67,7 @@ class Execute {
     //@CompileStatic
     static Map<PerfConfig.Cluster, List<Run>> parseConfig2(StageContext ctx, List<RunFromDb> fromDb) {
         /**
-         * Config file declaratively says what runs should exist.  Our job is to comapre to runs that do exist, and run any required.
+         * Config file declaratively says what runs should exist.  Our job is to compare to runs that do exist, and run any required.
          *
          * Read all permutations
          * See what runs already exist
@@ -144,7 +112,7 @@ class Execute {
                 groupedByPredefined.forEach((variable, runsForClusterPerformerPre) ->{
                     def performerStage = new InitialiseSDKPerformer(performer)
                     def runId = UUID.randomUUID().toString()
-                    def configFilename = runId + ".yaml"
+                    def configFilenameAbs = "${ctx.env.workspaceAbs}${File.separatorChar}${runId}.yaml"
                     def performerRuns = []
 
                     def output = new OutputPerformerConfig(
@@ -155,7 +123,7 @@ class Execute {
                             performer,
                             runsForClusterPerformerPre,
                             variable,
-                            configFilename)
+                            configFilenameAbs)
                     performerRuns.add(output)
                     performerRuns.add(new RunRunner(clusterStage, performerStage, output))
 
@@ -172,8 +140,10 @@ class Execute {
 
     static void execute(String[] args) {
         def ys = new YamlSlurper()
-        def jc = ys.parse(new File("config/job-config.yaml"))
-        def env = new EnvironmentLocal(jc.environment)
+        def configFile = new File("config/job-config.yaml")
+        def jc = ys.parse(configFile)
+        def env = new Environment(jc)
+        env.log("Reading config from ${configFile.absolutePath}")
 
         def ctx = new StageContext()
         ctx.jc = jc
