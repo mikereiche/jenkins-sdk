@@ -66,6 +66,28 @@ matrix:
   #      port: 8080
 
   implementations:
+
+    - language: java
+      version: 3.2.0
+
+    - language: java
+      version: 3.2.1
+
+    - language: java
+      version: 3.2.2
+
+    - language: java
+      version: 3.2.3
+
+    - language: java
+      version: 3.2.4
+
+    - language: java
+      version: 3.2.5
+
+    - language: java
+      version: 3.2.6
+
     - language: java
       version: 3.3.0
 
@@ -124,7 +146,7 @@ matrix:
 variables:
   custom:
     - name: doc_num
-      value: 1000000
+      value: 10000000
   predefined:
     - name: horizontal_scaling
       values:
