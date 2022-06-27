@@ -12,10 +12,10 @@ import com.couchbase.context.StageContext
  * Runs the driver and waits for the result.
  */
 @CompileStatic
-class RunRunner extends Stage {
+class RunSDKDriver extends Stage {
     private final OutputPerformerConfig stageOutput
 
-    RunRunner(OutputPerformerConfig stageOutput) {
+    RunSDKDriver(OutputPerformerConfig stageOutput) {
         this.stageOutput = stageOutput
     }
 

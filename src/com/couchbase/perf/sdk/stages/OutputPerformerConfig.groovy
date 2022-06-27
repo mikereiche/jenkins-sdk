@@ -76,6 +76,7 @@ class OutputPerformerConfig extends Stage {
             .build()
 
         if (impl.language == "python" && !(impl.version.contains("."))){
+            // todo move this
             //Find most recent Python version
             // This might be an incorrect way to note down what version is being tested as it just bases it on the most recent release rather than what is being currently worked on
             String currentPythonVersion = ctx.env.executeSimple("python3 -m yolk -V couchbase | sed 's/couchbase //g'")
@@ -99,7 +100,7 @@ class OutputPerformerConfig extends Stage {
 
                 performer {
                     hostname "localhost"
-                    hostname_docker stagePerformer.hostname()
+                    hostname_docker InitialiseSDKPerformer.CONTAINER_NAME
                     port stagePerformer.port()
                 }
 

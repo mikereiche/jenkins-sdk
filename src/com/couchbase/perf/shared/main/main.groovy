@@ -5,12 +5,13 @@ import com.couchbase.context.environments.Environment
 import com.couchbase.perf.sdk.stages.BuildSDKDriver
 import com.couchbase.perf.sdk.stages.InitialiseSDKPerformer
 import com.couchbase.perf.sdk.stages.OutputPerformerConfig
-import com.couchbase.perf.sdk.stages.RunRunner
+import com.couchbase.perf.sdk.stages.RunSDKDriver
 import com.couchbase.perf.shared.config.ConfigParser
 import com.couchbase.perf.shared.config.PerfConfig
 import com.couchbase.perf.shared.config.Run
 import com.couchbase.perf.shared.database.PerfDatabase
 import com.couchbase.perf.shared.database.RunFromDb
+import com.couchbase.perf.shared.stages.StopDockerContainer
 import com.couchbase.stages.*
 import com.couchbase.stages.servers.InitialiseCluster
 import groovy.transform.CompileStatic
@@ -111,10 +112,11 @@ class Execute {
                 def groupedByPredefined = runsForClusterAndPerformer.stream()
                         .collect(groupingBy((Run run) -> run.predefined))
                 groupedByPredefined.forEach((variable, runsForClusterPerformerPre) ->{
+                    def performerRuns = []
+
                     def performerStage = new InitialiseSDKPerformer(performer)
                     def runId = UUID.randomUUID().toString()
                     def configFilenameAbs = "${ctx.env.workspaceAbs}${File.separatorChar}${runId}.yaml"
-                    def performerRuns = []
 
                     def output = new OutputPerformerConfig(
                             clusterStage,
@@ -125,13 +127,16 @@ class Execute {
                             runsForClusterPerformerPre,
                             variable,
                             configFilenameAbs)
+
+                    performerRuns.add(new StopDockerContainer(InitialiseSDKPerformer.CONTAINER_NAME))
                     performerRuns.add(output)
                     if (!ctx.skipDockerBuild()) {
                         performerRuns.add(new BuildSDKDriver())
                     }
-                    performerRuns.add(new RunRunner(output))
 
-                    clusterChildren.add(new ScopedStage(performerStage, performerRuns))
+                    clusterChildren.addAll(performerRuns)
+                    // ScopedStage because we want to bring performer up, run driver, bring performer down
+                    clusterChildren.add(new ScopedStage(performerStage, [new RunSDKDriver(output)]))
                 })
             })
 

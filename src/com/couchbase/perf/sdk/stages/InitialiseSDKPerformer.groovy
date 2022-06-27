@@ -1,23 +1,21 @@
 package com.couchbase.perf.sdk.stages
 
-import com.couchbase.perf.sdk.stages.BuildDockerGoSDKPerformer
-import com.couchbase.perf.sdk.stages.BuildDockerPythonSDKPerformer
+
 import com.couchbase.stages.Stage
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import com.couchbase.context.StageContext
 import com.couchbase.perf.shared.config.PerfConfig
-import com.couchbase.perf.sdk.stages.BuildDockerJavaSDKPerformer
-import com.couchbase.perf.shared.stages.StartDockerImagePerformer
 
 /**
  * Builds, copies (if needed), and runs a performer
  */
 @CompileStatic
 class InitialiseSDKPerformer extends Stage {
+    public static final String CONTAINER_NAME = "performer"
+
     private PerfConfig.Implementation impl
     private int port = 8060
-    private String hostname
+    private String imageName
 
     InitialiseSDKPerformer(PerfConfig.Implementation impl) {
         this.impl = impl
@@ -40,12 +38,15 @@ class InitialiseSDKPerformer extends Stage {
         else {
             if (impl.language == "java") {
                 def stage1 = new BuildDockerJavaSDKPerformer(impl.version)
+                imageName = stage1.imageName
                 return produceStages(ctx, stage1, stage1.getImageName())
             } else if (impl.language == "go"){
                 def stage1 = new BuildDockerGoSDKPerformer(impl.version)
+                imageName = stage1.imageName
                 return produceStages(ctx, stage1, stage1.getImageName())
             } else if (impl.language == "python"){
                 def stage1 = new BuildDockerPythonSDKPerformer(impl.version)
+                imageName = stage1.imageName
                 return produceStages(ctx, stage1, stage1.getImageName())
             } else{
                 throw new IllegalArgumentException("Unknown performer ${impl.language}")
@@ -55,12 +56,6 @@ class InitialiseSDKPerformer extends Stage {
 
     @Override
     void executeImpl(StageContext ctx) {}
-
-    String hostname() {
-        //return hostname
-        //TODO change this
-        return "performer"
-    }
 
     int port() {
         return port
@@ -74,7 +69,7 @@ class InitialiseSDKPerformer extends Stage {
         }
 
         if (ctx.performerServer == "localhost") {
-            stages.add(new StartDockerImagePerformer(imageName, imageName, port, impl.version))
+            stages.add(new StartDockerImagePerformer(imageName, CONTAINER_NAME, port, impl.version))
         } else {
             throw new IllegalArgumentException("Cannot handle running on performer remote server")
         }
