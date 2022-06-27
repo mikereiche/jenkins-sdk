@@ -19,7 +19,11 @@ servers:
 # Generally only CI should be talking to production database.  For local performance testing, spin up a localhost database.
 # The password gets replaced by an environment variable when running on CI
 database:
+  # We have two hostnames because jenkins-sdk will execute normally, but it will run the driver under Docker.  So, different
+  # networking names need to be used when testing locally.  The driver will auto-detect which one to use.  jenkins-sdk
+  # will always use 'hostname'
   hostname: 54.193.85.254
+  # hostname_docker: timedb
   port: 5432
   username: postgres
   password: password
@@ -64,8 +68,10 @@ matrix:
   #      port: 8080
 
   implementations:
-    - language: python
-      version: 41f71dce093ea0efa60a9fda59da4e4eaa3f5128
+    - language: java
+      version: 3.3.1
+    #- language: python
+    #  version: 41f71dce093ea0efa60a9fda59da4e4eaa3f5128
 #        - language: python
 #          version: 4.0.1
     #    - language: python
