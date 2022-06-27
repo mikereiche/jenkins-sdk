@@ -67,6 +67,9 @@ matrix:
 
   implementations:
     - language: java
+      version: 3.3.0
+
+    - language: java
       version: 3.3.1
     #- language: python
     #  version: 41f71dce093ea0efa60a9fda59da4e4eaa3f5128
@@ -121,7 +124,7 @@ matrix:
 variables:
   custom:
     - name: doc_num
-      value: 10
+      value: 1000000
   predefined:
     - name: horizontal_scaling
       values:
