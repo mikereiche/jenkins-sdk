@@ -14,16 +14,14 @@ servers:
     # Either the location of a checked-out transactions-fit-performer / perf-sdk project, or "https://github.com/couchbaselabs/transactions-fit-performer"
     # source: https://github.com/couchbaselabs/transactions-fit-performer
 #    source: /Users/charliehayes/Documents/GitHub/perf-sdk
-    source: /home/ec2-user/workspace/performance/sdk-performance/perf-sdk
+    source: c:\dev\perf-sdk
 
 # Generally only CI should be talking to production database.  For local performance testing, spin up a localhost database.
 # The password gets replaced by an environment variable when running on CI
 database:
-  # We have two hostnames because jenkins-sdk will execute normally, but it will run the driver under Docker.  So, different
-  # networking names need to be used when testing locally.  The driver will auto-detect which one to use.  jenkins-sdk
-  # will always use 'hostname'
+  # The driver will use the _docker variant if it is running inside Docker.  This allows running everything locally in Docker.
   hostname: 54.193.85.254
-  # hostname_docker: timedb
+  hostname_docker: 54.193.85.254
   port: 5432
   username: postgres
   password: password
@@ -33,6 +31,7 @@ environment:
   # Can override any executables here, to workaround environmental/path issues.
   executables:
   #    docker: /usr/bin/docker
+    #docker: "c:\\Program/ Files\\Docker\\Docker\\resources\\bin\\docker.exe"
 
   # These will be added to environment variables when running executables
   envvar:
@@ -47,10 +46,10 @@ settings:
   dryRun: false
 
   # Whether to ignore whatever runs are already in the database
-  force: false
+  force: true
 
   # If confident that all Docker images are built and up-to-date
-  skipDockerBuild: false
+  skipDockerBuild: true
 
 matrix:
   clusters:
@@ -60,6 +59,7 @@ matrix:
     #      nodes: 1
     - type: unmanaged
       hostname: localhost
+      # The driver will use the _docker variant if it is running inside Docker.  This allows running everything locally in Docker.
       hostname_docker: couchbase
   #    - type: gocaves
   #      source: /home/ec2-user/workspace/performance/sdk-performance/gocaves
@@ -103,7 +103,7 @@ matrix:
     # If just port is specified: the performer is expected to be running already at location servers.performer.
     # E.g. this is for localhost testing.
     # Otherwise, specify language and version, and this tool will spinup a performer running at location servers.performer.
-  #    - port: 8060
+    #    - port: 8060
 
   workloads:
     - operations:
@@ -123,7 +123,7 @@ matrix:
 variables:
   custom:
     - name: doc_num
-      value: 1000000
+      value: 10
   predefined:
     - name: horizontal_scaling
       values:
