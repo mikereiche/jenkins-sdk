@@ -58,7 +58,7 @@ matrix:
     - type: unmanaged
       hostname: localhost
       # The driver will use the _docker variant if it is running inside Docker.  This allows running everything locally in Docker.
-      hostname_docker: couchbase
+      hostname_docker: localhost
   #    - type: gocaves
   #      source: /home/ec2-user/workspace/performance/sdk-performance/gocaves
   ##      source: /Users/charliehayes/Documents/GitHub/gocaves
