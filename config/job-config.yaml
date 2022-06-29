@@ -198,7 +198,7 @@ matrix:
 
   workloads:
     - operations:
-        - op: insert
+        - op: replace
           count: $doc_num
 #    - operations:
 #        - op: get
