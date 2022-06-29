@@ -4,7 +4,8 @@
 # Any runs that need running, will be.
 
 servers:
-  # This is where the performers should run.  If not "localhost" they will be scp-ed to here, in the form of a tarred Docker image.
+  # This is where the performers should run.  Currently only "localhost" is supported.
+  # In future we want to supported scp-ing the performers to a remote host.
   performer: localhost
 
   driver:
@@ -66,86 +67,94 @@ matrix:
   #      port: 8080
 
   implementations:
-    - language: java
-      version: 3.0.0
+    # todo support version ranges
+    #- language: java
+    #  version: 3.X.X
 
-    - language: java
-      version: 3.0.1
+    # todo support snapshot builds
+    #- language: java
+    #  version: snapshot
 
-    - language: java
-      version: 3.0.2
-
-    - language: java
-      version: 3.0.3
-
-    - language: java
-      version: 3.0.4
-
-    - language: java
-      version: 3.0.5
-
-    - language: java
-      version: 3.0.6
-
-    - language: java
-      version: 3.0.7
-
-    - language: java
-      version: 3.0.8
-
-    - language: java
-      version: 3.0.9
-
-    - language: java
-      version: 3.0.10
-
-    - language: java
-      version: 3.1.0
-
-    - language: java
-      version: 3.1.1
-
-    - language: java
-      version: 3.1.2
-
-    - language: java
-      version: 3.1.3
-
-    - language: java
-      version: 3.1.4
-
-    - language: java
-      version: 3.1.5
-
-    - language: java
-      version: 3.1.6
-
-    - language: java
-      version: 3.1.7
-
-    - language: java
-      version: 3.1.8
-
-    - language: java
-      version: 3.2.0
-
-    - language: java
-      version: 3.2.1
-
-    - language: java
-      version: 3.2.2
-
-    - language: java
-      version: 3.2.3
-
-    - language: java
-      version: 3.2.4
-
-    - language: java
-      version: 3.2.5
-
-    - language: java
-      version: 3.2.6
+#    - language: java
+#      version: 3.0.0
+#
+#    - language: java
+#      version: 3.0.1
+#
+#    - language: java
+#      version: 3.0.2
+#
+#    - language: java
+#      version: 3.0.3
+#
+#    - language: java
+#      version: 3.0.4
+#
+#    - language: java
+#      version: 3.0.5
+#
+#    - language: java
+#      version: 3.0.6
+#
+#    - language: java
+#      version: 3.0.7
+#
+#    - language: java
+#      version: 3.0.8
+#
+#    - language: java
+#      version: 3.0.9
+#
+#    - language: java
+#      version: 3.0.10
+#
+#    - language: java
+#      version: 3.1.0
+#
+#    - language: java
+#      version: 3.1.1
+#
+#    - language: java
+#      version: 3.1.2
+#
+#    - language: java
+#      version: 3.1.3
+#
+#    - language: java
+#      version: 3.1.4
+#
+#    - language: java
+#      version: 3.1.5
+#
+#    - language: java
+#      version: 3.1.6
+#
+#    - language: java
+#      version: 3.1.7
+#
+#    - language: java
+#      version: 3.1.8
+#
+#    - language: java
+#      version: 3.2.0
+#
+#    - language: java
+#      version: 3.2.1
+#
+#    - language: java
+#      version: 3.2.2
+#
+#    - language: java
+#      version: 3.2.3
+#
+#    - language: java
+#      version: 3.2.4
+#
+#    - language: java
+#      version: 3.2.5
+#
+#    - language: java
+#      version: 3.2.6
 
     - language: java
       version: 3.3.0
@@ -205,11 +214,11 @@ matrix:
 variables:
   custom:
     - name: doc_num
-      value: 1000000
+      value: 100000
   predefined:
     - name: horizontal_scaling
       values:
-        - 1
+        - 20
 #        - 2
 #    - name: durability
 #      values:
