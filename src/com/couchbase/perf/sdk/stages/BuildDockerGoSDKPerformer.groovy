@@ -30,14 +30,12 @@ class BuildDockerGoSDKPerformer extends Stage{
     @Override
     void executeImpl(StageContext ctx) {
         def imp = ctx.env
-        imp.tempDir() {
-            // Build context needs to be perf-sdk as we need the .proto files
-            ctx.inSourceDir {
-                imp.dir('performers/go') {
-                    writeGoModFile(imp)
-                }
-                imp.execute("docker build -f performers/go/Dockerfile -t $imageName .")
+        // Build context needs to be perf-sdk as we need the .proto files
+        ctx.inSourceDirAbsolute {
+            imp.dir('performers/go') {
+                writeGoModFile(imp)
             }
+            imp.execute("docker build -f performers/go/Dockerfile -t $imageName .")
         }
     }
 

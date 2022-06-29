@@ -33,14 +33,12 @@ class BuildDockerJavaFITPerformer extends Stage {
     @Override
     void executeImpl(StageContext ctx) {
         def imp = ctx.env
-        imp.tempDir() {
-            // Build context needs to be transactions-fit-performer as we need the .proto files
-            ctx.inSourceDir {
-                imp.dir('performers/java') {
-                    writePomFile(imp)
-                }
-                imp.execute("docker build -f performers/java/Dockerfile -t $imageName .")
+        // Build context needs to be transactions-fit-performer as we need the .proto files
+        ctx.inSourceDirAbsolute {
+            imp.dir('performers/java') {
+                writePomFile(imp)
             }
+            imp.execute("docker build -f performers/java/Dockerfile -t $imageName .")
         }
     }
 

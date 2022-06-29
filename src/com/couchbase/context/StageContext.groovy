@@ -34,7 +34,7 @@ class StageContext {
     }
 
     // Runs the closure inside the source directory, checking it out if necessary
-    def inSourceDir(Closure closure) {
+    def inSourceDirAbsolute(Closure closure) {
         def sd = sourceDir()
         if (sd.startsWith("http")) {
             env.sourceCheckoutDirAbsolute {

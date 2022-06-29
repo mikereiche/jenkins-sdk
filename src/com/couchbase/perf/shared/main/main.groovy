@@ -92,7 +92,7 @@ class Execute {
         def groupedByCluster = toRun.stream()
                 .collect(groupingBy((Run run) -> run.cluster))
 
-        ctx.env.log("Have ${toRun.size()} runs not in database, requiring ${groupedByCluster.size()} clusters")
+        ctx.env.log("Have ${toRun.size()} runs not in database (or forced rerun), requiring ${groupedByCluster.size()} clusters")
         return groupedByCluster
     }
 

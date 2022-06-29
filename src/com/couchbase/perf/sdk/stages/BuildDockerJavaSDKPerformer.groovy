@@ -33,7 +33,7 @@ class BuildDockerJavaSDKPerformer extends Stage {
     void executeImpl(StageContext ctx) {
         def imp = ctx.env
         // Build context needs to be perf-sdk as we need the .proto files
-        ctx.inSourceDir {
+        ctx.inSourceDirAbsolute {
             imp.dir('performers/java/sdk-performer-java') {
                 writePomFile(imp)
             }

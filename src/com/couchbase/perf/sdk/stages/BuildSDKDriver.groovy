@@ -21,7 +21,7 @@ class BuildSDKDriver extends Stage {
     @CompileDynamic
     @Override
     void executeImpl(StageContext ctx) {
-        ctx.inSourceDir {
+        ctx.inSourceDirAbsolute {
             ctx.env.execute("docker build -f sdk-driver/Dockerfile -t driver .")
         }
     }
