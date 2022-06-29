@@ -37,9 +37,11 @@ class StageContext {
     def inSourceDir(Closure closure) {
         def sd = sourceDir()
         if (sd.startsWith("http")) {
-            env.tempDir {
-                env.checkout(sd)
-                closure.run()
+            env.sourceCheckoutDirAbsolute {
+                if (!new File(env.currentDir() + File.separatorChar + "perf-sdk").exists()) {
+                    env.checkout(sd)
+                }
+                env.dir("perf-sdk", closure)
             }
         }
         else {

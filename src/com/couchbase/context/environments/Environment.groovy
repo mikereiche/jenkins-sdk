@@ -217,7 +217,13 @@ class Environment {
     void tempDir(Closure voidClosure) {
         def tempDir = "$workspaceAbs/temp-${UUID.randomUUID().toString().substring(0, 4)}"
         mkdirs(tempDir)
-        dir(tempDir, voidClosure)
+        dirAbsolute(tempDir, voidClosure)
+    }
+
+    void sourceCheckoutDirAbsolute(Closure voidClosure) {
+        def tempDir = "$workspaceAbs/source"
+        mkdirs(tempDir)
+        dirAbsolute(tempDir, voidClosure)
     }
 
     void checkout(String c) {
