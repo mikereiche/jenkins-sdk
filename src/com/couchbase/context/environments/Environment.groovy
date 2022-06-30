@@ -83,7 +83,8 @@ class Environment {
     String execute(String command,
                    boolean saveOutputToFile = true,
                    boolean logFailure = true,
-                   boolean writeOutputDirectly = false) {
+                   boolean writeOutputDirectly = false,
+                   boolean background = false) {
         def exeOrig = command.split(" ")[0]
         def exe = exeOrig
 
@@ -123,6 +124,10 @@ class Environment {
         log("Executing '$command' with envvar ${envvarConverted}")
 
         if (saveOutputToFile) {
+            if (background) {
+                throw new IllegalArgumentException("background not supported in this mode")
+            }
+
             String stdout = workspaceAbs + File.separatorChar + output + ".stdout.log"
             String stderr = workspaceAbs + File.separatorChar + output + ".stderr.log"
 
@@ -166,9 +171,18 @@ class Environment {
             }
         }
         else if (writeOutputDirectly) {
-            proc.waitForProcessOutput(System.out, System.err)
+            if (background) {
+                proc.consumeProcessOutput(System.out, System.err)
+            }
+            else {
+                proc.waitForProcessOutput(System.out, System.err)
+            }
         }
         else {
+            if (background) {
+                throw new IllegalArgumentException("background not supported in this mode")
+            }
+
             def sout = new StringBuilder(), serr = new StringBuilder()
 
             proc.waitForProcessOutput(sout, serr)
@@ -176,7 +190,7 @@ class Environment {
             ret = sout.toString().trim() + serr.toString().trim()
         }
 
-        if (proc.exitValue() != 0) {
+        if (!background && proc.exitValue() != 0) {
             if (logFailure) {
                 log("Process '$command' failed with error ${proc.exitValue()}")
             }

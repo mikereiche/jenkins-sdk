@@ -26,8 +26,12 @@ class StartDockerImagePerformer extends Stage {
 
     @Override
     void executeImpl(StageContext ctx) {
-        ctx.env.execute("docker run --rm --network perf -d -p $port:8060 --name ${containerName} $imageName",
+        // -d so this will run in background
+        ctx.env.execute("docker run --rm -d --network perf -p $port:8060 --name ${containerName} $imageName",
                 false, false, true)
+        // Stream the logs in the background
+        ctx.env.execute("docker logs --follow ${containerName}", false, false, true, true)
+        // Neither of the commands above will block
     }
 
     @Override

@@ -34,6 +34,20 @@ class PerfDatabase {
         return sql
     }
 
+    static void execute(Sql sql, StageContext ctx, String st) {
+        ctx.env.log(st)
+        sql.execute(st)
+    }
+
+    static void migrate(StageContext ctx, String[] args) {
+        def sql = getConnection(ctx, args)
+        execute(sql, ctx, "CREATE TABLE IF NOT EXISTS runs (id uuid PRIMARY KEY, datetime timestamp, params jsonb)")
+        execute(sql, ctx, "CREATE TABLE IF NOT EXISTS buckets (time TIMESTAMPTZ NOT NULL, run_id uuid, operations_total int, operations_success int, operations_failed int, duration_min_us int, duration_max_us int, duration_average_us int, duration_p50_us int, duration_p95_us int, duration_p99_us int, errors jsonb)")
+        execute(sql, ctx, "CREATE TABLE IF NOT EXISTS metrics (initiated TIMESTAMPTZ NOT NULL, run_id uuid, metrics jsonb)")
+        execute(sql, ctx, "ALTER TABLE buckets ADD COLUMN IF NOT EXISTS errors jsonb")
+        execute(sql, ctx, "ALTER TABLE buckets DROP COLUMN IF EXISTS operations_incomplete")
+    }
+
     static List<RunFromDb> compareRunsAgainstDb(StageContext ctx, List <Run> runs, String[] args) {
         ctx.env.log("Connecting to database ${databaseUrl(ctx)} to check existing runs")
         def sql = getConnection(ctx, args)

@@ -162,6 +162,7 @@ class Execute {
         ctx.force = jc.settings.force
         String version = jcPrep(ctx, args)
         def allPerms = parseConfig(ctx)
+        PerfDatabase.migrate(ctx, args)
         def db = PerfDatabase.compareRunsAgainstDb(ctx, allPerms, args)
         def parsed2 = parseConfig2(ctx, db)
         def planned = plan(ctx, parsed2, jc)
