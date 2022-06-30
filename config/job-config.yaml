@@ -68,8 +68,8 @@ matrix:
 
   implementations:
     # todo support version ranges
-    #- language: java
-    #  version: 3.X.X
+#    - language: java
+#      version: 3.X.X
 
     # todo support snapshot builds
     #- language: java
@@ -156,8 +156,8 @@ matrix:
 #    - language: java
 #      version: 3.2.6
 
-    - language: java
-      version: 3.3.0
+#    - language: java
+#      version: 3.3.0
 
     - language: java
       version: 3.3.1
