@@ -218,7 +218,7 @@ variables:
   predefined:
     - name: horizontal_scaling
       values:
-        - 1
+        - 20
 #        - 2
 #    - name: durability
 #      values:
