@@ -145,22 +145,23 @@ class Environment {
             }
             // Useful to print the output directly to logs if it's not too large
             else if (proc.exitValue() != 0 && logFailure) {
-                if (stdoutFileAfter.size() < 5000) {
+                // Due to difficulties with getting logs from dynamic CI nodes, just logging everything regardless
+//                if (stdoutFileAfter.size() < 5000) {
                     log(stdoutFileAfter.readLines().join("\n"))
-                } else {
-                    log("Output of ${stdout} is too large to log")
-                }
+//                } else {
+//                    log("Output of ${stdout} is too large to log")
+//                }
             }
 
             if (stderrFileAfter.size() == 0) {
                 stderrFileAfter.delete()
             }
             else if (proc.exitValue() != 0 && logFailure) {
-                if (stderrFileAfter.size() < 5000) {
+//                if (stderrFileAfter.size() < 5000) {
                     log(stderrFileAfter.readLines().join("\n"))
-                } else {
-                    log("Output of ${stderr} is too large to log")
-                }
+//                } else {
+//                    log("Output of ${stderr} is too large to log")
+//                }
             }
         }
         else {
