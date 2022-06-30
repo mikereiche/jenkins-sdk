@@ -26,7 +26,8 @@ class StartDockerImagePerformer extends Stage {
 
     @Override
     void executeImpl(StageContext ctx) {
-        ctx.env.execute("docker run --rm --network perf -d -p $port:8060 --name ${containerName} $imageName")
+        ctx.env.execute("docker run --rm --network perf -d -p $port:8060 --name ${containerName} $imageName",
+                false, false, true)
     }
 
     @Override

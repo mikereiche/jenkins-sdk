@@ -82,7 +82,8 @@ class Environment {
 
     String execute(String command,
                    boolean saveOutputToFile = true,
-                   boolean logFailure = true) {
+                   boolean logFailure = true,
+                   boolean writeOutputDirectly = false) {
         def exeOrig = command.split(" ")[0]
         def exe = exeOrig
 
@@ -163,6 +164,9 @@ class Environment {
 //                    log("Output of ${stderr} is too large to log")
 //                }
             }
+        }
+        else if (writeOutputDirectly) {
+            proc.waitForProcessOutput(System.out, System.err)
         }
         else {
             def sout = new StringBuilder(), serr = new StringBuilder()
