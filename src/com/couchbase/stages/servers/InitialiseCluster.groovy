@@ -55,6 +55,10 @@ class InitialiseCluster extends Stage {
         }
     }
 
+    String type() {
+        return cluster.type
+    }
+
     String hostname_docker() {
         return cluster.hostname_docker
     }

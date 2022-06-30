@@ -96,6 +96,7 @@ class OutputPerformerConfig extends Stage {
                     hostname_docker stageCluster.hostname_docker()
                     username 'Administrator'
                     password 'password'
+                    type stageCluster.type()
                 }
 
                 performer {
