@@ -65,7 +65,6 @@ class OutputPerformerConfig extends Stage {
             def yaml = new YamlBuilder()
             yaml {
                 uuid UUID.randomUUID().toString()
-                description run.description
                 operations(run.workload.operations)
             }
             yaml.content

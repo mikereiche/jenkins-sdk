@@ -198,8 +198,13 @@ matrix:
 
   workloads:
     - operations:
-        - op: insert
+        - op: replace
           count: $doc_num
+          docLocation:
+            method: pool
+            poolSize: $doc_num
+            poolSelectionStrategy: counter
+
 #    - operations:
 #        - op: get
 #          count: $doc_num

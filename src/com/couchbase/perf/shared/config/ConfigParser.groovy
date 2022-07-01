@@ -37,7 +37,6 @@ class ConfigParser {
                         run.vars.custom = config.variables.custom
                         run.predefined = permutation
                         run.workload = workload
-                        run.description = getOperationDescription(run.workload)
 
                         out.add(run)
                     }
@@ -71,61 +70,7 @@ class ConfigParser {
 //        }
 //    }
 
-    static private def addOp(@Nullable StringBuilder sb, PerfConfig.Workload workload, PerfConfig.Workload.Operation op, int repeatIdx) {
-        String docId = "__doc_" + repeatIdx
 
-        switch (op.op) {
-            case PerfConfig.Workload.Operation.Op.INSERT:
-                if (sb != null) {
-                    sb.append("inserting")
-                }
-                break
-            case PerfConfig.Workload.Operation.Op.REPLACE:
-                if (sb != null) {
-                    sb.append("replacing")
-                }
-                break
-            case PerfConfig.Workload.Operation.Op.REMOVE:
-                if (sb != null) {
-                    sb.append("removing")
-                }
-                break
-            case PerfConfig.Workload.Operation.Op.GET:
-                if (sb != null) {
-                    sb.append("getting")
-                }
-                break
-            default:
-                throw new IllegalArgumentException("Unknown op " + op)
-        }
-    }
-
-
-    static private String getOperationDescription(PerfConfig.Workload workload) {
-        StringBuilder sb = new StringBuilder();
-//        var ops = new ArrayList<Op>();
-
-        workload.operations.forEach(op -> {
-            if (op.op != null) {
-                addOp(sb, workload, op, 0)
-//                ops.add();
-            }
-        });
-
-        return sb.toString()
-    }
-
-    static private int evaluateCount(SetWorkload workload, String count) {
-        try {
-            return Integer.parseInt(count)
-        } catch (RuntimeException err) {
-            if (count.startsWith('$')) {
-                return workload.variables.getCustomVarAsInt(count)
-            }
-
-            throw new IllegalArgumentException("Don't know how to handle repeated count " + count)
-        }
-    }
 
     static private List<List<PredefinedVariablePermutation>> getPredefinedPerms(StageContext ctx, List < PerfConfig.PredefinedVariable > vars){
         cartesianProduct(ctx, vars, new ArrayList<PredefinedVariablePermutation>())

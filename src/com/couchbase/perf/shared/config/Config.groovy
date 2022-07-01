@@ -6,8 +6,14 @@ import groovy.json.JsonGenerator
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
 
-//import static com.couchbase.fit.perf.config.PerfConfig.Variable.PredefinedVariable.*
 
+/**
+ * The parsed job-config.yaml.
+ *
+ * Try to parse the minimum required into objects, as we currently have very similar code here and in the driver
+ * (which has to parse a similar per-run config), and it's brittle.  Aim to just parse through the YAML into the per-run
+ * config as much as possible.
+ */
 @CompileStatic
 @ToString(includeNames = true, includePackage = false)
 class PerfConfig {
@@ -21,7 +27,7 @@ class PerfConfig {
     static class Matrix {
         List<Cluster> clusters
         List<Implementation> implementations
-        List<Workload> workloads
+        List<Object> workloads
     }
 
     @ToString(includeNames = true, includePackage = false)
@@ -85,93 +91,6 @@ class PerfConfig {
         String version
         Integer port
     }
-
-    @ToString(includeNames = true, includePackage = false)
-    static class Workload {
-//        String description
-        List<Operation> operations
-        //Transaction transaction
-        //Variables variables
-        
-        @ToString(includeNames = true, includePackage = false)
-        static class Operation {
-            Op op
-            String count
-
-            @ToString(includeNames = true, includePackage = false)
-            static enum Op {
-                @JsonProperty("insert") INSERT,
-                @JsonProperty("replace") REPLACE,
-                @JsonProperty("remove") REMOVE,
-                @JsonProperty("get") GET
-
-                @Override
-                String toString() {
-                    return this.name().toLowerCase()
-                }
-            }
-        }
-    
-
-        @ToString(includeNames = true, includePackage = false)
-        static class Transaction {
-            List<Operation> operations
-
-            @ToString(includeNames = true, includePackage = false)
-            static class Operation {
-                Op op
-                Doc doc
-                Operation repeat
-                String count
-
-                @ToString(includeNames = true, includePackage = false)
-                static enum Op {
-                    @JsonProperty("insert") INSERT,
-                    @JsonProperty("replace") REPLACE,
-                    @JsonProperty("remove") REMOVE
-
-                    @Override
-                    String toString() {
-                        return this.name().toLowerCase()
-                    }
-                }
-            }
-
-            static class Doc {
-                From from
-                Distribution distribution
-
-                @ToString(includeNames = true, includePackage = false)
-                static enum From {
-                    @JsonProperty("uuid") UUID,
-                    @JsonProperty("pool") POOL
-
-                    @Override
-                    String toString() {
-                        return this.name().toLowerCase()
-                    }
-                }
-
-                @ToString(includeNames = true, includePackage = false)
-                static enum Distribution {
-                    @JsonProperty("uniform") UNIFORM
-
-                    @Override
-                    String toString() {
-                        return this.name().toLowerCase()
-                    }
-                }
-
-                @Override
-                String toString() {
-                    return "doc{" +
-                            "from=" + from.name().toLowerCase() +
-                            (distribution == null ? "" : ", dist=" + distribution.name().toLowerCase()) +
-                            '}'
-                }
-            }
-        }
-    }
 }
 
 @ToString(includeNames = true, includePackage = false)
@@ -192,18 +111,6 @@ class PredefinedVariablePermutation {
         String toString() {
             return this.name().toLowerCase()
         }
-    }
-}
-
-@CompileStatic
-@ToString(includeNames = true, includePackage = false)
-class SetWorkload {
-    PerfConfig.Workload.Transaction transaction
-    SetVariables variables
-
-    SetWorkload(PerfConfig.Workload.Transaction transaction, SetVariables variables) {
-        this.transaction = transaction
-        this.variables = variables
     }
 }
 
@@ -296,8 +203,7 @@ class Run {
     //TODO passing in predefined variables twice, find a better way to do this
     PerfConfig.Variables vars
     List<PredefinedVariablePermutation> predefined
-    String description
-    PerfConfig.Workload workload
+    Object workload
 
     def toJson() {
         Map<String, Object> jsonVars = new HashMap<>()
@@ -322,7 +228,6 @@ class Run {
                 "vars"     : jsonVars,
                 "cluster"  : clusterVars,
                 "workload" : [
-                        "description": description
                 ],
         ])
     }
