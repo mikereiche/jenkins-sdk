@@ -199,10 +199,10 @@ matrix:
   workloads:
     - operations:
         - op: replace
-          count: 1000000
+          count: 10000000
           docLocation:
             method: pool
-            poolSize: 10000
+            poolSize: 100000
             poolSelectionStrategy: counter
 
 #    - operations:
