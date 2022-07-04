@@ -45,7 +45,7 @@ settings:
   dryRun: false
 
   # Whether to ignore whatever runs are already in the database
-  force: true
+  force: false
 
   # If confident that all Docker images are built and up-to-date
   skipDockerBuild: false
