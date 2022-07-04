@@ -227,8 +227,7 @@ class Run {
                 "impl"     : impl,
                 "vars"     : jsonVars,
                 "cluster"  : clusterVars,
-                "workload" : [
-                ],
+                "workload" : workload,
         ])
     }
 }
