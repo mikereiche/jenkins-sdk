@@ -30,8 +30,12 @@ class ScopedStage extends Stage {
             parent.executeImpl(ctx)
         }
         children.forEach(child -> {
-            child.execute(ctx)
-            child.finish(ctx)
+            try {
+                child.execute(ctx)
+            }
+            finally {
+                child.finish(ctx)
+            }
         })
     }
 
