@@ -205,11 +205,11 @@ matrix:
             poolSize: $pool_size
             poolSelectionStrategy: counter
 
-    - operations:
-        - op: insert
-          count: $doc_num
-          docLocation:
-            method: uuid
+#    - operations:
+#        - op: insert
+#          count: $doc_num
+#          docLocation:
+#            method: uuid
 
     - operations:
         - op: get
