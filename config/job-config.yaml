@@ -13,14 +13,14 @@ servers:
     hostname: localhost
 
     # Either the location of a checked-out perf-sdk project, or "https://github.com/couchbaselabs/perf-sdk"
-    source: /home/ec2-user/workspace/performance/sdk-performance/perf-sdk
+    source: c:\dev\perf-sdk
 
 # Generally only CI should be talking to production database.  For local performance testing, spin up a localhost database.
 # The password gets replaced by an environment variable when running on CI
 database:
   # The driver will use the _docker variant if it is running inside Docker.  This allows running everything locally in Docker.
-  hostname: 54.193.85.254
-  hostname_docker: 54.193.85.254
+  hostname: localhost
+  hostname_docker: timedb
   port: 5432
   username: postgres
   password: password
@@ -48,7 +48,7 @@ settings:
   force: false
 
   # If confident that all Docker images are built and up-to-date
-  skipDockerBuild: false
+  skipDockerBuild: true
 
 matrix:
   clusters:
@@ -59,7 +59,7 @@ matrix:
     - type: unmanaged
       hostname: localhost
       # The driver will use the _docker variant if it is running inside Docker.  This allows running everything locally in Docker.
-      hostname_docker: cbs
+      hostname_docker: couchbase
   #    - type: gocaves
   #      source: /home/ec2-user/workspace/performance/sdk-performance/gocaves
   ##      source: /Users/charliehayes/Documents/GitHub/gocaves
@@ -75,89 +75,89 @@ matrix:
     #- language: java
     #  version: snapshot
 
-    - language: java
-      version: 3.0.0
-
-    - language: java
-      version: 3.0.1
-
-    - language: java
-      version: 3.0.2
-
-    - language: java
-      version: 3.0.3
-
-    - language: java
-      version: 3.0.4
-
-    - language: java
-      version: 3.0.5
-
-    - language: java
-      version: 3.0.6
-
-    - language: java
-      version: 3.0.7
-
-    - language: java
-      version: 3.0.8
-
-    - language: java
-      version: 3.0.9
-
-    - language: java
-      version: 3.0.10
-
-    - language: java
-      version: 3.1.0
-
-    - language: java
-      version: 3.1.1
-
-    - language: java
-      version: 3.1.2
-
-    - language: java
-      version: 3.1.3
-
-    - language: java
-      version: 3.1.4
-
-    - language: java
-      version: 3.1.5
-
-    - language: java
-      version: 3.1.6
-
-    - language: java
-      version: 3.1.7
-
-    - language: java
-      version: 3.1.8
-
-    - language: java
-      version: 3.2.0
-
-    - language: java
-      version: 3.2.1
-
-    - language: java
-      version: 3.2.2
-
-    - language: java
-      version: 3.2.3
-
-    - language: java
-      version: 3.2.4
-
-    - language: java
-      version: 3.2.5
-
-    - language: java
-      version: 3.2.6
-
-    - language: java
-      version: 3.3.0
+#    - language: java
+#      version: 3.0.0
+#
+#    - language: java
+#      version: 3.0.1
+#
+#    - language: java
+#      version: 3.0.2
+#
+#    - language: java
+#      version: 3.0.3
+#
+#    - language: java
+#      version: 3.0.4
+#
+#    - language: java
+#      version: 3.0.5
+#
+#    - language: java
+#      version: 3.0.6
+#
+#    - language: java
+#      version: 3.0.7
+#
+#    - language: java
+#      version: 3.0.8
+#
+#    - language: java
+#      version: 3.0.9
+#
+#    - language: java
+#      version: 3.0.10
+#
+#    - language: java
+#      version: 3.1.0
+#
+#    - language: java
+#      version: 3.1.1
+#
+#    - language: java
+#      version: 3.1.2
+#
+#    - language: java
+#      version: 3.1.3
+#
+#    - language: java
+#      version: 3.1.4
+#
+#    - language: java
+#      version: 3.1.5
+#
+#    - language: java
+#      version: 3.1.6
+#
+#    - language: java
+#      version: 3.1.7
+#
+#    - language: java
+#      version: 3.1.8
+#
+#    - language: java
+#      version: 3.2.0
+#
+#    - language: java
+#      version: 3.2.1
+#
+#    - language: java
+#      version: 3.2.2
+#
+#    - language: java
+#      version: 3.2.3
+#
+#    - language: java
+#      version: 3.2.4
+#
+#    - language: java
+#      version: 3.2.5
+#
+#    - language: java
+#      version: 3.2.6
+#
+#    - language: java
+#      version: 3.3.0
 
     - language: java
       version: 3.3.1
@@ -233,7 +233,7 @@ matrix:
 variables:
   custom:
     - name: doc_num
-      value: 1000000
+      value: 10000000
     - name: pool_size
       value: 10000
   predefined:
