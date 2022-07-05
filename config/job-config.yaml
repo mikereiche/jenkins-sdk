@@ -75,89 +75,89 @@ matrix:
     #- language: java
     #  version: snapshot
 
-    - language: java
-      version: 3.0.0
-
-    - language: java
-      version: 3.0.1
-
-    - language: java
-      version: 3.0.2
-
-    - language: java
-      version: 3.0.3
-
-    - language: java
-      version: 3.0.4
-
-    - language: java
-      version: 3.0.5
-
-    - language: java
-      version: 3.0.6
-
-    - language: java
-      version: 3.0.7
-
-    - language: java
-      version: 3.0.8
-
-    - language: java
-      version: 3.0.9
-
-    - language: java
-      version: 3.0.10
-
-    - language: java
-      version: 3.1.0
-
-    - language: java
-      version: 3.1.1
-
-    - language: java
-      version: 3.1.2
-
-    - language: java
-      version: 3.1.3
-
-    - language: java
-      version: 3.1.4
-
-    - language: java
-      version: 3.1.5
-
-    - language: java
-      version: 3.1.6
-
-    - language: java
-      version: 3.1.7
-
-    - language: java
-      version: 3.1.8
-
-    - language: java
-      version: 3.2.0
-
-    - language: java
-      version: 3.2.1
-
-    - language: java
-      version: 3.2.2
-
-    - language: java
-      version: 3.2.3
-
-    - language: java
-      version: 3.2.4
-
-    - language: java
-      version: 3.2.5
-
-    - language: java
-      version: 3.2.6
-
-    - language: java
-      version: 3.3.0
+#    - language: java
+#      version: 3.0.0
+#
+#    - language: java
+#      version: 3.0.1
+#
+#    - language: java
+#      version: 3.0.2
+#
+#    - language: java
+#      version: 3.0.3
+#
+#    - language: java
+#      version: 3.0.4
+#
+#    - language: java
+#      version: 3.0.5
+#
+#    - language: java
+#      version: 3.0.6
+#
+#    - language: java
+#      version: 3.0.7
+#
+#    - language: java
+#      version: 3.0.8
+#
+#    - language: java
+#      version: 3.0.9
+#
+#    - language: java
+#      version: 3.0.10
+#
+#    - language: java
+#      version: 3.1.0
+#
+#    - language: java
+#      version: 3.1.1
+#
+#    - language: java
+#      version: 3.1.2
+#
+#    - language: java
+#      version: 3.1.3
+#
+#    - language: java
+#      version: 3.1.4
+#
+#    - language: java
+#      version: 3.1.5
+#
+#    - language: java
+#      version: 3.1.6
+#
+#    - language: java
+#      version: 3.1.7
+#
+#    - language: java
+#      version: 3.1.8
+#
+#    - language: java
+#      version: 3.2.0
+#
+#    - language: java
+#      version: 3.2.1
+#
+#    - language: java
+#      version: 3.2.2
+#
+#    - language: java
+#      version: 3.2.3
+#
+#    - language: java
+#      version: 3.2.4
+#
+#    - language: java
+#      version: 3.2.5
+#
+#    - language: java
+#      version: 3.2.6
+#
+#    - language: java
+#      version: 3.3.0
 
     - language: java
       version: 3.3.1
@@ -197,13 +197,13 @@ matrix:
     #    - port: 8060
 
   workloads:
-    - operations:
-        - op: replace
-          count: $doc_num
-          docLocation:
-            method: pool
-            poolSize: $pool_size
-            poolSelectionStrategy: counter
+#    - operations:
+#        - op: replace
+#          count: $doc_num
+#          docLocation:
+#            method: pool
+#            poolSize: $pool_size
+#            poolSelectionStrategy: counter
 
 #    - operations:
 #        - op: insert
