@@ -199,11 +199,25 @@ matrix:
   workloads:
     - operations:
         - op: replace
-          count: 10000000
+          count: $doc_num
           docLocation:
             method: pool
-            poolSize: 100000
+            poolSize: $pool_size
             poolSelectionStrategy: counter
+
+    - operations:
+        - op: insert
+          count: $doc_num
+          docLocation:
+            method: uuid
+
+    - operations:
+        - op: get
+          count: $doc_num
+          docLocation:
+            method: pool
+            poolSize: $pool_size
+            poolSelectionStrategy: random_uniform
 
 #    - operations:
 #        - op: get
@@ -219,7 +233,9 @@ matrix:
 variables:
   custom:
     - name: doc_num
-      value: 100000
+      value: 1000000
+    - name: pool_size
+      value: 10000
   predefined:
     - name: horizontal_scaling
       values:
