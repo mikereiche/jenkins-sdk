@@ -109,35 +109,30 @@ class Execute {
             ctx.env.log("Cluster ${cluster} requires ${groupedByPerformer.size()} performers")
 
             groupedByPerformer.forEach((performer, runsForClusterAndPerformer) -> {
-                def groupedByPredefined = runsForClusterAndPerformer.stream()
-                        .collect(groupingBy((Run run) -> run.predefined))
-                groupedByPredefined.forEach((variable, runsForClusterPerformerPre) ->{
-                    def performerRuns = []
+                def performerRuns = []
 
-                    def performerStage = new InitialiseSDKPerformer(performer)
-                    def runId = UUID.randomUUID().toString()
-                    def configFilenameAbs = "${ctx.env.workspaceAbs}${File.separatorChar}${runId}.yaml"
+                def performerStage = new InitialiseSDKPerformer(performer)
+                def runId = UUID.randomUUID().toString()
+                def configFilenameAbs = "${ctx.env.workspaceAbs}${File.separatorChar}${runId}.yaml"
 
-                    def output = new OutputPerformerConfig(
-                            clusterStage,
-                            performerStage,
-                            jc,
-                            cluster,
-                            performer,
-                            runsForClusterPerformerPre,
-                            variable,
-                            configFilenameAbs)
+                def output = new OutputPerformerConfig(
+                        clusterStage,
+                        performerStage,
+                        jc,
+                        cluster,
+                        performer,
+                        runsForClusterAndPerformer,
+                        configFilenameAbs)
 
-                    performerRuns.add(new StopDockerContainer(InitialiseSDKPerformer.CONTAINER_NAME))
-                    performerRuns.add(output)
-                    if (!ctx.skipDockerBuild()) {
-                        performerRuns.add(new BuildSDKDriver())
-                    }
+                performerRuns.add(new StopDockerContainer(InitialiseSDKPerformer.CONTAINER_NAME))
+                performerRuns.add(output)
+                if (!ctx.skipDockerBuild()) {
+                    performerRuns.add(new BuildSDKDriver())
+                }
 
-                    clusterChildren.addAll(performerRuns)
-                    // ScopedStage because we want to bring performer up, run driver, bring performer down
-                    clusterChildren.add(new ScopedStage(performerStage, [new RunSDKDriver(output)]))
-                })
+                clusterChildren.addAll(performerRuns)
+                // ScopedStage because we want to bring performer up, run driver, bring performer down
+                clusterChildren.add(new ScopedStage(performerStage, [new RunSDKDriver(output)]))
             })
 
             stages.add(new ScopedStage(clusterStage, clusterChildren))

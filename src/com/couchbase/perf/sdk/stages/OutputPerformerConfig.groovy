@@ -23,7 +23,6 @@ import java.util.stream.Collectors
 @CompileStatic
 class OutputPerformerConfig extends Stage {
     private final List<Run> runs
-    private final List<PredefinedVariablePermutation> predefinedVars
     private final String outputFilenameAbs
     private final PerfConfig.Cluster cluster
     private final PerfConfig.Implementation impl
@@ -37,14 +36,12 @@ class OutputPerformerConfig extends Stage {
                           PerfConfig.Cluster cluster,
                           PerfConfig.Implementation impl,
                           List<Run> runs,
-                          List<PredefinedVariablePermutation> predefined,
                           String outputFilenameAbs) {
         this.stagePerformer = stagePerformer
         this.stageCluster = stageCluster
         this.impl = impl
         this.cluster = cluster
         this.runs = runs
-        this.predefinedVars = predefined
         this.outputFilenameAbs = outputFilenameAbs
         this.config = config
     }
@@ -66,6 +63,7 @@ class OutputPerformerConfig extends Stage {
             yaml {
                 uuid UUID.randomUUID().toString()
                 operations(run.workload.operations)
+                variables(run.workload.variables)
             }
             yaml.content
         }).collect(Collectors.toList())
@@ -85,10 +83,6 @@ class OutputPerformerConfig extends Stage {
         def json = new JsonBuilder(gen)
         json {
             impl impl
-            variables {
-                predefined predefinedVars
-                custom config.variables.custom
-            }
             connections {
                 cluster {
                     hostname stageCluster.hostname()

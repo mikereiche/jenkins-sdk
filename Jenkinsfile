@@ -44,47 +44,50 @@ stage("run") {
     driver: {
         // This will use a 2nd fresh AWS instance
         node("qe-docker") {
-            sh(script: "sudo yum install -y yum-utils python")
-            sh(script: "docker network create perf")
+            try {
+                sh(script: "sudo yum install -y yum-utils python")
+                sh(script: "docker network create perf")
 
-            dir("perf-sdk") {
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: "main"]],
-                    userRemoteConfigs: [[url: 'https://github.com/couchbaselabs/perf-sdk.git']]])
-            }
+                dir("perf-sdk") {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: "main"]],
+                        userRemoteConfigs: [[url: 'https://github.com/couchbaselabs/perf-sdk.git']]])
+                }
 
-            dir("jenkins-sdk") {
-                checkout([
-                    $class: 'GitSCM',
-                    userRemoteConfigs: [[url: 'https://github.com/couchbaselabs/jenkins-sdk']]])
-                // todo get this working again
-                //if (params.JOB_CONFIG_OVERRIDE != null) {
-                //    echo sh(script: "curl ${params.JOB_CONFIG_OVERRIDE} --output config/job-config.yaml", returnStdout:true)
-                //}
+                dir("jenkins-sdk") {
+                    checkout([
+                        $class: 'GitSCM',
+                        userRemoteConfigs: [[url: 'https://github.com/couchbaselabs/jenkins-sdk']]])
+                    // todo get this working again
+                    //if (params.JOB_CONFIG_OVERRIDE != null) {
+                    //    echo sh(script: "curl ${params.JOB_CONFIG_OVERRIDE} --output config/job-config.yaml", returnStdout:true)
+                    //}
 
-                // sed: look for the start of the cluster section; !b stops processing that regex; n moves to the next line; replace the contents
-                sh(script: "sed -i '/- type: unmanaged/!b;n;n;n;c\\      hostname_docker: ${clusterHostname}' config/job-config.yaml")
+                    // sed: look for the start of the cluster section; !b stops processing that regex; n moves to the next line; replace the contents
+                    sh(script: "sed -i '/- type: unmanaged/!b;n;n;n;c\\      hostname_docker: ${clusterHostname}' config/job-config.yaml")
 
-                sh(script: "chmod +x gradlew")
-                sh(script: "./gradlew shadowJar")
+                    sh(script: "chmod +x gradlew")
+                    sh(script: "./gradlew shadowJar")
 
-                echo "Waiting until cluster is ready"
+                    echo "Waiting until cluster is ready"
 
-                script {
-                    while (!clusterReady) {
-                        sleep(time: 5, unit: 'SECONDS')
+                    script {
+                        while (!clusterReady) {
+                            sleep(time: 5, unit: 'SECONDS')
+                        }
+                    }
+
+                    withCredentials([string(credentialsId: 'TIMEDB_PWD', variable: 'TIMEDB_PWD')]) {
+                        echo sh(script: 'java -jar ./build/libs/jenkins2-1.0-SNAPSHOT-all.jar "$TIMEDB_PWD"')
                     }
                 }
-
-                withCredentials([string(credentialsId: 'TIMEDB_PWD', variable: 'TIMEDB_PWD')]) {
-                    echo sh(script: 'java -jar ./build/libs/jenkins2-1.0-SNAPSHOT-all.jar "$TIMEDB_PWD"')
-                }
             }
-
-            echo "Cluster can shut down now"
-            script {
-                done = true
+            finally {
+                echo "Cluster can shut down now"
+                script {
+                    done = true
+                }
             }
         }
     }

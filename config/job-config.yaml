@@ -200,40 +200,127 @@ matrix:
     #    - port: 8060
 
   workloads:
-    - operations:
-        - op: insert
-          count: $doc_num
-          docLocation:
-            method: uuid
+#    - operations:
+#        - op: insert
+#          count: $doc_num
+#          docLocation:
+#            method: uuid
 
-    - operations:
-        - op: replace
-          count: $doc_num
-          docLocation:
-            method: pool
-            poolSize: $pool_size
-            poolSelectionStrategy: counter
+#    - operations:
+#        - op: replace
+#          count: $doc_num
+#          docLocation:
+#            method: pool
+#            poolSize: $pool_size
+#            poolSelectionStrategy: counter
 
-    - operations:
-        - op: get
-          count: $doc_num
-          docLocation:
-            method: pool
-            poolSize: $pool_size
-            poolSelectionStrategy: random_uniform
+  # todo have "transaction", "sdk", "grpc"..
+#    - operations:
+#        - op: get
+#          count: $doc_num
+#          docLocation:
+#            method: pool
+#            poolSize: $pool_size
+#            poolSelectionStrategy: random_uniform
 
-variables:
-  custom:
-    - name: doc_num
-      value: 10000000
-    - name: pool_size
-      value: 10000
-  predefined:
-    - name: horizontal_scaling
-      values:
-        - 20
-#        - 2
-#    - name: durability
-#      values:
-#        - MAJORITY
-#        - PERSIST
+
+    # GRPC test flowControl=true
+    - operations:
+        - type: grpc
+          op: ping
+          count: $doc_num
+      variables:
+        custom:
+          - name: doc_num
+            value: 10000000
+        predefined:
+          - name: horizontal_scaling
+            values:
+              - 20
+        grpc:
+          flowControl: true
+
+    # GRPC test batch=500
+    - operations:
+        - type: grpc
+          op: ping
+          count: $doc_num
+      variables:
+        custom:
+          - name: doc_num
+            value: 10000000
+        predefined:
+          - name: horizontal_scaling
+            values:
+              - 20
+        grpc:
+          flowControl: true
+          batch: 500
+
+    # GRPC test batch=50
+    - operations:
+        - type: grpc
+          op: ping
+          count: $doc_num
+      variables:
+        custom:
+          - name: doc_num
+            value: 10000000
+        predefined:
+          - name: horizontal_scaling
+            values:
+              - 20
+        grpc:
+          flowControl: true
+          batch: 50
+
+    # GRPC test batch=1000
+    - operations:
+        - type: grpc
+          op: ping
+          count: $doc_num
+      variables:
+        custom:
+          - name: doc_num
+            value: 10000000
+        predefined:
+          - name: horizontal_scaling
+            values:
+              - 20
+        grpc:
+          flowControl: true
+          batch: 1000
+
+    # GRPC test compression
+    - operations:
+        - type: grpc
+          op: ping
+          count: $doc_num
+      variables:
+        custom:
+          - name: doc_num
+            value: 10000000
+        predefined:
+          - name: horizontal_scaling
+            values:
+              - 20
+        grpc:
+          flowControl: true
+          batch: 500
+          compression: true
+
+    # GRPC test unbounded
+    - operations:
+        - type: grpc
+          op: ping
+          count: $doc_num
+      variables:
+        custom:
+          - name: doc_num
+            value: 10000000
+        predefined:
+          - name: horizontal_scaling
+            values:
+              - 20
+        grpc:
+          flowControl: false
