@@ -248,7 +248,7 @@ matrix:
       variables:
         custom:
           - name: doc_num
-            value: 10000000
+            value: 100000000
         predefined:
           - name: horizontal_scaling
             values:
@@ -265,7 +265,7 @@ matrix:
       variables:
         custom:
           - name: doc_num
-            value: 10000000
+            value: 100000000
         predefined:
           - name: horizontal_scaling
             values:
@@ -282,7 +282,7 @@ matrix:
       variables:
         custom:
           - name: doc_num
-            value: 10000000
+            value: 100000000
         predefined:
           - name: horizontal_scaling
             values:
@@ -290,6 +290,23 @@ matrix:
         grpc:
           flowControl: true
           batch: 1000
+
+    # GRPC test batch=2000
+    - operations:
+        - type: grpc
+          op: ping
+          count: $doc_num
+      variables:
+        custom:
+          - name: doc_num
+            value: 100000000
+        predefined:
+          - name: horizontal_scaling
+            values:
+              - 20
+        grpc:
+          flowControl: true
+          batch: 2000
 
     # GRPC test compression
     - operations:
@@ -299,7 +316,7 @@ matrix:
       variables:
         custom:
           - name: doc_num
-            value: 10000000
+            value: 100000000
         predefined:
           - name: horizontal_scaling
             values:
@@ -309,7 +326,7 @@ matrix:
           batch: 500
           compression: true
 
-    # GRPC test unbounded
+    # GRPC test compression
     - operations:
         - type: grpc
           op: ping
@@ -317,10 +334,64 @@ matrix:
       variables:
         custom:
           - name: doc_num
-            value: 10000000
+            value: 100000000
         predefined:
           - name: horizontal_scaling
             values:
               - 20
         grpc:
-          flowControl: false
+          flowControl: true
+          batch: 2000
+          compression: true
+
+    # GRPC test compression
+    - operations:
+        - type: grpc
+          op: ping
+          count: $doc_num
+      variables:
+        custom:
+          - name: doc_num
+            value: 100000000
+        predefined:
+          - name: horizontal_scaling
+            values:
+              - 20
+        grpc:
+          flowControl: true
+          batch: 5000
+          compression: true
+
+    # GRPC test compression
+    - operations:
+        - type: grpc
+          op: ping
+          count: $doc_num
+      variables:
+        custom:
+          - name: doc_num
+            value: 100000000
+        predefined:
+          - name: horizontal_scaling
+            values:
+              - 20
+        grpc:
+          flowControl: true
+          batch: 10000
+          compression: true
+
+    # GRPC test unbounded
+#    - operations:
+#        - type: grpc
+#          op: ping
+#          count: $doc_num
+#      variables:
+#        custom:
+#          - name: doc_num
+#            value: 10000000
+#        predefined:
+#          - name: horizontal_scaling
+#            values:
+#              - 20
+#        grpc:
+#          flowControl: false
