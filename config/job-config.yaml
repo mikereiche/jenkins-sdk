@@ -135,32 +135,32 @@ matrix:
 #    - language: java
 #      version: 3.1.8
 #
-#    - language: java
-#      version: 3.2.0
-#
-#    - language: java
-#      version: 3.2.1
-#
-#    - language: java
-#      version: 3.2.2
-#
-#    - language: java
-#      version: 3.2.3
-#
-#    - language: java
-#      version: 3.2.4
-#
-#    - language: java
-#      version: 3.2.5
-#
-#    - language: java
-#      version: 3.2.6
-#
-#    - language: java
-#      version: 3.3.0
-#
-#    - language: java
-#      version: 3.3.1
+    - language: java
+      version: 3.2.0
+
+    - language: java
+      version: 3.2.1
+
+    - language: java
+      version: 3.2.2
+
+    - language: java
+      version: 3.2.3
+
+    - language: java
+      version: 3.2.4
+
+    - language: java
+      version: 3.2.5
+
+    - language: java
+      version: 3.2.6
+
+    - language: java
+      version: 3.3.0
+
+    - language: java
+      version: 3.3.1
 
     - language: java
       version: 3.3.2
@@ -200,28 +200,6 @@ matrix:
     #    - port: 8060
 
   workloads:
-#    - operations:
-#        - op: insert
-#          count: $doc_num
-#          docLocation:
-#            method: uuid
-
-#    - operations:
-#        - op: replace
-#          count: $doc_num
-#          docLocation:
-#            method: pool
-#            poolSize: $pool_size
-#            poolSelectionStrategy: counter
-
-  # todo have "transaction", "sdk", "grpc"..
-#    - operations:
-#        - op: get
-#          count: $doc_num
-#          docLocation:
-#            method: pool
-#            poolSize: $pool_size
-#            poolSelectionStrategy: random_uniform
 
 
     # GRPC test flowControl=true
@@ -395,3 +373,64 @@ matrix:
 #              - 20
 #        grpc:
 #          flowControl: false
+    - operations:
+        - op: insert
+          count: $doc_num
+          docLocation:
+            method: uuid
+      variables:
+        custom:
+          - name: doc_num
+            value: 10000000
+        predefined:
+          - name: horizontal_scaling
+            values:
+              - 20
+        grpc:
+          flowControl: true
+          batch: 10000
+          compression: true
+
+    - operations:
+        - op: replace
+          count: $doc_num
+          docLocation:
+            method: pool
+            poolSize: $pool_size
+            poolSelectionStrategy: counter
+      variables:
+        custom:
+          - name: doc_num
+            value: 10000000
+          - name: pool_size
+            value: 10000
+        predefined:
+          - name: horizontal_scaling
+            values:
+              - 20
+        grpc:
+          flowControl: true
+          batch: 10000
+          compression: true
+
+    - operations:
+        - op: get
+          count: $doc_num
+          docLocation:
+            method: pool
+            poolSize: $pool_size
+            poolSelectionStrategy: random_uniform
+      variables:
+        custom:
+          - name: doc_num
+            value: 10000000
+          - name: pool_size
+            value: 10000
+        predefined:
+          - name: horizontal_scaling
+            values:
+              - 20
+        grpc:
+          flowControl: true
+          batch: 10000
+          compression: true
