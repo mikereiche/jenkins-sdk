@@ -1,0 +1,205 @@
+workloads:
+  # GRPC test flowControl=true
+  - operations:
+      - type: grpc
+        op: ping
+        count: $doc_num
+    variables:
+      custom:
+        - name: doc_num
+          value: 5000000
+      predefined:
+        - name: horizontal_scaling
+          values:
+            - 20
+      grpc:
+        flowControl: true
+        batch: 0
+        compression: false
+
+  # GRPC test batch=500
+  - operations:
+      - type: grpc
+        op: ping
+        count: $doc_num
+    variables:
+      custom:
+        - name: doc_num
+          value: 50000000
+      predefined:
+        - name: horizontal_scaling
+          values:
+            - 20
+      grpc:
+        flowControl: true
+        batch: 500
+        compression: false
+
+  # GRPC test batch=50
+  - operations:
+      - type: grpc
+        op: ping
+        count: $doc_num
+    variables:
+      custom:
+        - name: doc_num
+          value: 50000000
+      predefined:
+        - name: horizontal_scaling
+          values:
+            - 20
+      grpc:
+        flowControl: true
+        batch: 50
+        compression: false
+
+  # GRPC test batch=1000
+  - operations:
+      - type: grpc
+        op: ping
+        count: $doc_num
+    variables:
+      custom:
+        - name: doc_num
+          value: 50000000
+      predefined:
+        - name: horizontal_scaling
+          values:
+            - 20
+      grpc:
+        flowControl: true
+        batch: 1000
+        compression: false
+
+  # GRPC test batch=2000
+  - operations:
+      - type: grpc
+        op: ping
+        count: $doc_num
+    variables:
+      custom:
+        - name: doc_num
+          value: 50000000
+      predefined:
+        - name: horizontal_scaling
+          values:
+            - 20
+      grpc:
+        flowControl: true
+        batch: 2000
+        compression: false
+
+  # GRPC test compression
+  - operations:
+      - type: grpc
+        op: ping
+        count: $doc_num
+    variables:
+      custom:
+        - name: doc_num
+          value: 50000000
+      predefined:
+        - name: horizontal_scaling
+          values:
+            - 20
+      grpc:
+        flowControl: true
+        batch: 500
+        compression: true
+
+  # GRPC test compression
+  - operations:
+      - type: grpc
+        op: ping
+        count: $doc_num
+    variables:
+      custom:
+        - name: doc_num
+          value: 50000000
+      predefined:
+        - name: horizontal_scaling
+          values:
+            - 20
+      grpc:
+        flowControl: true
+        batch: 2000
+        compression: true
+
+  # GRPC test compression
+  - operations:
+      - type: grpc
+        op: ping
+        count: $doc_num
+    variables:
+      custom:
+        - name: doc_num
+          value: 50000000
+      predefined:
+        - name: horizontal_scaling
+          values:
+            - 20
+      grpc:
+        flowControl: true
+        batch: 5000
+        compression: true
+
+  # GRPC test compression
+  - operations:
+      - type: grpc
+        op: ping
+        count: $doc_num
+    variables:
+      custom:
+        - name: doc_num
+          value: 50000000
+      predefined:
+        - name: horizontal_scaling
+          values:
+            - 20
+      grpc:
+        flowControl: true
+        batch: 10000
+        compression: true
+
+  # GRPC test compression no FC
+  - operations:
+      - type: grpc
+        op: ping
+        count: $doc_num
+    variables:
+      custom:
+        - name: doc_num
+          value: 50000000
+      predefined:
+        - name: horizontal_scaling
+          values:
+            - 20
+      grpc:
+        flowControl: false
+        batch: 10000
+        compression: true
+
+
+  # GRPC test unbounded (commented as likely to crash)
+  #    - operations:
+  #        - type: grpc
+  #          op: ping
+  #          count: $doc_num
+  #      variables:
+  #        custom:
+  #          - name: doc_num
+  #            value: 10000000
+  #        predefined:
+  #          - name: horizontal_scaling
+  #            values:
+  #              - 20
+  #        grpc:
+  #          flowControl: false
+
+# Top-level variables can be overwritten on a per-workload basic
+variables:
+  # These GRPC settings are believed to give good results (CBD-4975)
+  grpc:
+    flowControl: true
+    batch: 2000
+    compression: true
