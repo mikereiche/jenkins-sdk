@@ -122,6 +122,7 @@ class Execute {
                         cluster,
                         performer,
                         runsForClusterAndPerformer,
+                        ctx.jc.variables,
                         configFilenameAbs)
 
                 performerRuns.add(new StopDockerContainer(InitialiseSDKPerformer.CONTAINER_NAME))

@@ -29,6 +29,7 @@ class OutputPerformerConfig extends Stage {
     private final config
     private final InitialiseCluster stageCluster
     private final InitialiseSDKPerformer stagePerformer
+    private final Object topLevelVariables
 
     OutputPerformerConfig(InitialiseCluster stageCluster,
                           InitialiseSDKPerformer stagePerformer,
@@ -36,6 +37,7 @@ class OutputPerformerConfig extends Stage {
                           PerfConfig.Cluster cluster,
                           PerfConfig.Implementation impl,
                           List<Run> runs,
+                          Object topLevelVariables,
                           String outputFilenameAbs) {
         this.stagePerformer = stagePerformer
         this.stageCluster = stageCluster
@@ -44,6 +46,7 @@ class OutputPerformerConfig extends Stage {
         this.runs = runs
         this.outputFilenameAbs = outputFilenameAbs
         this.config = config
+        this.topLevelVariables = topLevelVariables
     }
 
     @Override
@@ -101,6 +104,7 @@ class OutputPerformerConfig extends Stage {
                 database(config.database)
             }
             runs runsAsYaml
+            variables topLevelVariables
         }
 
         def converted = YamlConverter.convertJsonToYaml(new StringReader(json.toString()))
