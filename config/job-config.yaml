@@ -234,7 +234,7 @@ matrix:
       variables:
         custom:
           - name: doc_num
-            value: 100000
+            value: 10000000
           - name: pool_size
             value: 10000
         predefined:
