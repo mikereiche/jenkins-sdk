@@ -270,7 +270,7 @@ matrix:
       variables:
         custom:
           - name: doc_num
-            value: 100000
+            value: 10000000
         predefined:
           - name: horizontal_scaling
             values:
