@@ -95,24 +95,25 @@ class Run {
     def toJson() {
         Map<String, Object> jsonVars = new HashMap<>()
 
-        Map<String, String> clusterVars = new HashMap<>()
-        if(cluster.type == "gocaves"){
-            String hostname = "$cluster.hostname:$cluster.port"
-            clusterVars["hostname"] = hostname
-        }
-        else{
-            clusterVars["hostname"] = cluster.hostname
-        }
+//        Map<String, String> clusterVars = new HashMap<>()
+//        if(cluster.type == "gocaves"){
+//            String hostname = "$cluster.hostname:$cluster.port"
+//            clusterVars["hostname"] = hostname
+//        }
+//        else{
+//            clusterVars["hostname"] = cluster.hostname
+//        }
 
         def gen = new JsonGenerator.Options()
                 .excludeNulls()
                 .build()
 
         return gen.toJson([
-                "impl"     : impl,
-                "vars"     : jsonVars,
-                "cluster"  : clusterVars,
-                "workload" : workload,
+                "impl"    : impl,
+                "vars"    : jsonVars,
+                // CBD-4971: (temporarily?) removing cluster from JSON
+                // "cluster" : clusterVars,
+                "workload": workload,
         ])
     }
 }
