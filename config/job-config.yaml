@@ -13,14 +13,14 @@ servers:
     hostname: localhost
 
     # Either the location of a checked-out perf-sdk project, or "https://github.com/couchbaselabs/perf-sdk"
-    source: c:\dev\perf-sdk
+    source: /home/ec2-user/workspace/performance/sdk-performance/perf-sdk
 
 # Generally only CI should be talking to production database.  For local performance testing, spin up a localhost database.
 # The password gets replaced by an environment variable when running on CI
 database:
   # The driver will use the _docker variant if it is running inside Docker.  This allows running everything locally in Docker.
-  hostname: localhost
-  hostname_docker: timedb
+  hostname: 54.193.85.254
+  hostname_docker: 54.193.85.254
   port: 5432
   username: postgres
   password: password
@@ -45,7 +45,7 @@ settings:
   dryRun: false
 
   # Whether to ignore whatever runs are already in the database
-  force: true
+  force: false
 
   # If confident that all Docker images are built and up-to-date
   skipDockerBuild: false
@@ -62,7 +62,7 @@ matrix:
     - type: unmanaged
       hostname: localhost
       # The driver will use the _docker variant if it is running inside Docker.  This allows running everything locally in Docker.
-      hostname_docker: couchbase
+      hostname_docker: cbs
   #    - type: gocaves
   #      source: /home/ec2-user/workspace/performance/sdk-performance/gocaves
   ##      source: /Users/charliehayes/Documents/GitHub/gocaves
