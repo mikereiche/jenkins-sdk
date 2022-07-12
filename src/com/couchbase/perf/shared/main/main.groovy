@@ -99,6 +99,10 @@ class Execute {
     static List<Stage> plan(StageContext ctx, Map<PerfConfig.Cluster, List<Run>> input, jc) {
         def stages = new ArrayList<Stage>()
 
+        if (!ctx.skipDockerBuild()) {
+            stages.add(new BuildSDKDriver())
+        }
+
         input.forEach((cluster, runsForCluster) -> {
             def clusterStage = new InitialiseCluster(cluster)
             def clusterChildren = new ArrayList<Stage>()
@@ -127,9 +131,6 @@ class Execute {
 
                 performerRuns.add(new StopDockerContainer(InitialiseSDKPerformer.CONTAINER_NAME))
                 performerRuns.add(output)
-                if (!ctx.skipDockerBuild()) {
-                    performerRuns.add(new BuildSDKDriver())
-                }
 
                 clusterChildren.addAll(performerRuns)
                 // ScopedStage because we want to bring performer up, run driver, bring performer down
