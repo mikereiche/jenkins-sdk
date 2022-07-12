@@ -1,32 +1,30 @@
 package com.couchbase.perf.sdk.stages
 
-import groovy.transform.CompileStatic
 import com.couchbase.context.StageContext
 import com.couchbase.context.environments.Environment
 import com.couchbase.stages.Stage
+import groovy.transform.CompileStatic
 
 @CompileStatic
-class BuildDockerJavaSDKPerformer extends Stage {
+class BuildDockerJVMSDKPerformer extends Stage {
 
+    private final String client // "java", "scala", "kotlin"
     private final String sdkVersion
     final String imageName
 
-    static String genImageName(String sdkVersion) {
-        return "performer-java" + sdkVersion
+    static String genImageName(String sdkVersion, String jvm) {
+        return "performer-" + jvm + sdkVersion
     }
 
-    BuildDockerJavaSDKPerformer(String sdkVersion) {
-        this(BuildDockerJavaSDKPerformer.genImageName(sdkVersion), sdkVersion)
-    }
-
-    BuildDockerJavaSDKPerformer(String imageName, String sdkVersion) {
+    BuildDockerJVMSDKPerformer(String client, String sdkVersion) {
+        this.client = client
         this.sdkVersion = sdkVersion
-        this.imageName = imageName
+        this.imageName = genImageName(sdkVersion, client)
     }
 
     @Override
     String name() {
-        return "Building image ${imageName}"
+        return "Building JVM image ${imageName}"
     }
 
     @Override
@@ -34,10 +32,10 @@ class BuildDockerJavaSDKPerformer extends Stage {
         def imp = ctx.env
         // Build context needs to be perf-sdk as we need the .proto files
         ctx.inSourceDirAbsolute {
-            imp.dir('performers/java/sdk-performer-java') {
+            imp.dir("performers/jvm/${client}") {
                 writePomFile(imp)
             }
-            imp.execute("docker build -f performers/java/Dockerfile -t $imageName .")
+            imp.execute("docker build -f performers/jvm/${client}/Dockerfile -t $imageName .")
         }
     }
 
@@ -65,7 +63,7 @@ class BuildDockerJavaSDKPerformer extends Stage {
                 assert (line.contains("<version>"))
                 pom.append("\t\t\t<version>${sdkVersion}</version>\n")
                 replaceVersion = false
-            } else if (line.contains("<artifactId>java-client</artifactId>")) {
+            } else if (line.contains("<artifactId>${client}-client</artifactId>")) {
                 replaceVersion = true
                 pom.append(line + "\n")
             } else {

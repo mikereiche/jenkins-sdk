@@ -56,6 +56,9 @@ matrix:
     #      version: 7.0-stable
     #      replicas: 0
     #      nodes: 1
+
+      # Currently CI is hardcoded to look for one cluster written in a specific format, so it can replace the hostname
+      # In future, may return to having jenkins-sdk control cluster creation (CBD-4948)
     - type: unmanaged
       hostname: localhost
       # The driver will use the _docker variant if it is running inside Docker.  This allows running everything locally in Docker.
@@ -135,35 +138,54 @@ matrix:
 #    - language: java
 #      version: 3.1.8
 #
-    - language: java
-      version: 3.2.0
-
-    - language: java
-      version: 3.2.1
-
-    - language: java
-      version: 3.2.2
-
-    - language: java
-      version: 3.2.3
-
-    - language: java
-      version: 3.2.4
-
-    - language: java
-      version: 3.2.5
-
-    - language: java
-      version: 3.2.6
-
-    - language: java
-      version: 3.3.0
-
-    - language: java
-      version: 3.3.1
-
+#    - language: java
+#      version: 3.2.0
+#
+#    - language: java
+#      version: 3.2.1
+#
+#    - language: java
+#      version: 3.2.2
+#
+#    - language: java
+#      version: 3.2.3
+#
+#    - language: java
+#      version: 3.2.4
+#
+#    - language: java
+#      version: 3.2.5
+#
+#    - language: java
+#      version: 3.2.6
+#
+#    - language: java
+#      version: 3.3.0
+#
+#    - language: java
+#      version: 3.3.1
+#
     - language: java
       version: 3.3.2
+
+    - language: scala
+      version: 1.3.0
+
+    - language: scala
+      version: 1.3.1
+
+    - language: scala
+      version: 1.3.2
+
+    - language: kotlin
+      version: 1.0.0
+
+    - language: kotlin
+      version: 1.0.1
+
+    - language: kotlin
+      version: 1.0.2
+
     #- language: python
     #  version: 41f71dce093ea0efa60a9fda59da4e4eaa3f5128
 #        - language: python
@@ -202,23 +224,23 @@ matrix:
   workloads:
 
     # KV replaces
-    - operations:
-        - op: replace
-          count: $doc_num
-          docLocation:
-            method: pool
-            poolSize: $pool_size
-            poolSelectionStrategy: counter
-      variables:
-        custom:
-          - name: doc_num
-            value: 10000000
-          - name: pool_size
-            value: 10000
-        predefined:
-          - name: horizontal_scaling
-            values:
-              - 20
+#    - operations:
+#        - op: replace
+#          count: $doc_num
+#          docLocation:
+#            method: pool
+#            poolSize: $pool_size
+#            poolSelectionStrategy: counter
+#      variables:
+#        custom:
+#          - name: doc_num
+#            value: 100000
+#          - name: pool_size
+#            value: 10000
+#        predefined:
+#          - name: horizontal_scaling
+#            values:
+#              - 20
 
     # KV gets
     - operations:
@@ -240,23 +262,25 @@ matrix:
               - 20
 
     # KV inserts
-    - operations:
-        - op: insert
-          count: $doc_num
-          docLocation:
-            method: uuid
-      variables:
-        custom:
-          - name: doc_num
-            value: 10000000
-        predefined:
-          - name: horizontal_scaling
-            values:
-              - 20
+#    - operations:
+#        - op: insert
+#          count: $doc_num
+#          docLocation:
+#            method: uuid
+#      variables:
+#        custom:
+#          - name: doc_num
+#            value: 100000
+#        predefined:
+#          - name: horizontal_scaling
+#            values:
+#              - 20
+#
 
-# Top-level variables can be overwritten on a per-workload basic
+# Top-level variables can be overwritten on a per-workload basis.
 variables:
-  # These GRPC settings are believed to give good results (CBD-4975)
+  # These GRPC settings are believed to give good results (CBD-4975).  Note that GRPC settings don't get written to the
+  # database, as streaming back results shouldn't affect the results themselves.
   grpc:
     flowControl: true
     batch: 1000

@@ -76,6 +76,13 @@ stage("run") {
                         while (!clusterReady) {
                             sleep(time: 5, unit: 'SECONDS')
                         }
+
+                        // Get a crude latency estimate
+                        try {
+                            sh(script: "ping -c 10 ${clusterHostname}")
+                        }
+                        catch (err) {
+                        }
                     }
 
                     withCredentials([string(credentialsId: 'TIMEDB_PWD', variable: 'TIMEDB_PWD')]) {

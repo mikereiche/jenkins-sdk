@@ -36,8 +36,8 @@ class InitialiseSDKPerformer extends Stage {
             return []
         }
         else {
-            if (impl.language == "java") {
-                def stage1 = new BuildDockerJavaSDKPerformer(impl.version)
+            if (impl.language in ["java", "scala", "kotlin"]) {
+                def stage1 = new BuildDockerJVMSDKPerformer(impl.language, impl.version)
                 imageName = stage1.imageName
                 return produceStages(ctx, stage1, stage1.getImageName())
             } else if (impl.language == "go"){
