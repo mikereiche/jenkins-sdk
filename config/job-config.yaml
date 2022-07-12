@@ -138,33 +138,33 @@ matrix:
 #    - language: java
 #      version: 3.1.8
 #
-#    - language: java
-#      version: 3.2.0
-#
-#    - language: java
-#      version: 3.2.1
-#
-#    - language: java
-#      version: 3.2.2
-#
-#    - language: java
-#      version: 3.2.3
-#
-#    - language: java
-#      version: 3.2.4
-#
-#    - language: java
-#      version: 3.2.5
-#
-#    - language: java
-#      version: 3.2.6
-#
-#    - language: java
-#      version: 3.3.0
-#
-#    - language: java
-#      version: 3.3.1
-#
+    - language: java
+      version: 3.2.0
+
+    - language: java
+      version: 3.2.1
+
+    - language: java
+      version: 3.2.2
+
+    - language: java
+      version: 3.2.3
+
+    - language: java
+      version: 3.2.4
+
+    - language: java
+      version: 3.2.5
+
+    - language: java
+      version: 3.2.6
+
+    - language: java
+      version: 3.3.0
+
+    - language: java
+      version: 3.3.1
+
     - language: java
       version: 3.3.2
 
@@ -224,23 +224,23 @@ matrix:
   workloads:
 
     # KV replaces
-#    - operations:
-#        - op: replace
-#          count: $doc_num
-#          docLocation:
-#            method: pool
-#            poolSize: $pool_size
-#            poolSelectionStrategy: counter
-#      variables:
-#        custom:
-#          - name: doc_num
-#            value: 100000
-#          - name: pool_size
-#            value: 10000
-#        predefined:
-#          - name: horizontal_scaling
-#            values:
-#              - 20
+    - operations:
+        - op: replace
+          count: $doc_num
+          docLocation:
+            method: pool
+            poolSize: $pool_size
+            poolSelectionStrategy: counter
+      variables:
+        custom:
+          - name: doc_num
+            value: 100000
+          - name: pool_size
+            value: 10000
+        predefined:
+          - name: horizontal_scaling
+            values:
+              - 20
 
     # KV gets
     - operations:
@@ -262,20 +262,20 @@ matrix:
               - 20
 
     # KV inserts
-#    - operations:
-#        - op: insert
-#          count: $doc_num
-#          docLocation:
-#            method: uuid
-#      variables:
-#        custom:
-#          - name: doc_num
-#            value: 100000
-#        predefined:
-#          - name: horizontal_scaling
-#            values:
-#              - 20
-#
+    - operations:
+        - op: insert
+          count: $doc_num
+          docLocation:
+            method: uuid
+      variables:
+        custom:
+          - name: doc_num
+            value: 100000
+        predefined:
+          - name: horizontal_scaling
+            values:
+              - 20
+
 
 # Top-level variables can be overwritten on a per-workload basis.
 variables:
