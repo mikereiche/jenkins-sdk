@@ -123,13 +123,14 @@ class Environment {
         log("Executing '$command' with envvar ${envvarConverted}")
 
         Process proc = null
+        String[] nullArray = null
         if (isWindows) {
             // proc = [overrideIfNeeded('cmd'), '/c', command].execute(envvarConverted, fullWd)
-            proc = [overrideIfNeeded('cmd'), '/c', command].execute(null, fullWd)
+            proc = [overrideIfNeeded('cmd'), '/c', command].execute(nullArray, fullWd)
         }
         else {
 //            proc = [overrideIfNeeded('bash'), '-c', command].execute(envvarConverted, fullWd)
-            proc = [overrideIfNeeded('bash'), '-c', command].execute(null, fullWd)
+            proc = [overrideIfNeeded('bash'), '-c', command].execute(nullArray, fullWd)
         }
 
         String ret = null
