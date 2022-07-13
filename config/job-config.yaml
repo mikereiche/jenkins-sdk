@@ -13,7 +13,7 @@ servers:
     hostname: localhost
 
     # Either the location of a checked-out perf-sdk project, or "https://github.com/couchbaselabs/perf-sdk"
-    source: /home/ec2-user/workspace/performance/sdk-performance/perf-sdk
+    source: /home/ec2-user/perf-sdk
 
 # Generally only CI should be talking to production database.  For local performance testing, spin up a localhost database.
 # The password gets replaced by an environment variable when running on CI
