@@ -24,6 +24,8 @@ class Environment {
         this.executableOverrides = config.environment.executables != null ? config.environment.executables : new HashMap<>();
         this.envvar = config.environment.envvar != null ? config.environment.envvar : new HashMap<>()
 
+        envvarConverted.add("PATH=" + System.getenv("PATH"))
+
         envvar.forEach((k,v) -> {
             envvarConverted.add(k + "=" + v)
         })
