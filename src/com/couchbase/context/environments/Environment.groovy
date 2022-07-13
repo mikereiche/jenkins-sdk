@@ -125,7 +125,7 @@ class Environment {
             proc = [overrideIfNeeded('cmd'), '/c', command].execute(envvarConverted, fullWd)
         }
         else {
-            proc = [overrideIfNeeded('bash'), '-c', command].execute(envvarConverted, fullWd)
+            proc = [overrideIfNeeded('sh'), '-c', command].execute(envvarConverted, fullWd)
         }
 
         String ret = null
