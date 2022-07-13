@@ -125,11 +125,11 @@ class Environment {
         Process proc = null
         if (isWindows) {
             // proc = [overrideIfNeeded('cmd'), '/c', command].execute(envvarConverted, fullWd)
-            proc = [overrideIfNeeded('cmd'), '/c', command].execute()
+            proc = [overrideIfNeeded('cmd'), '/c', command].execute(null, fullWd)
         }
         else {
 //            proc = [overrideIfNeeded('bash'), '-c', command].execute(envvarConverted, fullWd)
-            proc = [overrideIfNeeded('bash'), '-c', command].execute()
+            proc = [overrideIfNeeded('bash'), '-c', command].execute(null, fullWd)
         }
 
         String ret = null
