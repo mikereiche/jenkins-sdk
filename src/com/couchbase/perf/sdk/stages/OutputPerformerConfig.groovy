@@ -87,13 +87,7 @@ class OutputPerformerConfig extends Stage {
         json {
             impl impl
             connections {
-                cluster {
-                    hostname stageCluster.hostname()
-                    hostname_docker stageCluster.hostname_docker()
-                    username 'Administrator'
-                    password 'password'
-                    type stageCluster.type()
-                }
+                cluster cluster.toJsonRaw(false)
 
                 performer {
                     hostname "localhost"

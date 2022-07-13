@@ -14,6 +14,7 @@ import com.couchbase.perf.shared.database.RunFromDb
 import com.couchbase.perf.shared.stages.StopDockerContainer
 import com.couchbase.stages.*
 import com.couchbase.stages.servers.InitialiseCluster
+import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.yaml.YamlSlurper
 
@@ -36,34 +37,43 @@ class Execute {
 
     }
 
-    //The password gets written to job config and as Jenkins keeps the jobconfig file it needs to get removed
-    static void jcCleanup(){
-        def jobConfig = new File("config/job-config.yaml")
-        def lines = jobConfig.readLines()
-        def changePwd = false
-
-        jobConfig.write("")
-
-        for (int i = 0; i < lines.size(); i++) {
-            def line = lines[i]
-
-            if (line.contains("database:")){
-                changePwd = true
-                jobConfig.append(line + "\n")
-            } else if (changePwd && line.contains("password")){
-                jobConfig.append("  password: password\n")
-                changePwd = false
-            } else {
-                jobConfig.append(line + "\n")
-            }
-        }
-    }
-
     @CompileStatic
     static List<Run> parseConfig(StageContext ctx) {
         def config = ConfigParser.readPerfConfig("config/job-config.yaml")
+        modifyConfig(config)
         def allPerms = ConfigParser.allPerms(ctx, config)
         return allPerms
+    }
+
+    @CompileStatic
+    static String getContents(String url, String username, String password) {
+        def get = new URL(url).openConnection()
+        get.setRequestProperty("Authorization", "Basic " + Base64.encoder.encodeToString((username + ":" + password).bytes))
+        return get.getInputStream().getText()
+    }
+
+    static void modifyConfig(PerfConfig config) {
+        config.matrix.clusters.forEach(cluster -> {
+
+            String hostname = cluster.hostname
+            String adminUsername = "Administrator"
+            String adminPassword = "password"
+
+            var resp1 = getContents("http://" + hostname + ":8091/pools/default", adminUsername, adminPassword)
+            var resp2 = getContents("http://" + hostname + ":8091/pools", adminUsername, adminPassword)
+
+            def jsonSlurper = new JsonSlurper()
+
+            var raw1 = jsonSlurper.parseText(resp1)
+            var raw2 = jsonSlurper.parseText(resp2)
+
+            var node1 = raw1.nodes[0]
+
+            cluster.nodeCount = raw1.nodes.size()
+            cluster.memory = raw1.memoryQuota
+            cluster.cpuCount = node1.cpuCount
+            cluster.version = raw2.implementationVersion
+        })
     }
 
     //@CompileStatic
@@ -178,12 +188,9 @@ class Execute {
         }
         try {
             root.execute(ctx)
-        }finally {
+        } finally {
             root.finish(ctx)
         }
-        jcCleanup()
-    //run(ctx, planned)
-    //print(planned)
     }
 
     public static void main(String[] args) {

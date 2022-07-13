@@ -23,10 +23,11 @@ class InitialiseCluster extends Stage {
 //            Stage stage = new StartCbdyncluster(cluster.nodes, cluster.version, cluster.replicas)
 //            stages.add(stage)
 //        }
-        else if (cluster.type == "gocaves") {
-            Stage stage = new StartGocaves(cluster.source, cluster.port, cluster.hostname)
-            stages.add(stage)
-        }
+//        else if (cluster.type == "gocaves") {
+//
+//            // Stage stage = new StartGocaves(cluster.source, cluster.port, cluster.hostname)
+//            // stages.add(stage)
+//        }
         else {
             throw new IllegalArgumentException("Unknown cluster type ${cluster.type}")
         }

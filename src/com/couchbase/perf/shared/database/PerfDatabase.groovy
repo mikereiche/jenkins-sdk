@@ -57,7 +57,7 @@ class PerfDatabase {
         return runs.stream()
                 .map(run -> {
                     def json = run.toJson()
-                    def statement = "SELECT id FROM runs WHERE params @> ${json}::jsonb"
+                    def statement = "SELECT id FROM runs WHERE params @> '${json}'::jsonb"
                     def dbRunIds = new ArrayList<String>()
                     sql.eachRow(statement) {
                         dbRunIds.add(it.getString("id"))

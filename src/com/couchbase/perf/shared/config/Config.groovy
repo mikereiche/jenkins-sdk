@@ -3,6 +3,7 @@ package com.couchbase.perf.shared.config
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import groovy.json.JsonGenerator
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
 
@@ -47,13 +48,32 @@ class PerfConfig {
     @ToString(includeNames = true, includePackage = false)
     static class Cluster {
         String version
-        Integer nodes
-        Integer replicas
+        Integer nodeCount
+        Integer memory
+        Integer cpuCount
         String type
-        String source
         String hostname
         String hostname_docker
-        Integer port
+        String storage
+        Integer replicas
+
+        @CompileDynamic
+        def toJsonRaw(boolean forDatabaseComparison) {
+            def out = [
+                    "version"  : version,
+                    "nodeCount": nodeCount,
+                    "memory"   : memory,
+                    "cpuCount" : cpuCount,
+                    "type"     : type,
+                    "storage"  : storage,
+                    "replicas" : replicas
+            ]
+            if (!forDatabaseComparison) {
+                out.put("hostname", hostname)
+                out.put("hostname_docker", hostname_docker)
+            }
+            return out
+        }
     }
 
     @ToString(includeNames = true, includePackage = false)
@@ -92,28 +112,34 @@ class Run {
     PerfConfig.Implementation impl
     Object workload
 
+    @CompileDynamic
     def toJson() {
         Map<String, Object> jsonVars = new HashMap<>()
+        if (workload.variables != null) {
+            if (workload.variables.custom != null) {
+                workload.variables.custom.forEach(var -> jsonVars.put(var.name, var.value))
+            }
+            if (workload.variables.predefined != null) {
+                workload.variables.predefined.forEach(var -> jsonVars.put(var.name, var.values[0]))
+            }
+        }
 
-//        Map<String, String> clusterVars = new HashMap<>()
-//        if(cluster.type == "gocaves"){
-//            String hostname = "$cluster.hostname:$cluster.port"
-//            clusterVars["hostname"] = hostname
-//        }
-//        else{
-//            clusterVars["hostname"] = cluster.hostname
-//        }
+        jsonVars.put("driverVersion", 6)
+        int performerVersion = 0
+        jsonVars.put("performerVersion", performerVersion)
 
         def gen = new JsonGenerator.Options()
                 .excludeNulls()
                 .build()
 
+        def copiedWorkload = workload.clone()
+        copiedWorkload.variables = null
+
         return gen.toJson([
                 "impl"    : impl,
                 "vars"    : jsonVars,
-                // CBD-4971: (temporarily?) removing cluster from JSON
-                // "cluster" : clusterVars,
-                "workload": workload,
+                "cluster" : cluster.toJsonRaw(true),
+                "workload": copiedWorkload,
         ])
     }
 }
