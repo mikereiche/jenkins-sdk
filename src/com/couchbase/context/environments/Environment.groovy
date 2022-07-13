@@ -118,6 +118,8 @@ class Environment {
                 .replaceAll('\\.', "-")
                 .replaceAll(' ', "-")
 
+        log("Executing '$command' with envvar ${envvarConverted}")
+
         Process proc = null
         if (isWindows) {
             proc = [overrideIfNeeded('cmd'), '/c', command].execute(envvarConverted, fullWd)
@@ -127,8 +129,6 @@ class Environment {
         }
 
         String ret = null
-
-        log("Executing '$command' with envvar ${envvarConverted}")
 
         if (saveOutputToFile) {
             if (background) {
