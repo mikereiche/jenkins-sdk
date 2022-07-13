@@ -80,6 +80,13 @@ class Environment {
         }
     }
 
+    String overrideIfNeeded(String exe) {
+        if (executableOverrides.containsKey(exe) && executableOverrides.get(exe) != null) {
+            return executableOverrides.get(exe)
+        }
+        return exe
+    }
+
     String execute(String command,
                    boolean saveOutputToFile = true,
                    boolean logFailure = true,
@@ -113,10 +120,10 @@ class Environment {
 
         Process proc = null
         if (isWindows) {
-            proc = ['cmd', '/c', command].execute(envvarConverted, fullWd)
+            proc = [overrideIfNeeded('cmd'), '/c', command].execute(envvarConverted, fullWd)
         }
         else {
-            proc = ['bash', '-c', command].execute(envvarConverted, fullWd)
+            proc = [overrideIfNeeded('bash'), '-c', command].execute(envvarConverted, fullWd)
         }
 
         String ret = null
