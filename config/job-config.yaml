@@ -29,6 +29,7 @@ database:
 environment:
   # Can override any executables here, to workaround environmental/path issues.
   executables:
+    bash: /usr/bin/bash
   #    docker: /usr/bin/docker
     #docker: "c:\\Program/ Files\\Docker\\Docker\\resources\\bin\\docker.exe"
 
