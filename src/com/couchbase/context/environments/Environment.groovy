@@ -120,17 +120,15 @@ class Environment {
                 .replaceAll('\\.', "-")
                 .replaceAll(' ', "-")
 
-        log("Executing '$command' with envvar ${envvarConverted}")
+        log("Executing '$command' ")
 
         Process proc = null
         String[] nullArray = null
         if (isWindows) {
-            // proc = [overrideIfNeeded('cmd'), '/c', command].execute(envvarConverted, fullWd)
             proc = [overrideIfNeeded('cmd'), '/c', command].execute(nullArray, fullWd)
         }
         else {
-//            proc = [overrideIfNeeded('bash'), '-c', command].execute(envvarConverted, fullWd)
-            proc = [overrideIfNeeded('bash'), '-c', command].execute(nullArray, fullWd)
+            proc = command.execute(nullArray, fullWd)
         }
 
         String ret = null
