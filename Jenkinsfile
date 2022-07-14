@@ -75,12 +75,29 @@ stage("run") {
                         runSSH(ip, "docker network create perf")
 
                         // We've install just the minimum to get the Cluster up, so it can be coming up while we're doing other stuff
-                        runSSH(ip, "docker run -d --name cbs --network perf -p 8091-8096:8091-8096 -p 11210-11211:11210-11211 couchbase >/dev/null 2>&1", true)
+                        runSSH(ip, "docker run -d --name cbs --network perf -p 8091-8096:8091-8096 -p 11210-11211:11210-11211 couchbase:7.1.1 >/dev/null 2>&1", true)
 
                         runSSH(ip, "sudo yum install -y git java-17-amazon-corretto-devel", true)
 
                         runSSH(ip, "git clone https://github.com/couchbaselabs/perf-sdk.git")
                         runSSH(ip, "git clone https://github.com/couchbaselabs/jenkins-sdk")
+
+                        try {
+                            // sed: look for the start of the cluster section; /a adds on the next line
+                            // + ssh -o StrictHostKeyChecking=no -i **** ec2-user@3.19.245.79 'sed -i /-' type: 'unmanaged/a ' instance: 'c5.4xlarge jenkins-sdk/config/job-config.yaml'
+                            // + ssh -o StrictHostKeyChecking=no -i **** ec2-user@3.14.13.107 'sed -i /-' type: unmanaged/a instance: 'c5.4xlarge jenkins-sdk/config/job-config.yaml'
+                            // sed: -e expression #1, char 2: unterminated address regex
+                            // + ssh -o StrictHostKeyChecking=no -i **** ec2-user@3.137.136.169 'sed -i /-' type: unmanaged/a instance: 'c5.4xlarge jenkins-sdk/config/job-config.yaml'
+                            runSSH(ip, 'sed -i "/- type: unmanaged/a\\      instance: ' + instanceType + '" jenkins-sdk/config/job-config.yaml')
+                            runSSH(ip, 'sed -i "/- type: unmanaged/a\\      region: ' + region + '" jenkins-sdk/config/job-config.yaml')
+                            runSSH(ip, 'sed -i "/- type: unmanaged/a\\      compaction: disabled" jenkins-sdk/config/job-config.yaml')
+                            runSSH(ip, 'sed -i "/- type: unmanaged/a\\      topology: A" jenkins-sdk/config/job-config.yaml')
+                            runSSH(ip, "cat jenkins-sdk/config/job-config.yaml")
+                        }
+                        catch (error) {
+                            echo "Failed to modify config: " + error
+                        }
+
                         runSSH(ip, "cd jenkins-sdk && ./gradlew -q shadowJar")
                         runSSH(ip, "find . -iname '*SNAPSHOT*.jar'")
 
