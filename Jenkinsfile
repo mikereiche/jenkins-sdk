@@ -1,3 +1,5 @@
+import java.util.stream.Collectors
+
 def runAWS(String command) {
     return sh(script: "aws ${command}", returnStdout: true)
 }
@@ -29,12 +31,15 @@ void setupPrerequisitesMac() {
 
 stage("run") {
 
+    // Running on Mac allows ssh-ing in, but it's not that useful as most work is done on the AWS node. And there's
+    // limited numbers of Mac agents.
 //    node("build-sdk-macosx-11.0") {
 //        String agentIp = sh(script: "ipconfig getifaddr en0", returnStdout: true).trim()
 //        echo "ssh couchbase@${agentIp}"
 ////    }
 
-    node("sdkqe") {
+    // This script fails on centos7
+    node("sdkqe-centos8") {
         withAWS(credentials: 'aws-sdkqe') {
             withCredentials([file(credentialsId: 'abbdb61e-d9b7-47ea-b160-7ff840c97bda', variable: 'SSH_KEY_PATH')]) {
                 withCredentials([string(credentialsId: 'TIMEDB_PWD', variable: 'TIMEDB_PWD')]) {
@@ -42,18 +47,22 @@ stage("run") {
                     setupPrerequisitesCentos8()
 //                    setupPrerequisitesMac()
 
-//                    String instanceType = "c5.large" // for cheaper iteration
-                    String instanceType = "c5.4xlarge"
+                    // String instanceType = "c5.large" // for cheaper iteration
+                    // String instanceType = "c5d.4xlarge"  // $0.768 an hour 16vCPU 32GB 400GB NVMe storage
+                    String instanceType = "c5.4xlarge"  // $0.768 an hour 16vCPU 32GB
                     String region = "us-east-2" // cheapest
-                    String instanceId = runAWS("ec2 run-instances --image-id ami-02d1e544b84bf7502 --count 1 --instance-type ${instanceType} --key-name cbdyncluster --security-group-ids sg-038fbc90bd62206af --region ${region} --output text --query 'Instances[*].InstanceId' --block-device-mappings 'DeviceName=/dev/sda1,Ebs={VolumeSize=20}'").trim()
+                    String imageId = "ami-02d1e544b84bf7502" // Amazon Linux 2
+                    String hdSizeGB = 100 // CBD-5001 - seeing issues with the default 8GB.  The --block-device-mappings DeviceName must match the AMI's.
+
+                    String instanceId = runAWS("ec2 run-instances --image-id ${imageId} --count 1 --instance-type ${instanceType} --key-name cbdyncluster --security-group-ids sg-038fbc90bd62206af --region ${region} --output text --query 'Instances[*].InstanceId' --block-device-mappings 'DeviceName=/dev/xvda,Ebs={VolumeSize=${hdSizeGB}}'").trim()
                     echo "Created AWS instance ${instanceId}"
+                    String ip = null
 
                     try {
-                        runAWS("ec2 wait instance-running --region ${region} --instance-ids ${instanceId}")
+                        // CBD-5002: Remove any old instances first.  Shouldn't be any running, this is a safety check.
+                        removeOldInstances(region)
 
-                        String ip = runAWS("ec2 describe-instances --region ${region} --instance-ids ${instanceId} --output text --query 'Reservations[0].Instances[0].NetworkInterfaces[0].Association.PublicIp'").trim()
-
-                        echo "AWS instance running on ${ip}"
+                        ip = waitForInstanceToBeReady(region, instanceId)
 
                         // Setup Docker
                         runSSH(ip, "sudo yum update -y")
@@ -84,18 +93,20 @@ stage("run") {
                             runSSH(ip, "curl -u Administrator:password http://localhost:8091/pools/default -d memoryQuota=${memoryQuota}")
 
                             // We're focussed on SDK performance, so disable server settings that can affect performance
-                            runSSH(ip, "curl -u Administrator:password http://localhost:8091/controller/setAutoCompaction -d memoryQuota=${memoryQuota}")
+                            // Note that per CBD-5001, this means we need to periodically compact manually
+                            runSSH(ip, 'curl -u Administrator:password http://localhost:8091/controller/setAutoCompaction -d databaseFragmentationThreshold[percentage]="undefined" -d parallelDBAndViewCompaction=false')
                         }
 
                         // Run jenkins-sdk, which will do everything else
                         sh(script: 'ssh -o "StrictHostKeyChecking=no" -i $SSH_KEY_PATH ec2-user@' + ip + ' "cd jenkins-sdk && java -jar build/libs/jenkins2-1.0-SNAPSHOT-all.jar $TIMEDB_PWD"')
                     }
-                    finally {
+                    catch (ignored) {
                         // For debugging, can log into the agent (if Mac) or the AWS instance now
-                        // sleep(1000 * 60 * 60)
-                        // echo "ssh couchbase@${agentIp}"
-                        // echo "ssh -i ~/keys/cbdyncluster.pem ec2-user@${ip}"
-
+                        echo "http://${ip}:8091"
+                        echo "ssh -i ~/keys/cbdyncluster.pem ec2-user@${ip}"
+                        sleep(60 * 60 * 12) // in seconds.  Setting to give plenty of time for debugging an overnight run, but not be too expensive.
+                    }
+                    finally {
                         runAWS("ec2 terminate-instances --instance-ids ${instanceId} --region ${region}")
                     }
                 }
@@ -104,4 +115,54 @@ stage("run") {
     }
 
 
+}
+
+String waitForInstanceToBeReady(String region, String instanceId) {
+    // Can't find documentation on what order these lifecycle events occur in, and have seen issues where unable to
+    // ssh when just waiting for instance-running, so just wait for them all
+    try {
+        runAWS("ec2 wait instance-running --region ${region} --instance-ids ${instanceId}")
+        // This takes a while and is maybe unnecessary now with the ssh polling below
+        // runAWS("ec2 wait instance-status-ok --region ${region} --instance-ids ${instanceId}")
+    }
+    catch (err) {
+        echo "Got error waiting, continuing: ${err}"
+    }
+
+    String ip = runAWS("ec2 describe-instances --region ${region} --instance-ids ${instanceId} --output text --query 'Reservations[0].Instances[0].NetworkInterfaces[0].Association.PublicIp'").trim()
+
+    echo "AWS instance running on ${ip}"
+
+    // "instance-running" status at least does not seem to guarantee that services like SSH are available, so poll
+    int guard = 30
+    boolean done = false
+    while (!done) {
+        try {
+            runSSH(ip, "sudo whoami")
+            done = true
+        }
+        catch (err) {
+            echo "Got error while polling for ssh connectivity, continuing: ${err}"
+            sleep(1)
+        }
+
+        guard -= 1
+        if (guard == 0) {
+            done = true
+        }
+    }
+
+    return ip
+}
+
+void removeOldInstances(String region) {
+    try {
+        String oldInstancesRaw = runAWS("ec2 describe-instances --region ${region} --filters \"Name='tag:project',Values=sdk-performance\" --output text --query 'Reservations[*].Instances[*].InstanceId'").trim()
+        echo oldInstancesRaw
+        List<String> oldInstances = oldInstancesRaw.split('\n').toList()
+        oldInstances.each { if (!it.trim().isEmpty()) runAWS("ec2 terminate-instances --instance-ids ${it.trim()} --region ${region}") }
+    }
+    catch (err) {
+        echo "Got error trying to remove old instances, continuing: ${err}"
+    }
 }
