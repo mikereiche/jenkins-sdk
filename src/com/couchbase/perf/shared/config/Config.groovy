@@ -56,16 +56,23 @@ class PerfConfig {
         String hostname_docker
         String storage
         Integer replicas
+
         // "c5.4xlarge"
+        // Only present on AWS
         String instance
+
         // "disabled"
         String compaction
+
         // By topology we mean where the performer, driver and cluster are running.  There are many possible permuations
         // so we represent them with a code letter.
         // "A" = driver, performer and cluster all running on same AWS node, in docker
         String topology
-        // "us-east-2
+
+        // "us-east-2"
+        // Only present on AWS
         String region
+
         // Any new fields here probably want adding into toJsonRaw below, and into the driver config
 
         @CompileDynamic
