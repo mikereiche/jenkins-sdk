@@ -56,17 +56,32 @@ class PerfConfig {
         String hostname_docker
         String storage
         Integer replicas
+        // "c5.4xlarge"
+        String instance
+        // "disabled"
+        String compaction
+        // By topology we mean where the performer, driver and cluster are running.  There are many possible permuations
+        // so we represent them with a code letter.
+        // "A" = driver, performer and cluster all running on same AWS node, in docker
+        String topology
+        // "us-east-2
+        String region
+        // Any new fields here probably want adding into toJsonRaw below, and into the driver config
 
         @CompileDynamic
         def toJsonRaw(boolean forDatabaseComparison) {
             def out = [
-                    "version"  : version,
-                    "nodeCount": nodeCount,
-                    "memory"   : memory,
-                    "cpuCount" : cpuCount,
-                    "type"     : type,
-                    "storage"  : storage,
-                    "replicas" : replicas
+                    "version"   : version,
+                    "nodeCount" : nodeCount,
+                    "memory"    : memory,
+                    "cpuCount"  : cpuCount,
+                    "type"      : type,
+                    "storage"   : storage,
+                    "replicas"  : replicas,
+                    "instance"  : instance,
+                    "compaction": compaction,
+                    "topology"  : topology,
+                    "region"    : region
             ]
             if (!forDatabaseComparison) {
                 out.put("hostname", hostname)

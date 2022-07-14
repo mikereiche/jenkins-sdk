@@ -66,6 +66,8 @@ matrix:
       hostname_docker: cbs
       storage: couchstore
       replicas: 0
+      # A number of other fields will get filled in dynamically, both by CI and by jenkins-sdk.
+
   #    - type: gocaves
   #      source: /home/ec2-user/workspace/performance/sdk-performance/gocaves
   ##      source: /Users/charliehayes/Documents/GitHub/gocaves

@@ -75,6 +75,9 @@ class OutputPerformerConfig extends Stage {
             .excludeNulls()
             .build()
 
+        topLevelVariables.driverVer = 6
+        topLevelVariables.performerVer = 0
+
         if (impl.language == "python" && !(impl.version.contains("."))){
             // todo move this
             //Find most recent Python version

@@ -49,7 +49,7 @@ class PerfDatabase {
         execute(sql, ctx, "ALTER TABLE buckets ADD COLUMN IF NOT EXISTS time_offset_secs bigint")
         execute(sql, ctx, "ALTER TABLE metrics ADD COLUMN IF NOT EXISTS time_offset_secs bigint")
         // This turns a regular postgres database into a timescaledb one
-        execute(sql, ctx, "SELECT create_hypertable('buckets', 'time', migrate_data => true)")
+        execute(sql, ctx, "SELECT create_hypertable('buckets', 'time', migrate_data => true, if_not_exists => true)")
     }
 
     static List<RunFromDb> compareRunsAgainstDb(StageContext ctx, List <Run> runs, String[] args) {
