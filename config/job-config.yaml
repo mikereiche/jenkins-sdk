@@ -88,38 +88,19 @@ matrix:
 #    - language: java
 #      version: snapshot
 
-    - language: java
-      version: 3.0.0
 
-    - language: java
-      version: 3.0.1
-
-    - language: java
-      version: 3.0.2
-
-    - language: java
-      version: 3.0.3
-
-    - language: java
-      version: 3.0.4
-
-    - language: java
-      version: 3.0.5
-
-    - language: java
-      version: 3.0.6
-
+    # 3.0.7 is the earliest version of Java that the performer currently compiles with (expiry(Instant) added)
     - language: java
       version: 3.0.7
+#
+#    - language: java
+#      version: 3.0.8
+#
+#    - language: java
+#      version: 3.0.9
 
-    - language: java
-      version: 3.0.8
-
-    - language: java
-      version: 3.0.9
-
-    - language: java
-      version: 3.0.10
+#    - language: java
+#      version: 3.0.10
 
     - language: java
       version: 3.1.0
@@ -178,39 +159,8 @@ matrix:
     - language: java
       version: 3.3.2
 
-    - language: scala
-      version: 1.0.0
 
-    - language: scala
-      version: 1.0.1
-
-    - language: scala
-      version: 1.0.2
-
-    - language: scala
-      version: 1.0.3
-
-    - language: scala
-      version: 1.0.4
-
-    - language: scala
-      version: 1.0.5
-
-    - language: scala
-      version: 1.0.6
-
-    - language: scala
-      version: 1.0.7
-
-    - language: scala
-      version: 1.0.8
-
-    - language: scala
-      version: 1.0.9
-
-    - language: scala
-      version: 1.0.10
-
+    # 1.1.0 is the earliest version of Scala that the performer currently compiles with (expiry(Instant) added)
     - language: scala
       version: 1.1.0
 
