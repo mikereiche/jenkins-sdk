@@ -78,7 +78,7 @@ class OutputPerformerConfig extends Stage {
         // For apples-to-apples comparisons, we have to make sure that whenever we change something in the driver or
         // performer that might alter the results, that these are bumped.
         topLevelVariables.driverVer = 6
-        topLevelVariables.performerVer = 0
+        topLevelVariables.performerVer = 1
 
         if (impl.language == "python" && !(impl.version.contains("."))){
             // todo move this

@@ -12,8 +12,9 @@ servers:
     # Where the driver runs.  Currently only "localhost" is supported.
     hostname: localhost
 
-    # Either the location of a checked-out perf-sdk project, or "https://github.com/couchbaselabs/perf-sdk"
-    source: /home/ec2-user/perf-sdk
+    # Either the location of a checked-out transactions-fit-performer project, or "https://github.com/couchbaselabs/transactions-fit-performer"
+    # source: c:\dev\transactions-fit-performer
+    source: https://github.com/couchbaselabs/transactions-fit-performer
 
 # Generally only CI should be talking to production database.  For local performance testing, spin up a localhost database.
 # The password gets replaced by an environment variable when running on CI

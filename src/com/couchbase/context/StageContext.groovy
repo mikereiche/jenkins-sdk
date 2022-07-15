@@ -38,10 +38,10 @@ class StageContext {
         def sd = sourceDir()
         if (sd.startsWith("http")) {
             env.sourceCheckoutDirAbsolute {
-                if (!new File(env.currentDir() + File.separatorChar + "perf-sdk").exists()) {
+                if (!new File(env.currentDir() + File.separatorChar + "transactions-fit-performer").exists()) {
                     env.checkout(sd)
                 }
-                env.dir("perf-sdk", closure)
+                env.dir("transactions-fit-performer", closure)
             }
         }
         else {

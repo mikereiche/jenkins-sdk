@@ -22,7 +22,7 @@ class BuildSDKDriver extends Stage {
     @Override
     void executeImpl(StageContext ctx) {
         ctx.inSourceDirAbsolute {
-            ctx.env.execute("docker build -f sdk-driver/Dockerfile -t driver .")
+            ctx.env.execute("docker build -f perf-driver/Dockerfile -t driver .")
         }
     }
 }
