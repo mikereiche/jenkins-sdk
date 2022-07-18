@@ -103,6 +103,14 @@ class PerfConfig {
         String language
         String version
         Integer port
+
+        Implementation() {}
+
+        Implementation(String language, String version, Integer port) {
+            this.language = language
+            this.version = version
+            this.port = port
+        }
     }
 }
 

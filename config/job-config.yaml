@@ -76,186 +76,30 @@ matrix:
   #      port: 8080
 
   implementations:
-    # todo support version ranges
-#    - language: java
-#      version: 3.X.X
-#
-#    - language: java
-#      version: 3.X.0
-#      perLanguage:
-#        - gc: shedonah
-
     # todo support snapshot builds
-#    - language: java
-#      version: snapshot
-
 
     # 3.0.7 is the earliest version of Java that the performer currently compiles with (expiry(Instant) added)
-#    - language: java
-#      version: 3.0.7
-#
-#    - language: java
-#      version: 3.0.8
-#
-#    - language: java
-#      version: 3.0.9
-
-#    - language: java
-#      version: 3.0.10
-
-#    - language: java
-#      version: 3.1.0
-#
-#    - language: java
-#      version: 3.1.1
-#
-#    - language: java
-#      version: 3.1.2
-#
-#    - language: java
-#      version: 3.1.3
-#
-#    - language: java
-#      version: 3.1.4
-#
-#    - language: java
-#      version: 3.1.5
-#
-#    - language: java
-#      version: 3.1.6
-#
-#    - language: java
-#      version: 3.1.7
-#
-#    - language: java
-#      version: 3.1.8
-#
-#    - language: java
-#      version: 3.2.0
-#
-#    - language: java
-#      version: 3.2.1
-#
-#    - language: java
-#      version: 3.2.2
-#
-#    - language: java
-#      version: 3.2.3
-#
-#    - language: java
-#      version: 3.2.4
-#
-#    - language: java
-#      version: 3.2.5
-#
-#    - language: java
-#      version: 3.2.6
+    - language: java
+      version: 3.1.X
 
     - language: java
-      version: 3.3.0
+      version: 3.2.X
 
     - language: java
-      version: 3.3.1
-
-    - language: java
-      version: 3.3.2
-
+      version: 3.3.X
 
     # 1.1.0 is the earliest version of Scala that the performer currently compiles with (expiry(Instant) added)
-#    - language: scala
-#      version: 1.1.0
-#
-#    - language: scala
-#      version: 1.1.1
-#
-#    - language: scala
-#      version: 1.1.2
-#
-#    - language: scala
-#      version: 1.1.3
-#
-#    - language: scala
-#      version: 1.1.4
-#
-#    - language: scala
-#      version: 1.1.5
-#
-#    - language: scala
-#      version: 1.1.6
-#
-#    - language: scala
-#      version: 1.2.0
-#
-#    - language: scala
-#      version: 1.2.1
-#
-#    - language: scala
-#      version: 1.2.2
-#
-#    - language: scala
-#      version: 1.2.3
-#
-#    - language: scala
-#      version: 1.2.4
-#
-#    - language: scala
-#      version: 1.2.5
-#
-#    - language: scala
-#      version: 1.2.6
+    - language: scala
+      version: 1.1.X
 
     - language: scala
-      version: 1.3.0
+      version: 1.2.X
 
     - language: scala
-      version: 1.3.1
-
-    - language: scala
-      version: 1.3.2
+      version: 1.3.X
 
     - language: kotlin
-      version: 1.0.0
-
-    - language: kotlin
-      version: 1.0.1
-
-    - language: kotlin
-      version: 1.0.2
-
-    #- language: python
-    #  version: 41f71dce093ea0efa60a9fda59da4e4eaa3f5128
-#        - language: python
-#          version: 4.0.1
-    #    - language: python
-    #      version: 4.0.0
-#    - language: python
-#      version: 3.2.7
-    #    - language: python
-    #      version: 3.2.6
-    #    - language: python
-    #      version: 3.2.5
-    #    - language: python
-    #      version: 15056ea8dd6e172eab332fa29f83e3df29f4c4b5
-    #    - language: python
-    #      version: 7b43a9de5adb2debf4fb6981b9b82f01506e6b8c
-    #    - language: python
-    #      version: 18f8c4931f4047fa8a6761ccb4056acf2e2a012e
-    #    - language: python
-    #      version: 3ac9421131629239af815296ef0c98ec3a20d407
-    #    - language: java
-    #      version: 3.2.7
-    #    - language: java
-    #      version: 3.2.6
-    #    - language: java
-    #      version: 3.2.5
-    #    - language: java
-    #      version: 3.3.0
-    #    - language: java
-    #      version: 3.3.1
-    # If just port is specified: the performer is expected to be running already at location servers.performer.
-    # E.g. this is for localhost testing.
-    # Otherwise, specify language and version, and this tool will spinup a performer running at location servers.performer.
-    #    - port: 8060
+      version: 1.X.X
 
   workloads:
 

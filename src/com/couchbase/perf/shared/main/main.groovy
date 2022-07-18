@@ -14,6 +14,8 @@ import com.couchbase.perf.shared.database.RunFromDb
 import com.couchbase.perf.shared.stages.StopDockerContainer
 import com.couchbase.stages.*
 import com.couchbase.stages.servers.InitialiseCluster
+import com.couchbase.versions.ImplementationVersion
+import com.couchbase.versions.JVMVersions
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.yaml.YamlSlurper
@@ -52,7 +54,60 @@ class Execute {
         return get.getInputStream().getText()
     }
 
+    static List<PerfConfig.Implementation> versions(Object implementation, String client) {
+        def versions = JVMVersions.getAllJVMReleases(client)
+
+        String[] split = implementation.version.split("\\.")
+        Integer lookingForMajor = null
+        Integer lookingForMinor = null
+        Integer lookingForPatch = null
+
+        if (split[0] != 'X') lookingForMajor = Integer.parseInt(split[0])
+        if (split[1] != 'X') lookingForMinor = Integer.parseInt(split[1])
+        if (split[2] != 'X') lookingForPatch = Integer.parseInt(split[2])
+
+        List<ImplementationVersion> lookingFor = versions.stream()
+                .filter(v -> {
+                    boolean out = true
+                    if (lookingForMajor != null && lookingForMajor != v.major) out = false
+                    if (out && lookingForMinor != null && lookingForMinor != v.minor) out = false
+                    if (out && lookingForPatch != null && lookingForPatch != v.patch) out = false
+                    return out
+                })
+                .toList()
+
+        return lookingFor.stream()
+                .map(v -> new PerfConfig.Implementation(implementation.language, v.toString(), 8060))
+                .toList()
+    }
+
     static void modifyConfig(PerfConfig config) {
+        List< PerfConfig.Implementation> implementationsToAdd = new ArrayList<>()
+
+        config.matrix.implementations.forEach(implementation -> {
+            if (implementation.version == "snapshot") {
+                if (implementation.language == "java") {
+
+                }
+                else {
+                    throw new UnsupportedOperationException("Cannot support snapshot builds with language ${implementation.language} yet")
+                }
+            }
+            else if (implementation.version.contains('X')) {
+                if (implementation.language == "java") implementationsToAdd.addAll(versions(implementation, "java-client"))
+                else if (implementation.language == "scala") implementationsToAdd.addAll(versions(implementation, "scala-client_2.12"))
+                else if (implementation.language == "kotlin") implementationsToAdd.addAll(versions(implementation, "kotlin-client"))
+                else {
+                    throw new UnsupportedOperationException("Cannot support snapshot builds with language ${implementation.language} yet")
+                }
+            }
+        })
+
+        config.matrix.implementations.removeIf(v -> v.version == "snapshot" || v.version.contains('X'))
+        if (implementationsToAdd != null) {
+            config.matrix.implementations.addAll(implementationsToAdd)
+        }
+
         config.matrix.clusters.forEach(cluster -> {
 
             String hostname = cluster.hostname
