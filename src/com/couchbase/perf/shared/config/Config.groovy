@@ -102,6 +102,7 @@ class PerfConfig {
     static class Implementation {
         String language
         String version
+        // A null port means jenkins-sdk needs to bring it up
         Integer port
 
         Implementation() {}
