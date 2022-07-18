@@ -16,7 +16,6 @@ def ignore(String command) {
 }
 
 void setupPrerequisitesCentos8() {
-    // sh(script: "sudo ip a")
     sh(script: "cd /etc/yum.repos.d")
     // https://techglimpse.com/failed-metadata-repo-appstream-centos-8/
     sh(script: "sudo sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*")
@@ -29,6 +28,10 @@ void setupPrerequisitesMac() {
     sh(script: 'sudo installer -pkg AWSCLIV2.pkg -target /')
 }
 
+void setupPrerequisitesUbuntu() {
+    sh(script: 'sudo apt -qq install --assume-yes awscli', returnStdout: true)
+}
+
 stage("run") {
 
     // Running on Mac allows ssh-ing in, but it's not that useful as most work is done on the AWS node. And there's
@@ -38,14 +41,19 @@ stage("run") {
 //        echo "ssh couchbase@${agentIp}"
 ////    }
 
-    // This script fails on centos7
-    node("sdkqe-centos8") {
+    node("ubuntu20") {
+        // Private repo, so cannot check out directly on AWS node.  Need to scp it over.
+        dir ("transactions-fit-performer") {
+            checkout([$class: 'GitSCM', userRemoteConfigs: [[url: "git@github.com:couchbaselabs/transactions-fit-performer.git"]]])
+        }
+
         withAWS(credentials: 'aws-sdkqe') {
             withCredentials([file(credentialsId: 'abbdb61e-d9b7-47ea-b160-7ff840c97bda', variable: 'SSH_KEY_PATH')]) {
                 withCredentials([string(credentialsId: 'TIMEDB_PWD', variable: 'TIMEDB_PWD')]) {
 
-                    setupPrerequisitesCentos8()
-//                    setupPrerequisitesMac()
+                    // setupPrerequisitesCentos8()
+                    // setupPrerequisitesMac()
+                    setupPrerequisitesUbuntu()
 
                     // String instanceType = "c5.large" // for cheaper iteration
                     // String instanceType = "c5d.4xlarge"  // $0.768 an hour 16vCPU 32GB 400GB NVMe storage
@@ -64,8 +72,10 @@ stage("run") {
 
                         ip = waitForInstanceToBeReady(region, instanceId)
 
+                        sh(script: 'scp -C -r -o "StrictHostKeyChecking=no" -i $SSH_KEY_PATH transactions-fit-performer ec2-user@' + ip + ":transactions-fit-performer")
+
                         // Setup Docker
-                        runSSH(ip, "sudo yum update -y")
+                        runSSH(ip, "sudo yum update -y", true)
                         // Anytime we're returning output here, it's just to hide very verbose output
                         runSSH(ip, "sudo amazon-linux-extras install docker", true)
                         // Don't require docker to be run as sudo
@@ -74,12 +84,11 @@ stage("run") {
                         // All Docker containers will be run on this network
                         runSSH(ip, "docker network create perf")
 
-                        // We've install just the minimum to get the Cluster up, so it can be coming up while we're doing other stuff
+                        // We've installed just the minimum to get the Cluster up, so it can be coming up while we're doing other stuff
                         runSSH(ip, "docker run -d --name cbs --network perf -p 8091-8096:8091-8096 -p 11210-11211:11210-11211 couchbase:7.1.1 >/dev/null 2>&1", true)
 
                         runSSH(ip, "sudo yum install -y git java-17-amazon-corretto-devel", true)
 
-                        runSSH(ip, "git clone https://github.com/couchbaselabs/perf-sdk.git")
                         runSSH(ip, "git clone https://github.com/couchbaselabs/jenkins-sdk")
 
                         try {
@@ -119,9 +128,9 @@ stage("run") {
                     }
                     catch (ignored) {
                         // For debugging, can log into the agent (if Mac) or the AWS instance now
-                        echo "http://${ip}:8091"
-                        echo "ssh -i ~/keys/cbdyncluster.pem ec2-user@${ip}"
-                        sleep(60 * 60 * 12) // in seconds.  Setting to give plenty of time for debugging an overnight run, but not be too expensive.
+                         echo "http://${ip}:8091"
+                         echo "ssh -i ~/keys/cbdyncluster.pem ec2-user@${ip}"
+                         sleep(60 * 60 * 12) // in seconds.  Setting to give plenty of time for debugging an overnight run, but not be too expensive.
                     }
                     finally {
                         runAWS("ec2 terminate-instances --instance-ids ${instanceId} --region ${region}")
