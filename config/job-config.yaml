@@ -76,7 +76,14 @@ matrix:
   #      port: 8080
 
   implementations:
-    # todo support snapshot builds
+    - language: java
+      version: snapshot
+
+    - language: scala
+      version: snapshot
+
+    - language: kotlin
+      version: snapshot
 
     # 3.0.7 is the earliest version of Java that the performer currently compiles with (expiry(Instant) added)
     - language: java

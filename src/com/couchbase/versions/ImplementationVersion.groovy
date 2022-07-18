@@ -14,18 +14,31 @@ class ImplementationVersion {
     }
 
     static ImplementationVersion from(String s) {
-        String[] split = s.split("\\.")
-        return new ImplementationVersion(
-                Integer.parseInt(split[0]),
-                Integer.parseInt(split[1]),
-                Integer.parseInt(split[2]),
-                null
-        )
+        int first = s.indexOf('.', 0)
+        int second = s.indexOf('.', first + 1)
+        String majorRaw = s.substring(0, first)
+        String minorRaw = s.substring(first + 1, second)
+        String restRaw = s.substring(second + 1)
+        int major = Integer.parseInt(majorRaw)
+        int minor = Integer.parseInt(minorRaw)
+
+        if (restRaw.contains("-")) {
+            // "3.3.3-20220715.074746-6"
+            int index = restRaw.indexOf("-")
+            return new ImplementationVersion(
+                    major,
+                    minor,
+                    Integer.parseInt(restRaw.substring(0, index)),
+                    restRaw.substring(index))
+        }
+        else {
+            return new ImplementationVersion(major, minor, Integer.parseInt(restRaw), null)
+        }
     }
 
     @Override
     String toString() {
-        return "${major}.${minor}.${patch}${if (snapshot != null) "." + snapshot else ""}"
+        return "${major}.${minor}.${patch}${if (snapshot != null) snapshot else ""}"
     }
 
     boolean equals(o) {

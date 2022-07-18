@@ -87,7 +87,16 @@ class Execute {
         config.matrix.implementations.forEach(implementation -> {
             if (implementation.version == "snapshot") {
                 if (implementation.language == "java") {
-
+                    def snapshot = JVMVersions.getLatestSnapshotBuild("java-client")
+                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null))
+                }
+                else if (implementation.language == "kotlin") {
+                    def snapshot = JVMVersions.getLatestSnapshotBuild("kotlin-client")
+                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null))
+                }
+                else if (implementation.language == "scala") {
+                    def snapshot = JVMVersions.getLatestSnapshotBuild("scala-client_2.12")
+                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null))
                 }
                 else {
                     throw new UnsupportedOperationException("Cannot support snapshot builds with language ${implementation.language} yet")
