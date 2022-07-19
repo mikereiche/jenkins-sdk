@@ -128,9 +128,9 @@ stage("run") {
                     }
                     catch (ignored) {
                         // For debugging, can log into the agent (if Mac) or the AWS instance now
-                         echo "http://${ip}:8091"
-                         echo "ssh -i ~/keys/cbdyncluster.pem ec2-user@${ip}"
-                         sleep(60 * 60 * 12) // in seconds.  Setting to give plenty of time for debugging an overnight run, but not be too expensive.
+                        // echo "http://${ip}:8091"
+                        // echo "ssh -i ~/keys/cbdyncluster.pem ec2-user@${ip}"
+                        // sleep(60 * 60 * 12) // in seconds.  Setting to give plenty of time for debugging an overnight run, but not be too expensive.
                     }
                     finally {
                         runAWS("ec2 terminate-instances --instance-ids ${instanceId} --region ${region}")
