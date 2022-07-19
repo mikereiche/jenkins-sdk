@@ -42,7 +42,7 @@ class Execute {
     @CompileStatic
     static List<Run> parseConfig(StageContext ctx) {
         def config = ConfigParser.readPerfConfig("config/job-config.yaml")
-        modifyConfig(config)
+        modifyConfig(ctx, config)
         def allPerms = ConfigParser.allPerms(ctx, config)
         return allPerms
     }
@@ -54,7 +54,7 @@ class Execute {
         return get.getInputStream().getText()
     }
 
-    static List<PerfConfig.Implementation> versions(Object implementation, String client) {
+    static List<PerfConfig.Implementation> versions(StageContext ctx, Object implementation, String client) {
         def versions = JVMVersions.getAllJVMReleases(client)
 
         String[] split = implementation.version.split("\\.")
@@ -126,6 +126,7 @@ class Execute {
         if (implementationsToAdd != null) {
             config.matrix.implementations.addAll(implementationsToAdd)
         }
+        ctx.env.log("Added ${implementationsToAdd} snapshot or range versions")
 
         config.matrix.clusters.forEach(cluster -> {
 
