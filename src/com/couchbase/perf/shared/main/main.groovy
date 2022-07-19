@@ -69,7 +69,17 @@ class Execute {
         List<ImplementationVersion> lookingFor = versions.stream()
                 .filter(v -> {
                     boolean out = true
-                    if (lookingForMajor != null && lookingForMajor != v.major) out = false
+
+                    // Bit of hardcoded logic to filter out Kotlin developer previews, since they don't compile with
+                    // the current performer
+                    if (implementation.language == "kotlin"
+                        && v.snapshot != null
+                        && v.snapshot.startsWith("-dp")) {
+                        ctx.env.log("Filtering out kotlin ${v.toString()}")
+                        out = false
+                    }
+
+                    if (out && lookingForMajor != null && lookingForMajor != v.major) out = false
                     if (out && lookingForMinor != null && lookingForMinor != v.minor) out = false
                     if (out && lookingForPatch != null && lookingForPatch != v.patch) out = false
                     return out
@@ -81,7 +91,7 @@ class Execute {
                 .toList()
     }
 
-    static void modifyConfig(PerfConfig config) {
+    static void modifyConfig(StageContext ctx, PerfConfig config) {
         List< PerfConfig.Implementation> implementationsToAdd = new ArrayList<>()
 
         config.matrix.implementations.forEach(implementation -> {
@@ -103,9 +113,9 @@ class Execute {
                 }
             }
             else if (implementation.version.contains('X')) {
-                if (implementation.language == "java") implementationsToAdd.addAll(versions(implementation, "java-client"))
-                else if (implementation.language == "scala") implementationsToAdd.addAll(versions(implementation, "scala-client_2.12"))
-                else if (implementation.language == "kotlin") implementationsToAdd.addAll(versions(implementation, "kotlin-client"))
+                if (implementation.language == "java") implementationsToAdd.addAll(versions(ctx, implementation, "java-client"))
+                else if (implementation.language == "scala") implementationsToAdd.addAll(versions(ctx, implementation, "scala-client_2.12"))
+                else if (implementation.language == "kotlin") implementationsToAdd.addAll(versions(ctx, implementation, "kotlin-client"))
                 else {
                     throw new UnsupportedOperationException("Cannot support snapshot builds with language ${implementation.language} yet")
                 }
