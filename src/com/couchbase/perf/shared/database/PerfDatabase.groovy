@@ -50,6 +50,10 @@ class PerfDatabase {
         execute(sql, ctx, "ALTER TABLE metrics ADD COLUMN IF NOT EXISTS time_offset_secs bigint")
         // This turns a regular postgres database into a timescaledb one
         execute(sql, ctx, "SELECT create_hypertable('buckets', 'time', migrate_data => true, if_not_exists => true)")
+
+        // Cleanup buckets and metrics for which the run has been removed
+        execute(sql, ctx, "delete from buckets where run_id not in (select id from runs);")
+        execute(sql, ctx, "delete from metrics where run_id not in (select id from runs);")
     }
 
     static List<RunFromDb> compareRunsAgainstDb(StageContext ctx, List <Run> runs, String[] args) {
