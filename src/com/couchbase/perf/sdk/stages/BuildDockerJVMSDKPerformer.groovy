@@ -32,10 +32,12 @@ class BuildDockerJVMSDKPerformer extends Stage {
         def imp = ctx.env
         // Build context needs to be perf-sdk as we need the .proto files
         ctx.inSourceDirAbsolute {
-            imp.dir("performers/jvm/${client}") {
-                writePomFile(imp)
+            imp.dir('transactions-fit-performer') {
+                imp.dir("performers/jvm/${client}") {
+                    writePomFile(imp)
+                }
+                imp.execute("docker build -f performers/jvm/${client}/Dockerfile -t $imageName .")
             }
-            imp.execute("docker build -f performers/jvm/${client}/Dockerfile -t $imageName .")
         }
     }
 

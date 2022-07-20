@@ -40,16 +40,16 @@ class Environment {
         mkdirs(workspaceAbs)
 
         log("Working directory: $initialDir, workspace: $workspaceAbs, log: ${logFile.absolutePath}")
-
-        try {
-            log("Shell: ${executeSimple("echo \$SHELL")}")
-        }
-        catch (RuntimeException err) {}
     }
 
     void mkdirs(String path) {
         boolean created = new File(path).mkdirs()
         log("Created directory ${path}")
+    }
+
+    void rmdir(String path) {
+        new File(path).deleteDir()
+        log("Deleted directory ${path}")
     }
 
     String currentDir() {

@@ -33,21 +33,10 @@ class StageContext {
         return jc.servers.driver.source
     }
 
-    // Runs the closure inside the source directory, checking it out if necessary
+    // Runs the closure inside the source directory
     def inSourceDirAbsolute(Closure closure) {
         def sd = sourceDir()
-        if (sd.startsWith("http")) {
-            env.sourceCheckoutDirAbsolute {
-                if (!new File(env.currentDir() + File.separatorChar + "transactions-fit-performer").exists()) {
-                    env.checkout(sd)
-                }
-                env.dir("transactions-fit-performer", closure)
-            }
-        }
-        else {
-            env.log("Using existing source $sd")
-            env.dirAbsolute(sd, closure)
-        }
+        env.dirAbsolute(sd, closure)
     }
 
     @CompileDynamic

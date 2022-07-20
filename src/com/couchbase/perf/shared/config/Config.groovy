@@ -100,17 +100,30 @@ class PerfConfig {
 
     @ToString(includeNames = true, includePackage = false)
     static class Implementation {
+        // "java"
         String language
+        // "3.3.3" or "3.3.3-6abad3"
         String version
+        // "6abad3", nullable - used for some languages to handle snapshot builds
+        String sha
         // A null port means jenkins-sdk needs to bring it up
         Integer port
 
         Implementation() {}
 
-        Implementation(String language, String version, Integer port) {
+        Implementation(String language, String version, Integer port, String sha = null) {
             this.language = language
             this.version = version
             this.port = port
+            this.sha = sha
+        }
+
+        @CompileDynamic
+        def toJson() {
+            return [
+                    "language": language,
+                    "version" : version
+            ]
         }
     }
 }
@@ -169,7 +182,7 @@ class Run {
         copiedWorkload.variables = null
 
         return gen.toJson([
-                "impl"    : impl,
+                "impl"    : impl.toJson(),
                 "vars"    : jsonVars,
                 "cluster" : cluster.toJsonRaw(true),
                 "workload": copiedWorkload,

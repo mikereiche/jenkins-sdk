@@ -32,10 +32,12 @@ class BuildDockerGoSDKPerformer extends Stage{
         def imp = ctx.env
         // Build context needs to be perf-sdk as we need the .proto files
         ctx.inSourceDirAbsolute {
-            imp.dir('performers/go') {
-                writeGoModFile(imp)
+            imp.dir('transactions-fit-performer') {
+                imp.dir('performers/go') {
+                    writeGoModFile(imp)
+                }
+                imp.execute("docker build -f performers/go/Dockerfile -t $imageName .")
             }
-            imp.execute("docker build -f performers/go/Dockerfile -t $imageName .")
         }
     }
 

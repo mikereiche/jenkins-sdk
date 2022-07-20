@@ -1,5 +1,7 @@
 import java.util.stream.Collectors
 
+String GERRIT_REPO = 'ssh://review.couchbase.org:29418/transactions-fit-performer.git'
+
 def runAWS(String command) {
     return sh(script: "aws ${command}", returnStdout: true)
 }
@@ -45,6 +47,10 @@ stage("run") {
         // Private repo, so cannot check out directly on AWS node.  Need to scp it over.
         dir ("transactions-fit-performer") {
             checkout([$class: 'GitSCM', userRemoteConfigs: [[url: "git@github.com:couchbaselabs/transactions-fit-performer.git"]]])
+            if (REFSPEC != '') {
+                echo 'REFSPEC is not null. So applying gerrit changes'
+                checkout([$class: 'GitSCM', branches: [[name: "$BRANCH"]], userRemoteConfigs: [[refspec: "$REFSPEC", url: "$GERRIT_REPO"]]])
+            }
         }
 
         withAWS(credentials: 'aws-sdkqe') {

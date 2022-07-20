@@ -5,7 +5,7 @@ import groovy.transform.Memoized
 
 
 class JVMVersions {
-    private static String read(String url) {
+    public static String read(String url) {
         def get = new URL(url).openConnection();
         return get.getInputStream().getText()
     }

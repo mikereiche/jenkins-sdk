@@ -2,7 +2,6 @@ package com.couchbase.perf.shared.main
 
 import com.couchbase.context.StageContext
 import com.couchbase.context.environments.Environment
-import com.couchbase.perf.sdk.stages.BuildSDKDriver
 import com.couchbase.perf.sdk.stages.InitialiseSDKPerformer
 import com.couchbase.perf.sdk.stages.OutputPerformerConfig
 import com.couchbase.perf.sdk.stages.RunSDKDriver
@@ -14,6 +13,7 @@ import com.couchbase.perf.shared.database.RunFromDb
 import com.couchbase.perf.shared.stages.StopDockerContainer
 import com.couchbase.stages.*
 import com.couchbase.stages.servers.InitialiseCluster
+import com.couchbase.versions.DotNetVersions
 import com.couchbase.versions.ImplementationVersion
 import com.couchbase.versions.JVMVersions
 import groovy.json.JsonSlurper
@@ -54,9 +54,7 @@ class Execute {
         return get.getInputStream().getText()
     }
 
-    static List<PerfConfig.Implementation> versions(StageContext ctx, Object implementation, String client) {
-        def versions = JVMVersions.getAllJVMReleases(client)
-
+    static List<PerfConfig.Implementation> versions(StageContext ctx, Object implementation, String client, Set<ImplementationVersion> versions) {
         String[] split = implementation.version.split("\\.")
         Integer lookingForMajor = null
         Integer lookingForMinor = null
@@ -91,6 +89,11 @@ class Execute {
                 .toList()
     }
 
+    static List<PerfConfig.Implementation> jvmVersions(StageContext ctx, Object implementation, String client) {
+        def versions = JVMVersions.getAllJVMReleases(client)
+        return versions(ctx, implementation, client, versions)
+    }
+
     static void modifyConfig(StageContext ctx, PerfConfig config) {
         List< PerfConfig.Implementation> implementationsToAdd = new ArrayList<>()
 
@@ -98,24 +101,36 @@ class Execute {
             if (implementation.version == "snapshot") {
                 if (implementation.language == "java") {
                     def snapshot = JVMVersions.getLatestSnapshotBuild("java-client")
+                    ctx.env.log("Found snapshot build for Java: ${snapshot}")
                     implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null))
                 }
                 else if (implementation.language == "kotlin") {
                     def snapshot = JVMVersions.getLatestSnapshotBuild("kotlin-client")
+                    ctx.env.log("Found snapshot build for Kotlin: ${snapshot}")
                     implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null))
                 }
                 else if (implementation.language == "scala") {
                     def snapshot = JVMVersions.getLatestSnapshotBuild("scala-client_2.12")
+                    ctx.env.log("Found snapshot build for Scala: ${snapshot}")
                     implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null))
+                }
+                else if (implementation.language == "dotnet") {
+                    def sha = DotNetVersions.getLatestSha()
+                    def allReleases = DotNetVersions.getAllReleases()
+                    def highest = ImplementationVersion.highest(allReleases)
+                    ctx.env.log("Found latest sha for Dotnet: ${sha}")
+                    String version = highest.toString() + "-" + sha
+                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha))
                 }
                 else {
                     throw new UnsupportedOperationException("Cannot support snapshot builds with language ${implementation.language} yet")
                 }
             }
             else if (implementation.version.contains('X')) {
-                if (implementation.language == "java") implementationsToAdd.addAll(versions(ctx, implementation, "java-client"))
-                else if (implementation.language == "scala") implementationsToAdd.addAll(versions(ctx, implementation, "scala-client_2.12"))
-                else if (implementation.language == "kotlin") implementationsToAdd.addAll(versions(ctx, implementation, "kotlin-client"))
+                if (implementation.language == "java") implementationsToAdd.addAll(jvmVersions(ctx, implementation, "java-client"))
+                else if (implementation.language == "scala") implementationsToAdd.addAll(jvmVersions(ctx, implementation, "scala-client_2.12"))
+                else if (implementation.language == "kotlin") implementationsToAdd.addAll(jvmVersions(ctx, implementation, "kotlin-client"))
+                else if (implementation.language == "dotnet") implementationsToAdd.addAll(versions(ctx, implementation, "dotnet", DotNetVersions.allReleases))
                 else {
                     throw new UnsupportedOperationException("Cannot support snapshot builds with language ${implementation.language} yet")
                 }

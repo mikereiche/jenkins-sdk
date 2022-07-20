@@ -63,4 +63,32 @@ class ImplementationVersion {
         result = 31 * result + (snapshot != null ? snapshot.hashCode() : 0)
         return result
     }
+
+    public boolean isBelow(ImplementationVersion other) {
+        if (major < other.major) return true;
+        if (major > other.major) return false;
+        if (minor < other.minor) return true;
+        if (minor > other.minor) return false;
+        return patch < other.patch;
+    }
+
+    public boolean isAbove(ImplementationVersion other) {
+        if (major < other.major) return false;
+        if (major > other.major) return true;
+        if (minor < other.minor) return false;
+        if (minor > other.minor) return true;
+        return patch > other.patch;
+    }
+
+    public static ImplementationVersion highest(Iterable<ImplementationVersion> versions) {
+        ImplementationVersion highest = null
+
+        versions.forEach(version -> {
+            if (highest == null || version.isAbove(highest)) {
+                highest = version
+            }
+        })
+
+        return highest
+    }
 }
