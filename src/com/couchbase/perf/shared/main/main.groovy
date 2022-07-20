@@ -2,6 +2,7 @@ package com.couchbase.perf.shared.main
 
 import com.couchbase.context.StageContext
 import com.couchbase.context.environments.Environment
+import com.couchbase.perf.sdk.stages.BuildSDKDriver
 import com.couchbase.perf.sdk.stages.InitialiseSDKPerformer
 import com.couchbase.perf.sdk.stages.OutputPerformerConfig
 import com.couchbase.perf.sdk.stages.RunSDKDriver
