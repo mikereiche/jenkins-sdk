@@ -91,8 +91,8 @@ class Execute {
     }
 
     static List<PerfConfig.Implementation> jvmVersions(StageContext ctx, Object implementation, String client) {
-        def versions = JVMVersions.getAllJVMReleases(client)
-        return versions(ctx, implementation, client, versions)
+        def allVersions = JVMVersions.getAllJVMReleases(client)
+        return versions(ctx, implementation, client, allVersions)
     }
 
     static void modifyConfig(StageContext ctx, PerfConfig config) {
