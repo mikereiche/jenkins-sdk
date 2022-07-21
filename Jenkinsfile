@@ -49,7 +49,8 @@ stage("run") {
             checkout([$class: 'GitSCM', userRemoteConfigs: [[url: "git@github.com:couchbaselabs/transactions-fit-performer.git"]]])
             if (REFSPEC != '') {
                 echo 'REFSPEC is not null. So applying gerrit changes'
-                checkout([$class: 'GitSCM', branches: [[name: "$BRANCH"]], userRemoteConfigs: [[refspec: "$REFSPEC", url: "$GERRIT_REPO"]]])
+                checkout([$class: 'GitSCM', branches: [[name: "FETCH_HEAD"]],  userRemoteConfigs: [[refspec: "$REFSPEC", url: "$GERRIT_REPO"]]])
+                sh(script: "git log -n 3")
             }
         }
 
@@ -132,11 +133,12 @@ stage("run") {
                         // Run jenkins-sdk, which will do everything else
                         sh(script: 'ssh -o "StrictHostKeyChecking=no" -i $SSH_KEY_PATH ec2-user@' + ip + ' "cd jenkins-sdk && java -jar build/libs/jenkins2-1.0-SNAPSHOT-all.jar $TIMEDB_PWD"')
                     }
-                    catch (ignored) {
+                    catch (err) {
                         // For debugging, can log into the agent (if Mac) or the AWS instance now
                         // echo "http://${ip}:8091"
                         // echo "ssh -i ~/keys/cbdyncluster.pem ec2-user@${ip}"
                         // sleep(60 * 60 * 12) // in seconds.  Setting to give plenty of time for debugging an overnight run, but not be too expensive.
+                        throw err;
                     }
                     finally {
                         runAWS("ec2 terminate-instances --instance-ids ${instanceId} --region ${region}")
