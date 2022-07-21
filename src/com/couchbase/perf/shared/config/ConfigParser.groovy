@@ -21,17 +21,46 @@ class ConfigParser {
         return yamlMapper.readValue(new File(filename), PerfConfig.class)
     }
 
+    @CompileDynamic
+    static boolean includeRun(StageContext ctx, Object workload, PerfConfig.Implementation implementation) {
+        if (workload.exclude == null && workload.include == null) {
+            return true
+        }
+        else {
+            // Only support *clude.implementation.language currently, could support others in future
+            if (workload.exclude != null) {
+                def out = implementation.language != workload.exclude.implementation.language
+                if (!out) {
+                    ctx.env.log("Excluding based on language '${implementation.language}' workload ${workload}")
+                }
+                return out
+            }
+            else if (workload.include != null) {
+                def out = implementation.language == workload.include.implementation.language
+                if (out) {
+                    ctx.env.log("Including based on language '${implementation.language}' workload ${workload}")
+                }
+                return out
+            }
+            else {
+                throw new UnsupportedOperationException()
+            }
+        }
+    }
+    
     static List<Run> allPerms(StageContext ctx, PerfConfig config) {
         def out = new ArrayList<Run>()
         for (cluster in config.matrix.clusters) {
             for (impl in config.matrix.implementations) {
                 for (workload in config.matrix.workloads) {
-                    def run = new Run()
-                    run.cluster = cluster
-                    run.impl = impl
-                    run.workload = workload
+                    if (includeRun(ctx, workload, impl)) {
+                        def run = new Run()
+                        run.cluster = cluster
+                        run.impl = impl
+                        run.workload = workload
 
-                    out.add(run)
+                        out.add(run)
+                    }
                 }
             }
         }

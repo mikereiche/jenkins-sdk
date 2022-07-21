@@ -178,8 +178,11 @@ class Run {
                 .excludeNulls()
                 .build()
 
+        // Some workload variables are used for meta purposes but we don't want to compare the database runs with them
         def copiedWorkload = workload.clone()
         copiedWorkload.variables = null
+        copiedWorkload.include = null
+        copiedWorkload.exclude = null
 
         return gen.toJson([
                 "impl"    : impl.toJson(),
