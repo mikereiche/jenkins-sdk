@@ -69,7 +69,7 @@ class InitialiseSDKPerformer extends Stage {
     List<Stage> produceStages(StageContext ctx, Stage stage1, String imageName){
         List<Stage> stages = []
 
-        if (!ctx.skipDockerBuild()) {
+        if (!ctx.skipPerformerDockerBuild()) {
             stages.add(stage1)
         }
 

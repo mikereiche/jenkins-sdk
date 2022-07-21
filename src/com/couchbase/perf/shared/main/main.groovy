@@ -197,7 +197,7 @@ class Execute {
     static List<Stage> plan(StageContext ctx, Map<PerfConfig.Cluster, List<Run>> input, jc) {
         def stages = new ArrayList<Stage>()
 
-        if (!ctx.skipDockerBuild() && !input.isEmpty()) {
+        if (!ctx.skipDriverDockerBuild() && !input.isEmpty()) {
             stages.add(new BuildSDKDriver())
         }
 

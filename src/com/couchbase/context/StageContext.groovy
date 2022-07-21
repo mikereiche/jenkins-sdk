@@ -40,7 +40,12 @@ class StageContext {
     }
 
     @CompileDynamic
-    boolean skipDockerBuild() {
-        return jc.settings.skipDockerBuild
+    boolean skipDriverDockerBuild() {
+        return jc.settings.skipDriverDockerBuild
+    }
+
+    @CompileDynamic
+    boolean skipPerformerDockerBuild() {
+        return jc.settings.skipPerformerDockerBuild
     }
 }
