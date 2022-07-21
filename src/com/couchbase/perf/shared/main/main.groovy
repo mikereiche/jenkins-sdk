@@ -100,22 +100,22 @@ class Execute {
 
         config.matrix.implementations.forEach(implementation -> {
             if (implementation.version == "snapshot") {
-                if (implementation.language == "java") {
+                if (implementation.language == "Java") {
                     def snapshot = JVMVersions.getLatestSnapshotBuild("java-client")
                     ctx.env.log("Found snapshot build for Java: ${snapshot}")
                     implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null))
                 }
-                else if (implementation.language == "kotlin") {
+                else if (implementation.language == "Kotlin") {
                     def snapshot = JVMVersions.getLatestSnapshotBuild("kotlin-client")
                     ctx.env.log("Found snapshot build for Kotlin: ${snapshot}")
                     implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null))
                 }
-                else if (implementation.language == "scala") {
+                else if (implementation.language == "Scala") {
                     def snapshot = JVMVersions.getLatestSnapshotBuild("scala-client_2.12")
                     ctx.env.log("Found snapshot build for Scala: ${snapshot}")
                     implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null))
                 }
-                else if (implementation.language == "dotnet") {
+                else if (implementation.language == ".NET") {
                     def sha = DotNetVersions.getLatestSha()
                     def allReleases = DotNetVersions.getAllReleases()
                     def highest = ImplementationVersion.highest(allReleases)
@@ -128,10 +128,10 @@ class Execute {
                 }
             }
             else if (implementation.version.contains('X')) {
-                if (implementation.language == "java") implementationsToAdd.addAll(jvmVersions(ctx, implementation, "java-client"))
-                else if (implementation.language == "scala") implementationsToAdd.addAll(jvmVersions(ctx, implementation, "scala-client_2.12"))
-                else if (implementation.language == "kotlin") implementationsToAdd.addAll(jvmVersions(ctx, implementation, "kotlin-client"))
-                else if (implementation.language == "dotnet") implementationsToAdd.addAll(versions(ctx, implementation, "dotnet", DotNetVersions.allReleases))
+                if (implementation.language == "Java") implementationsToAdd.addAll(jvmVersions(ctx, implementation, "java-client"))
+                else if (implementation.language == "Scala") implementationsToAdd.addAll(jvmVersions(ctx, implementation, "scala-client_2.12"))
+                else if (implementation.language == "Kotlin") implementationsToAdd.addAll(jvmVersions(ctx, implementation, "kotlin-client"))
+                else if (implementation.language == ".NET") implementationsToAdd.addAll(versions(ctx, implementation, ".NET", DotNetVersions.allReleases))
                 else {
                     throw new UnsupportedOperationException("Cannot support snapshot builds with language ${implementation.language} yet")
                 }
@@ -167,7 +167,6 @@ class Execute {
         })
     }
 
-    //@CompileStatic
     static Map<PerfConfig.Cluster, List<Run>> parseConfig2(StageContext ctx, List<RunFromDb> fromDb) {
         /**
          * Config file declaratively says what runs should exist.  Our job is to compare to runs that do exist, and run any required.
@@ -182,8 +181,6 @@ class Execute {
          * - Bring down performer
          * Bring down cluster
          */
-
-    //    def allPerms = parseConfig(ctx)
 
         def toRun = fromDb.stream()
                 .filter(run -> run.dbRunIds.isEmpty() || ctx.force)

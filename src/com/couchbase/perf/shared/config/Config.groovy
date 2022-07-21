@@ -100,7 +100,7 @@ class PerfConfig {
 
     @ToString(includeNames = true, includePackage = false)
     static class Implementation {
-        // "java"
+        // "Java"
         String language
         // "3.3.3" or "3.3.3-6abad3"
         String version
@@ -169,10 +169,9 @@ class Run {
         }
 
         // A driver bug is writing these as strings.
-        // Next time rerunning everything, change to Integer.
-        jsonVars.put("driverVer", "6")
-        int performerVersion = 1
-        jsonVars.put("performerVer", performerVersion.toString())
+        jsonVars.put("driverVer", 6)
+        int performerVersion = 2
+        jsonVars.put("performerVer", performerVersion)
 
         def gen = new JsonGenerator.Options()
                 .excludeNulls()

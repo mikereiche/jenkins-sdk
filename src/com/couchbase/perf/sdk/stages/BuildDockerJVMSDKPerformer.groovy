@@ -8,7 +8,7 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class BuildDockerJVMSDKPerformer extends Stage {
 
-    private final String client // "java", "scala", "kotlin"
+    private final String client // "Java"
     private final String sdkVersion
     final String imageName
 
