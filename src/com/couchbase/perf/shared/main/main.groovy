@@ -71,7 +71,7 @@ class Execute {
 
                     // Bit of hardcoded logic to filter out Kotlin developer previews, since they don't compile with
                     // the current performer
-                    if (implementation.language == "kotlin"
+                    if (implementation.language == "Kotlin"
                         && v.snapshot != null
                         && v.snapshot.startsWith("-dp")) {
                         ctx.env.log("Filtering out kotlin ${v.toString()}")
