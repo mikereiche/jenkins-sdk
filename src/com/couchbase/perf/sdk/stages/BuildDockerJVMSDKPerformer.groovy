@@ -8,12 +8,12 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class BuildDockerJVMSDKPerformer extends Stage {
 
-    private final String client // "Java"
+    private final String client // "java"
     private final String sdkVersion
     final String imageName
 
     static String genImageName(String sdkVersion, String jvm) {
-        return ("performer-" + jvm + sdkVersion).toLowerCase()
+        return "performer-" + jvm + sdkVersion
     }
 
     BuildDockerJVMSDKPerformer(String client, String sdkVersion) {
