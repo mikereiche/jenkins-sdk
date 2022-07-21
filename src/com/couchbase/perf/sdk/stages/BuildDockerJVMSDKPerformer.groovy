@@ -13,7 +13,7 @@ class BuildDockerJVMSDKPerformer extends Stage {
     final String imageName
 
     static String genImageName(String sdkVersion, String jvm) {
-        return "performer-" + jvm + sdkVersion
+        return ("performer-" + jvm + sdkVersion).toLowerCase()
     }
 
     BuildDockerJVMSDKPerformer(String client, String sdkVersion) {
