@@ -78,16 +78,22 @@ matrix:
   #      port: 8080
 
   implementations:
-    - language: .NET
-      version: 3.3.X
+#    - language: .NET
+#      version: 3.3.3
 
-    - language: .NET
-      version: snapshot
-
+#    - language: .NET
+#      version: 3.3.X
+#
+#    - language: .NET
+#      version: snapshot
+#
     - language: Java
       version: snapshot
 
     - language: Kotlin
+      version: snapshot
+
+    - language: Scala
       version: snapshot
 
     # 3.0.7 is the earliest version of Java that the performer currently compiles with (expiry(Instant) added)
