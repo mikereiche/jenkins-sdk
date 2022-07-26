@@ -129,11 +129,11 @@ matrix:
       version: snapshot
 
 
-    - language: .NET
-      version: 3.3.X
-
-    - language: .NET
-      version: snapshot
+#    - language: .NET
+#      version: 3.3.X
+#
+#    - language: .NET
+#      version: snapshot
 
   workloads:
 
