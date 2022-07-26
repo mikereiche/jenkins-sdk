@@ -137,57 +137,47 @@ matrix:
 
   workloads:
 
-    # Note: .NET appears to have per-operation times of 20 milliseconds+ (vs JVM clients at ~200 microseconds), so we
-    # run a smaller workload for it.
-
-    # KV replaces  (!.NET)
+    # KV replaces
     - operations:
         - op: replace
-          count: $docNum
+          bounds:
+            forSeconds: $forSeconds
           docLocation:
             method: pool
             poolSize: $poolSize
             poolSelectionStrategy: counter
       variables:
         custom:
-          - name: docNum
-            value: 10000000
           - name: poolSize
             value: 10000
         predefined:
           - name: horizontalScaling
             values:
               - 20
-      exclude:
-        implementation:
-          language: .NET
 
-    # KV gets  (!.NET)
+    # KV gets
     - operations:
         - op: get
-          count: $docNum
+          bounds:
+            forSeconds: $forSeconds
           docLocation:
             method: pool
             poolSize: $poolSize
             poolSelectionStrategy: randomUniform
       variables:
         custom:
-          - name: docNum
-            value: 50000000
           - name: poolSize
             value: 10000
         predefined:
           - name: horizontalScaling
             values:
               - 20
-      exclude:
-        implementation:
-          language: .NET
 
-    # KV inserts  (!.NET)
+    # KV inserts
     - operations:
         - op: insert
-          count: $docNum
+          bounds:
+            forSeconds: $forSeconds
           docLocation:
             method: uuid
       variables:
@@ -198,72 +188,8 @@ matrix:
           - name: horizontalScaling
             values:
               - 20
-      exclude:
-        implementation:
-          language: .NET
 
 
-    # KV replaces  (.NET)
-    - operations:
-        - op: replace
-          count: $docNum
-          docLocation:
-            method: pool
-            poolSize: $poolSize
-            poolSelectionStrategy: counter
-      variables:
-        custom:
-          - name: docNum
-            value: 100000
-          - name: poolSize
-            value: 10000
-        predefined:
-          - name: horizontalScaling
-            values:
-              - 20
-      include:
-        implementation:
-          language: .NET
-
-    # KV gets  (.NET)
-    - operations:
-        - op: get
-          count: $docNum
-          docLocation:
-            method: pool
-            poolSize: $poolSize
-            poolSelectionStrategy: randomUniform
-      variables:
-        custom:
-          - name: docNum
-            value: 500000
-          - name: poolSize
-            value: 10000
-        predefined:
-          - name: horizontalScaling
-            values:
-              - 20
-      include:
-        implementation:
-          language: .NET
-
-    # KV inserts  (.NET)
-    - operations:
-        - op: insert
-          count: $docNum
-          docLocation:
-            method: uuid
-      variables:
-        custom:
-          - name: docNum
-            value: 100000
-        predefined:
-          - name: horizontalScaling
-            values:
-              - 20
-      include:
-        implementation:
-          language: .NET
 
 
 # Top-level variables can be overwritten on a per-workload basis.
@@ -275,3 +201,6 @@ variables:
     flowControl: true
     batch: 1000
     compression: true
+  custom:
+    - name: forSeconds
+      value: 300
