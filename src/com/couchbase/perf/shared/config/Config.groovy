@@ -177,7 +177,7 @@ class Run {
 
         // A driver bug is writing these as strings.
         jsonVars.put("driverVer", 6)
-        int performerVersion = 2
+        int performerVersion = 1
         jsonVars.put("performerVer", performerVersion)
 
         def gen = new JsonGenerator.Options()
