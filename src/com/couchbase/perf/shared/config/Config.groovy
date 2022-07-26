@@ -164,7 +164,14 @@ class Run {
                 workload.variables.custom.forEach(var -> jsonVars.put(var.name, var.value))
             }
             if (workload.variables.predefined != null) {
-                workload.variables.predefined.forEach(var -> jsonVars.put(var.name, var.values[0]))
+                workload.variables.predefined.forEach(var -> {
+                    if (var.name == "horizontalScaling") {
+                        jsonVars.put("horizontal_scaling", var.values[0])
+                    }
+                    else {
+                        jsonVars.put(var.name, var.values[0])
+                    }
+                })
             }
         }
 
