@@ -39,7 +39,17 @@ class BuildDockerDotNetSDKPerformer extends Stage {
                     ctx.env.execute("git checkout ${sha}")
                 })
             }
-            ctx.env.execute("docker build -f transactions-fit-performer/performers/dotnet/Couchbase.Transactions.FitPerformer/Dockerfile -t $imageName .")
+
+            // The .NET performer intermittently fails to build, just retry it
+            for (int i = 0; i < 5; i ++) {
+                try {
+                    ctx.env.execute("docker build -f transactions-fit-performer/performers/dotnet/Couchbase.Transactions.FitPerformer/Dockerfile -t $imageName .")
+                    break
+                }
+                catch (err) {
+                    ctx.env.log(".NET performer failed to build, retrying")
+                }
+            }
         }
     }
 
