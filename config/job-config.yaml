@@ -135,6 +135,9 @@ matrix:
     - language: .NET
       version: snapshot
 
+    - language: Go
+      version: snapshot
+
   workloads:
 
     # KV replaces
