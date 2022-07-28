@@ -65,7 +65,8 @@ matrix:
       # In future, may return to having jenkins-sdk control cluster creation (CBD-4948)
     - type: unmanaged
       hostname: localhost
-      # The driver will use the _docker variant if it is running inside Docker.  This allows running everything locally in Docker.
+      # When run by jenkins-sdk, jenkins-sdk will use `hostname`, and the driver will use `hostname_docker`.
+      # They need to be separate to allow the driver to connect to the cluster when both are running inside Docker.
       hostname_docker: cbs
       storage: couchstore
       replicas: 0
@@ -138,12 +139,13 @@ matrix:
     - language: Go
       version: snapshot
 
-    # Transactions were added in 2.4 and this is currently the oldest the performer can compile
-    - language: Go
-      version: 2.4.X
+#    # Transactions were added in 2.4 and this is currently the oldest the performer can compile
+#    - language: Go
+#      version: 2.4.X
 
+    # Earliest version the Go performer can compile
     - language: Go
-      version: 2.5.X
+      version: 2.5.2
 
   workloads:
 
