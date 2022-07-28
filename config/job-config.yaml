@@ -138,6 +138,43 @@ matrix:
     - language: Go
       version: snapshot
 
+    # Temporary measure until CBD-5041: Add support for Go version ranges
+    - language: Go
+      version: 2.3.0
+
+    - language: Go
+      version: 2.3.1
+
+    - language: Go
+      version: 2.3.2
+
+    - language: Go
+      version: 2.3.3
+
+    - language: Go
+      version: 2.3.4
+
+    - language: Go
+      version: 2.3.5
+
+    - language: Go
+      version: 2.4.0
+
+    - language: Go
+      version: 2.4.1
+
+    - language: Go
+      version: 2.4.2
+
+    - language: Go
+      version: 2.5.0
+
+    - language: Go
+      version: 2.5.1
+
+    - language: Go
+      version: 2.5.2
+
   workloads:
 
     # KV replaces

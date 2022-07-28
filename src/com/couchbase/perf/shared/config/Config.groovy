@@ -178,6 +178,9 @@ class Run {
         // A driver bug is writing these as strings.
         jsonVars.put("driverVer", 6)
         int performerVersion = 1
+        if (impl.language == "Go") {
+            performerVersion = 2
+        }
         jsonVars.put("performerVer", performerVersion)
 
         def gen = new JsonGenerator.Options()
