@@ -138,9 +138,7 @@ matrix:
     - language: Go
       version: snapshot
 
-    - language: Go
-      version: 2.3.X
-
+    # Transactions were added in 2.4 and this is currently the oldest the performer can compile
     - language: Go
       version: 2.4.X
 
