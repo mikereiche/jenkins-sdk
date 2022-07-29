@@ -3,6 +3,8 @@ package com.couchbase.perf.sdk.stages
 import com.couchbase.context.StageContext
 import com.couchbase.context.environments.Environment
 import com.couchbase.stages.Stage
+import com.couchbase.tools.tags.TagProcessor
+import com.couchbase.versions.ImplementationVersion
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -35,11 +37,14 @@ class BuildDockerJVMSDKPerformer extends Stage {
             imp.dir('transactions-fit-performer') {
                 imp.dir("performers/jvm/${client}") {
                     writePomFile(imp)
+                    TagProcessor.processTags(new File(imp.currentDir() + "/src"), ImplementationVersion.from(sdkVersion), false)
                 }
                 imp.execute("docker build -f performers/jvm/${client}/Dockerfile -t $imageName .")
             }
         }
     }
+
+
 
     /**
      * Updates pom.xml to build with the transaction library under test.

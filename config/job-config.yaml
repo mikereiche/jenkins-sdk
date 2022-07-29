@@ -79,44 +79,14 @@ matrix:
   #      port: 8080
 
   implementations:
-    # 3.0.7 is the earliest version of Java that the performer currently compiles with (expiry(Instant) added)
     - language: Java
-      version: 3.1.X
-
-    - language: Java
-      version: 3.2.X
-
-    - language: Java
-      version: 3.3.X
-
-    - language: Java
-      version: 3.3.3-20220706.132043-1
-
-    - language: Java
-      version: 3.3.3-20220708.144632-2
-
-    - language: Java
-      version: 3.3.3-20220712.142915-3
-
-    - language: Java
-      version: 3.3.3-20220713.084621-4
-
-    - language: Java
-      version: 3.3.3-20220715.073606-5
+      version: 3.X.X
 
     - language: Java
       version: snapshot
 
-
-    # 1.1.0 is the earliest version of Scala that the performer currently compiles with (expiry(Instant) added)
     - language: Scala
-      version: 1.1.X
-
-    - language: Scala
-      version: 1.2.X
-
-    - language: Scala
-      version: 1.3.X
+      version: 1.X.X
 
     - language: Scala
       version: snapshot

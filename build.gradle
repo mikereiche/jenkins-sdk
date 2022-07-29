@@ -46,3 +46,11 @@ dependencies {
     implementation 'org.postgresql:postgresql:42.3.3'
     testImplementation group: 'junit', name: 'junit', version: '4.13.1'
 }
+
+
+task tags(type: JavaExec) {
+    group = "Execution"
+    description = "Run the TagsProcessor tool"
+    classpath = sourceSets.main.runtimeClasspath
+    main = "com.couchbase.tools.tags.TagProcessor"
+}

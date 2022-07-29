@@ -4,3 +4,11 @@ A Jenkins shared library, for use by SDK team.
 
 # SDK Performance
 See the https://github.com/couchbaselabs/perf-sdk project for instructions.
+
+# CLI tools
+
+## Tags
+See the comments on `TagProcessor` for more.
+```
+./gradlew tags --args="-d <some_path> -v 3.0.0"
+```
