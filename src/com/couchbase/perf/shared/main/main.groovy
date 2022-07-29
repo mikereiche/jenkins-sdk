@@ -4,6 +4,7 @@ import com.couchbase.context.StageContext
 import com.couchbase.context.environments.Environment
 import com.couchbase.perf.sdk.stages.BuildSDKDriver
 import com.couchbase.perf.sdk.stages.InitialiseSDKPerformer
+import com.couchbase.perf.sdk.stages.Log
 import com.couchbase.perf.sdk.stages.OutputPerformerConfig
 import com.couchbase.perf.sdk.stages.RunSDKDriver
 import com.couchbase.perf.shared.config.ConfigParser
@@ -211,6 +212,8 @@ class Execute {
             stages.add(new BuildSDKDriver())
         }
 
+        int runIdx = 0
+
         input.forEach((cluster, runsForCluster) -> {
             def clusterStage = new InitialiseCluster(cluster)
             def clusterChildren = new ArrayList<Stage>()
@@ -221,7 +224,7 @@ class Execute {
             ctx.env.log("Cluster ${cluster} requires ${groupedByPerformer.size()} performers")
 
             groupedByPerformer.forEach((performer, runsForClusterAndPerformer) -> {
-                def performerRuns = []
+                def performerRuns = [new Log("Run ${++runIdx} of ${input.size()}")]
 
                 def performerStage = new InitialiseSDKPerformer(performer)
                 def runId = UUID.randomUUID().toString()
