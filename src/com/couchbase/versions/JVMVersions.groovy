@@ -5,9 +5,22 @@ import groovy.transform.Memoized
 
 
 class JVMVersions {
-    public static String read(String url) {
-        def get = new URL(url).openConnection();
-        return get.getInputStream().getText()
+    public static String read(String url, int attempts = 5) {
+        while (true) {
+            try {
+                def get = new URL(url).openConnection();
+                return get.getInputStream().getText()
+            }
+            catch (err) {
+                attempts -= 1
+                if (attempts <= 0) {
+                    throw err
+                }
+                else {
+                    System.err.println("Retrying on ${url} on error ${err} on attempt ${attempts}")
+                }
+            }
+        }
     }
 
     @Memoized
@@ -35,8 +48,7 @@ class JVMVersions {
 
         while (true) {
             String url = "https://search.maven.org/solrsearch/select?q=g:com.couchbase.client+AND+a:${client}&start=${start}&core=gav&rows=20&wt=json"
-            def get = new URL(url).openConnection();
-            String content = get.getInputStream().getText()
+            String content = read(url)
             def parser = new JsonSlurper()
             def json = parser.parseText(content)
             def docs = json.response.docs
