@@ -2,6 +2,8 @@ package com.couchbase.perf.sdk.stages
 
 import com.couchbase.context.StageContext
 import com.couchbase.stages.Stage
+import com.couchbase.tools.tags.TagProcessor
+import com.couchbase.versions.ImplementationVersion
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -38,6 +40,8 @@ class BuildDockerDotNetSDKPerformer extends Stage {
                 ctx.env.dir("couchbase-net-client", {
                     ctx.env.execute("git checkout ${sha}")
                 })
+
+                TagProcessor.processTags(new File(ctx.env.currentDir() + "/couchbase-net-client"), ImplementationVersion.from(sdkVersion), false)
             }
 
             // The .NET performer intermittently fails to build, just retry it

@@ -3,6 +3,8 @@ package com.couchbase.perf.sdk.stages
 import com.couchbase.context.StageContext
 import com.couchbase.context.environments.Environment
 import com.couchbase.stages.Stage
+import com.couchbase.tools.tags.TagProcessor
+import com.couchbase.versions.ImplementationVersion
 
 class BuildDockerGoSDKPerformer extends Stage{
 
@@ -35,6 +37,7 @@ class BuildDockerGoSDKPerformer extends Stage{
             imp.dir('transactions-fit-performer') {
                 imp.dir('performers/go') {
                     writeGoModFile(imp)
+                    TagProcessor.processTags(new File(imp.currentDir()), ImplementationVersion.from(sdkVersion), false)
                 }
                 imp.execute("docker build -f performers/go/Dockerfile -t $imageName .")
             }
