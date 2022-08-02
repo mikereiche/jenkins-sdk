@@ -100,6 +100,18 @@ matrix:
     - language: Scala
       version: snapshot
 
+    - language: Kotlin
+      version: 1.X.X
+
+    - language: Kotlin
+      version: snapshot
+
+
+#    - language: .NET
+#      version: 3.3.X
+#
+#    - language: .NET
+#      version: snapshot
 
     # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
     - language: Go
