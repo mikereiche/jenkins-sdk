@@ -12,8 +12,16 @@ servers:
     # Where the driver runs.  Currently only "localhost" is supported.
     hostname: localhost
 
+    # WARNING: files under this location will be modified.  Make sure you have a backup or have committed local changes.
     # Under this location will need these folders:
+    #
     # transactions-fit-performer
+    #
+    # If want to test JVM:
+    # couchbase-jvm-clients
+    #
+    # If want to test .NET:
+    # couchbase-net-client
     # WARNING: It will automatically delete and re-checkout the directory 'couchbase-net-client' under here   (if need to run .NET performer)
     #          As the .NET performer requires this directory structure.
     source: /home/ec2-user
@@ -21,7 +29,8 @@ servers:
 # Generally only CI should be talking to production database.  For local performance testing, spin up a localhost database.
 # The password gets replaced by an environment variable when running on CI
 database:
-  # The driver will use the _docker variant if it is running inside Docker.  This allows running everything locally in Docker.
+  # When run by jenkins-sdk, jenkins-sdk will use `hostname`, and the driver will use `hostname_docker`.
+  # They need to be separate to allow the driver to connect to the database when both are running inside Docker.
   hostname: 54.193.85.254
   hostname_docker: 54.193.85.254
   port: 5432
@@ -92,29 +101,18 @@ matrix:
       version: snapshot
 
 
-    # There is some hardcoded logic that ignores the developer previews, since they don't compile with the performer
-    - language: Kotlin
-      version: 1.X.X
-
-    - language: Kotlin
-      version: snapshot
-
-
-    - language: .NET
-      version: 3.3.X
-
-    - language: .NET
-      version: snapshot
-
+    # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
     - language: Go
-      version: snapshot
+      version: 2.3.X
 
-    # Earliest version the Go performer can compile is 2.4.0
     - language: Go
       version: 2.4.X
 
     - language: Go
       version: 2.5.X
+
+    - language: Go
+      version: snapshot
 
   workloads:
 
