@@ -213,6 +213,8 @@ class Execute {
         }
 
         int runIdx = 0
+        int runsTotal = 0
+        input.forEach((k, v) -> runsTotal += v.size())
 
         input.forEach((cluster, runsForCluster) -> {
             def clusterStage = new InitialiseCluster(cluster)
@@ -224,7 +226,7 @@ class Execute {
             ctx.env.log("Cluster ${cluster} requires ${groupedByPerformer.size()} performers")
 
             groupedByPerformer.forEach((performer, runsForClusterAndPerformer) -> {
-                def performerRuns = [new Log("Run ${++runIdx} of ${input.size()}")]
+                def performerRuns = [new Log("Run ${++runIdx} of ${runsTotal}")]
 
                 def performerStage = new InitialiseSDKPerformer(performer)
                 def runId = UUID.randomUUID().toString()
