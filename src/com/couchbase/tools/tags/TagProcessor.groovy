@@ -36,56 +36,81 @@ class TagProcessor {
         curPath.listFiles().each {  File file ->
 
             if (file.isFile()) {
-                logger.info("Inspecting file ${file.getAbsolutePath()}")
+                // logger.info("Inspecting file ${file.getAbsolutePath()}")
 
                 var out = new ArrayList<>()
                 var lines = file.readLines()
                 boolean needsOverwriting = false
+                boolean skipMode = false
 
                 for (int i = 0; i < lines.size(); i++) {
                     var line = lines.get(i)
                     boolean isStart = line.contains("// [start:")
                     boolean isEnd = line.contains("// [end:")
+                    boolean isSkip = line.contains("// [skip:")
+                    boolean isSkipped = line.startsWith("// [skipped] ")
 
-                    if (isStart || isEnd) {
-                        String versionRaw
-                        boolean isLessThan = line.contains("<")
-                        if (isLessThan) {
-                            versionRaw = line.split("<")[1].split("]")[0]
+                    if (skipMode) {
+                        needsOverwriting = true
+                        if (!isSkipped) {
+                            out.add("// [skipped] " + line)
                         }
                         else {
-                            versionRaw = line.split(":")[1].split("]")[0]
+                            // Line is already skipped, can just add it
+                            out.add(line)
                         }
-                        def version = ImplementationVersion.from(versionRaw)
-                        boolean include = restoreMode || (isLessThan ? (sdkVersion.isBelow(version))  : (sdkVersion.isAbove(version) || sdkVersion == version))
-                        String commentMarker
-                        if (isStart) {
-                            commentMarker = "/*"
-                        }
-                        else {
-                            commentMarker = "*/"
+                    } else {
+                        if (isSkipped) {
+                            // Remove "// [skipped]
+                            line = line.substring(13)
+                            needsOverwriting = true
                         }
 
-                        out.add(line)
-                        boolean includedAlready = lines.get(i + 1) != commentMarker
-                        logger.info("May need to modify ${file.getAbsolutePath()} ${versionRaw} include=${include} includedAlready=${includedAlready}")
-                        if (include && !includedAlready) {
-                            // Skip over the /*, e.g. don't include it in the output
-                            needsOverwriting = true
-                            i += 1
+                        if (isStart || isEnd || isSkip) {
+                            boolean isLastLine = i == lines.size() - 1
+                            String versionRaw
+                            boolean isLessThan = line.contains("<")
+                            if (isLessThan) {
+                                versionRaw = line.split("<")[1].split("]")[0]
+                            } else {
+                                versionRaw = line.split(":")[1].split("]")[0]
+                            }
+                            def version = ImplementationVersion.from(versionRaw)
+                            def match = (isLessThan ? (sdkVersion.isBelow(version)) : (sdkVersion.isAbove(version) || sdkVersion == version))
+
+                            if (isStart || isEnd) {
+                                boolean include = restoreMode || match
+                                String commentMarker
+                                if (isStart) {
+                                    commentMarker = "/*"
+                                } else {
+                                    commentMarker = "*/"
+                                }
+
+                                out.add(line)
+                                boolean includedAlready = isLastLine || lines.get(i + 1) != commentMarker
+                                // logger.info("May need to modify ${file.getAbsolutePath()} ${versionRaw} include=${include} includedAlready=${includedAlready}")
+                                if (include && !includedAlready) {
+                                    // Skip over the /*, e.g. don't include it in the output
+                                    needsOverwriting = true
+                                    i += 1
+                                }
+                                if (!include && includedAlready) {
+                                    needsOverwriting = true
+                                    out.add(commentMarker)
+                                }
+                            } else { // isSkip
+                                skipMode = !restoreMode && match
+                                out.add(line)
+                            }
+                        } else {
+                            out.add(line)
                         }
-                        if (!include && includedAlready) {
-                            needsOverwriting = true
-                            out.add(commentMarker)
-                        }
-                    }
-                    else {
-                        out.add(line)
                     }
                 }
 
                 if (needsOverwriting) {
-                    logger.info("Modifying file ${file.getAbsolutePath()}")
+                    // logger.info("Modifying file ${file.getAbsolutePath()}")
                     def w = file.newWriter()
                     w << out.join(System.lineSeparator())
                     w.close()

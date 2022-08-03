@@ -20,7 +20,14 @@ class Environment {
     private final File logFile
 
     @CompileDynamic
+    Environment() {
+        initialDir = System.getProperty("user.dir")
+    }
+
+
+    @CompileDynamic
     Environment(config) {
+        this()
         this.executableOverrides = config.environment.executables != null ? config.environment.executables : new HashMap<>();
         this.envvar = config.environment.envvar != null ? config.environment.envvar : new HashMap<>()
 
@@ -33,7 +40,6 @@ class Environment {
             envvarConverted = null
         }
 
-        initialDir = System.getProperty("user.dir")
         workspaceAbs = new File(config.environment.workspace + File.separatorChar + UUID.randomUUID().toString().substring(0, 6)).getAbsolutePath()
         logFile = new File(workspaceAbs + File.separatorChar + "log.txt")
 
@@ -83,7 +89,7 @@ class Environment {
     }
 
     String overrideIfNeeded(String exe) {
-        if (executableOverrides.containsKey(exe) && executableOverrides.get(exe) != null) {
+        if (executableOverrides != null && executableOverrides.containsKey(exe) && executableOverrides.get(exe) != null) {
             return executableOverrides.get(exe)
         }
         return exe
@@ -99,7 +105,7 @@ class Environment {
 
         boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows")
 
-        if (executableOverrides.containsKey(exe) && executableOverrides.get(exe) != null) {
+        if (executableOverrides != null && executableOverrides.containsKey(exe) && executableOverrides.get(exe) != null) {
             def replaceWith = executableOverrides.get(exe)
             // log("Overriding command $exe to $replaceWith")
             command = command.replace(exe, replaceWith)

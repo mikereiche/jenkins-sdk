@@ -54,3 +54,10 @@ task tags(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = "com.couchbase.tools.tags.TagProcessor"
 }
+
+task buildPerformer(type: JavaExec) {
+    group = "Execution"
+    description = "Build the Docker image for a performer"
+    classpath = sourceSets.main.runtimeClasspath
+    main = "com.couchbase.tools.performer.BuildPerformer"
+}

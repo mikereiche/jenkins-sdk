@@ -29,7 +29,7 @@ class StageContext {
     }
 
     @CompileDynamic
-    private String sourceDir() {
+    String sourceDir() {
         return jc.servers.driver.source
     }
 

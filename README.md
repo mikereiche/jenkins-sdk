@@ -12,3 +12,15 @@ See the comments on `TagProcessor` for more.
 ```
 ./gradlew tags --args="-d <some_path> -v 3.0.0"
 ```
+
+To restore the code use the -r flag:
+```
+./gradlew tags --args="-d <some_path> -v 3.0.0 -r"
+```
+
+# Building performer Docker images
+See the comments on `BuilderPerformer` for more.
+
+```
+./gradlew buildPerformer --args="-d <some_path> -s java-sdk -v 3.0.0 -i performer"
+```
