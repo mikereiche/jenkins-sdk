@@ -29,7 +29,14 @@ class BuildDockerJVMSDKPerformer extends Stage {
 
     @Override
     void executeImpl(StageContext ctx) {
-        BuildDockerJVMPerformer.build(ctx.env, ctx.sourceDir(), client, Optional.of(sdkVersion), imageName)
+        try {
+            BuildDockerJVMPerformer.build(ctx.env, ctx.sourceDir(), client, Optional.of(sdkVersion), imageName)
+        }
+        catch (err) {
+            ctx.env.log(err.toString())
+            err.printStackTrace()
+            throw err
+        }
     }
 
     String getImageName(){
