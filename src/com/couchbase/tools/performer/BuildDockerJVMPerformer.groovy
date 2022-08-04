@@ -55,6 +55,13 @@ class BuildDockerJVMPerformer {
                 commentUntilLine = i + 5
             }
 
+            // Have to uncomment the performers
+            def uncommentLine = line.contains("<module>") && line.contains("fit-performer")
+
+            if (uncommentLine) {
+                line = line.replace("<!--", "").replace("!-->", "")
+            }
+
             // Have to comment the other modules out as they don't compile when the core-io dependency is removed
             def commentLine = (line.contains("<module>") && !line.contains("fit-performer"))
                     || (commentFromLine != -1 && (i >= commentFromLine && i <= commentUntilLine))
