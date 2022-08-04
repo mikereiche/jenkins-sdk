@@ -112,7 +112,7 @@ class TagProcessor {
                 if (needsOverwriting) {
                     // logger.info("Modifying file ${file.getAbsolutePath()}")
                     def w = file.newWriter()
-                    w << out.join(System.lineSeparator())
+                    w << out.join(System.lineSeparator()) + System.getProperty("line.separator")
                     w.close()
 
                 }

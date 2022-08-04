@@ -84,7 +84,7 @@ class BuildDockerJVMPerformer {
         }
 
         def w = pom.newWriter()
-        w << out.join(System.lineSeparator())
+        w << out.join(System.lineSeparator()) + System.getProperty("line.separator")
         w.close()
     }
 
@@ -114,7 +114,7 @@ class BuildDockerJVMPerformer {
         }
 
         def w = pom.newWriter()
-        w << out.join(System.lineSeparator())
+        w << out.join(System.lineSeparator()) + System.getProperty("line.separator")
         w.close()
     }
 }
