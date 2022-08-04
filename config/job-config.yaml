@@ -103,10 +103,11 @@ matrix:
     - language: Kotlin
       version: 1.X.X
 
-    - language: Kotlin
-      version: snapshot
+    # Disabling Kotlin snapshots for now as they're not building
+#    - language: Kotlin
+#      version: snapshot
 
-
+    # Disabling .NET until performer review is completed
 #    - language: .NET
 #      version: 3.3.X
 #
