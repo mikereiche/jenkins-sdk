@@ -97,6 +97,8 @@ stage("run") {
                         runSSH(ip, "sudo yum install -y git java-17-amazon-corretto-devel", true)
 
                         runSSH(ip, "git clone https://github.com/couchbaselabs/jenkins-sdk")
+                        runSSH(ip, "git clone https://github.com/couchbase/couchbase-jvm-clients")
+                        runSSH(ip, "git clone https://github.com/couchbase/couchbase-net-client")
 
                         try {
                             // sed: look for the start of the cluster section; /a adds on the next line
