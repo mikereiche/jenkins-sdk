@@ -28,7 +28,7 @@ class BuildPerformer {
         cli.with {
             d longOpt: 'directory', args: 1, argName: 'd', required: true, 'Directory containing transactions-fit-performer'
             s longOpt: 'sdk', args: 1, argName: 'sdk', required: true, 'SDK to build (java-sdk, scala, kotlin)'
-            v longOpt: 'version', args: 1, argName: 'v', required: true, 'Version'
+            v longOpt: 'version', args: 1, argName: 'v', 'Version'
             i longOpt: 'image', args: 1, argName: 'i', required: true, 'Docker image name'
             o longOpt: 'only-source', argName: 'o', 'Only modify source, no Docker build'
         }
@@ -40,6 +40,7 @@ class BuildPerformer {
 
         String sdkRaw = options.s
         def env = new Environment()
-        BuildDockerJVMPerformer.build(env, options.d, sdkRaw.replace("-sdk", ""), options.v, options.i, options.o)
+        Optional<String> version = options.v ? Optional.of(options.v) : Optional.empty()
+        BuildDockerJVMPerformer.build(env, options.d, sdkRaw.replace("-sdk", ""), version, options.i, options.o)
     }
 }

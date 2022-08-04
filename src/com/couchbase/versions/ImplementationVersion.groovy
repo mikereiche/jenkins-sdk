@@ -1,5 +1,8 @@
 package com.couchbase.versions
 
+import groovy.transform.CompileStatic
+
+@CompileStatic
 class ImplementationVersion {
     public final int major;
     public final int minor;
