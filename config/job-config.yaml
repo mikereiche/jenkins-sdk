@@ -182,6 +182,30 @@ matrix:
               - 20
 
 
+    - operations:
+        - transaction:
+            ops:
+              - op: replace
+                docLocation:
+                  method: pool
+                  poolSize: $poolSize
+                  poolSelectionStrategy: randomUniform
+              - op: insert
+                docLocation:
+                  method: uuid
+            bounds:
+              forSeconds: $forSeconds
+      variables:
+        custom:
+          - name: poolSize
+            value: 10000
+        predefined:
+          - name: horizontalScaling
+            values:
+              - 20
+      include:
+        implementation:
+          language: Java
 
 
 # Top-level variables can be overwritten on a per-workload basis.
