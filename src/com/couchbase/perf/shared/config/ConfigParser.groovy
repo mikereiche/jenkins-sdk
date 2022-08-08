@@ -1,6 +1,7 @@
 package com.couchbase.perf.shared.config
 
 import com.couchbase.context.StageContext
+import com.couchbase.versions.ImplementationVersion
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
@@ -36,11 +37,18 @@ class ConfigParser {
                 return out
             }
             else if (workload.include != null) {
-                def out = implementation.language == workload.include.implementation.language
-                if (out) {
-                    ctx.env.log("Including based on language '${implementation.language}' workload ${workload}")
+                if (workload.include.implementation.version != null) {
+                    def requiredVersion = ImplementationVersion.from(workload.include.implementation.version)
+                    def sdkVersion = ImplementationVersion.from(implementation.version)
+                    return sdkVersion.isAbove(requiredVersion) || sdkVersion == requiredVersion
                 }
-                return out
+                else {
+                    def out = implementation.language == workload.include.implementation.language
+                    if (out) {
+                        ctx.env.log("Including based on language '${implementation.language}' workload ${workload}")
+                    }
+                    return out
+                }
             }
             else {
                 throw new UnsupportedOperationException()

@@ -47,9 +47,9 @@ stage("run") {
         // Private repo, so cannot check out directly on AWS node.  Need to scp it over.
         dir ("transactions-fit-performer") {
             checkout([$class: 'GitSCM', userRemoteConfigs: [[url: "git@github.com:couchbaselabs/transactions-fit-performer.git"]]])
-            if (REFSPEC != '') {
-                echo 'REFSPEC is not null. So applying gerrit changes'
-                checkout([$class: 'GitSCM', branches: [[name: "FETCH_HEAD"]],  userRemoteConfigs: [[refspec: "$REFSPEC", url: "$GERRIT_REPO"]]])
+            if (TRANSACTIONS_FIT_PERFORMER_REFSPEC != '') {
+                echo 'TRANSACTIONS_FIT_PERFORMER_REFSPEC is not null. So applying gerrit changes'
+                checkout([$class: 'GitSCM', branches: [[name: "FETCH_HEAD"]],  userRemoteConfigs: [[refspec: "$TRANSACTIONS_FIT_PERFORMER_REFSPEC", url: "$GERRIT_REPO"]]])
                 sh(script: "git log -n 3")
             }
         }
@@ -98,6 +98,11 @@ stage("run") {
 
                         runSSH(ip, "git clone https://github.com/couchbaselabs/jenkins-sdk")
                         runSSH(ip, "git clone https://github.com/couchbase/couchbase-jvm-clients")
+                        if (COUCHBASE_JVM_CLIENTS_REFSPEC != '') {
+                            echo 'Applying COUCHBASE_JVM_CLIENTS_REFSPEC'
+                            runSSH(ip, "cd couchbase-jvm-clients && git fetch https://review.couchbase.org/couchbase-jvm-clients ${COUCHBASE_JVM_CLIENTS_REFSPEC} && git checkout FETCH_HEAD")
+                        }
+
                         runSSH(ip, "git clone https://github.com/couchbase/couchbase-net-client")
 
                         try {

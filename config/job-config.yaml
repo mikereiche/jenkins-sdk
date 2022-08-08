@@ -206,6 +206,7 @@ matrix:
       include:
         implementation:
           language: Java
+          version: 3.3.0
 
 
 # Top-level variables can be overwritten on a per-workload basis.
