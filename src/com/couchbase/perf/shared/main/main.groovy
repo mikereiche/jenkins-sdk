@@ -239,7 +239,7 @@ class Execute {
                         cluster,
                         performer,
                         runsForClusterAndPerformer,
-                        ctx.jc.variables,
+                        ctx.jc.settings,
                         configFilenameAbs)
 
                 performerRuns.add(new StopDockerContainer(InitialiseSDKPerformer.CONTAINER_NAME))
@@ -268,8 +268,8 @@ class Execute {
         ctx.jc = jc
         ctx.env = env
         ctx.performerServer = jc.servers.performer
-        ctx.dryRun = jc.settings.dryRun
-        ctx.force = jc.settings.force
+        ctx.dryRun = jc.variables.dryRun
+        ctx.force = jc.variables.force
         String version = jcPrep(ctx, args)
         def allPerms = parseConfig(ctx)
         PerfDatabase.migrate(ctx, args)

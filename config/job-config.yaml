@@ -31,8 +31,8 @@ servers:
 database:
   # When run by jenkins-sdk, jenkins-sdk will use `hostname`, and the driver will use `hostname_docker`.
   # They need to be separate to allow the driver to connect to the database when both are running inside Docker.
-  hostname: 54.193.85.254
-  hostname_docker: 54.193.85.254
+  hostname: performance.sdk.couchbase.com
+  hostname_docker: performance.sdk.couchbase.com
   port: 5432
   username: postgres
   password: password
@@ -57,7 +57,7 @@ settings:
   dryRun: false
 
   # Whether to ignore whatever runs are already in the database
-  force: false
+  force: true
 
   # If confident that Docker images are built and up-to-date
   skipDriverDockerBuild: false
@@ -65,11 +65,6 @@ settings:
 
 matrix:
   clusters:
-    #    - type: cbdyncluster
-    #      version: 7.0-stable
-    #      replicas: 0
-    #      nodes: 1
-
       # Currently CI is hardcoded to look for one cluster written in a specific format, so it can replace the hostname
       # In future, may return to having jenkins-sdk control cluster creation (CBD-4948)
     - type: unmanaged
@@ -80,12 +75,6 @@ matrix:
       storage: couchstore
       replicas: 0
       # A number of other fields will get filled in dynamically, both by CI and by jenkins-sdk.
-
-  #    - type: gocaves
-  #      source: /home/ec2-user/workspace/performance/sdk-performance/gocaves
-  ##      source: /Users/charliehayes/Documents/GitHub/gocaves
-  #      hostname: gocaves
-  #      port: 8080
 
   implementations:
     - language: Java
@@ -138,14 +127,10 @@ matrix:
             method: pool
             poolSize: $poolSize
             poolSelectionStrategy: counter
-      variables:
-        custom:
+      settings:
+        variables:
           - name: poolSize
             value: 10000
-        predefined:
-          - name: horizontalScaling
-            values:
-              - 20
 
     # KV gets
     - operations:
@@ -156,14 +141,10 @@ matrix:
             method: pool
             poolSize: $poolSize
             poolSelectionStrategy: randomUniform
-      variables:
-        custom:
+      settings:
+        variables:
           - name: poolSize
             value: 10000
-        predefined:
-          - name: horizontalScaling
-            values:
-              - 20
 
     # KV inserts
     - operations:
@@ -172,15 +153,10 @@ matrix:
             forSeconds: $forSeconds
           docLocation:
             method: uuid
-      variables:
-        custom:
+      settings:
+        variables:
           - name: docNum
             value: 10000000
-        predefined:
-          - name: horizontalScaling
-            values:
-              - 20
-
 
     - operations:
         - transaction:
@@ -195,22 +171,17 @@ matrix:
                   method: uuid
             bounds:
               forSeconds: $forSeconds
-      variables:
-        custom:
+      settings:
+        variables:
           - name: poolSize
             value: 10000
-        predefined:
-          - name: horizontalScaling
-            values:
-              - 20
       include:
         implementation:
           language: Java
           version: 3.3.0
 
-
 # Top-level variables can be overwritten on a per-workload basis.
-variables:
+settings:
   # These GRPC settings are believed to give good results (CBD-4975).  GRPC settings don't get written to the
   # database, as streaming back results shouldn't affect the results themselves.  So changing these settings
   # will not trigger any reruns.
@@ -218,6 +189,9 @@ variables:
     flowControl: true
     batch: 1000
     compression: true
-  custom:
+  variables:
     - name: forSeconds
       value: 300
+    # Not named horizontalScaling for historical reasons - rename when we need to rerun everything
+    - name: horizontal_scaling
+      value: 20

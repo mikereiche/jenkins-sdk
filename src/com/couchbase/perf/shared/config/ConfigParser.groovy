@@ -7,9 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import groovyjarjarantlr4.v4.runtime.misc.Nullable
-
-import java.util.stream.Collectors
 
 @CompileStatic
 class ConfigParser {
@@ -55,20 +52,88 @@ class ConfigParser {
             }
         }
     }
-    
+
+    /**
+     * Variables can either have a single value or a range of values.
+     * If it's a range, we need to calculate all possible permutations.
+     */
+    @CompileStatic
+    static Set<Set<Variable>> calculateVariablePermutations(StageContext ctx, List<Variable> variables) {
+        Set<Set<Variable>> out = new HashSet<>()
+
+        if (variables.size() == 1) {
+            var v = variables.get(0)
+            if (v.values() != null) {
+                v.values().forEach(value -> {
+                    out.add(Set.of(new Variable(v.name(), value, null)))
+                })
+            } else if (v.value() != null) {
+                out.add(Set.of(new Variable(v.name(), v.value(), null)))
+            }
+
+        } else {
+            variables.forEach(v -> {
+
+                var variablesWithout = new ArrayList<>(variables)
+                variablesWithout.remove(v)
+
+                var permsWithout = calculateVariablePermutations(ctx, variablesWithout)
+
+                permsWithout.forEach(without -> {
+                    if (v.values() != null) {
+                        v.values().forEach(value -> {
+                            var newV = new Variable(v.name(), value, null)
+                            var toAdd = new HashSet(without)
+                            toAdd.add(newV)
+                            out.add(toAdd)
+                        })
+                    } else if (v.value() != null) {
+                        var newV = new Variable(v.name(), v.value(), null)
+                        var toAdd = new HashSet(without)
+                        toAdd.add(newV)
+                        out.add(toAdd)
+                    }
+                })
+            })
+        }
+
+        return out
+    }
+
+    static Settings merge(Settings top, Settings descended) {
+        var grpc = descended.grpc() == null
+                ? top.grpc()
+                : descended.grpc()
+        var variables = new ArrayList<Variable>(descended.variables())
+        top.variables().forEach(v -> {
+            if (!variables.stream().anyMatch({it.name() == v.name()})) {
+                variables.add(v)
+            }
+        })
+        return new Settings(variables, grpc)
+    }
+
     static List<Run> allPerms(StageContext ctx, PerfConfig config) {
         def out = new ArrayList<Run>()
         for (cluster in config.matrix.clusters) {
             for (impl in config.matrix.implementations) {
                 for (workload in config.matrix.workloads) {
-                    if (includeRun(ctx, workload, impl)) {
-                        def run = new Run()
-                        run.cluster = cluster
-                        run.impl = impl
-                        run.workload = workload
 
-                        out.add(run)
-                    }
+                    var merged = merge(config.settings, workload.settings())
+
+                    var perms = calculateVariablePermutations(ctx, merged.variables())
+                    perms.forEach(perm -> {
+                        var newWorkload = new Workload(workload.operations(), new Settings(perm.toList(), merged.grpc()), workload.include(), workload.exclude())
+
+                        if (includeRun(ctx, newWorkload, impl)) {
+                            def run = new Run()
+                            run.cluster = cluster
+                            run.impl = impl
+                            run.workload = newWorkload
+
+                            out.add(run)
+                        }
+                    })
                 }
             }
         }

@@ -5,7 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import groovy.json.JsonGenerator
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import groovy.transform.ImmutableOptions
+import groovy.transform.ImmutableProperties
+import groovy.transform.RecordOptions
 import groovy.transform.ToString
+import groovy.yaml.YamlBuilder
 
 
 /**
@@ -22,12 +26,13 @@ class PerfConfig {
     Database database
     Map<String, String> executables
     Matrix matrix
+    Settings settings
 
     @ToString(includeNames = true, includePackage = false)
     static class Matrix {
         List<Cluster> clusters
         List<Implementation> implementations
-        List<Object> workloads
+        List<Workload> workloads
     }
 
     @ToString(includeNames = true, includePackage = false)
@@ -128,24 +133,32 @@ class PerfConfig {
     }
 }
 
-@ToString(includeNames = true, includePackage = false)
-class PredefinedVariablePermutation {
-    String name
-    Object value
-
-    PredefinedVariablePermutation(String name, Object value){
-        this.name = name
-        this.value = value
-    }
-
-    enum PredefinedVariableName {
-        @JsonProperty("horizontal_scaling") HORIZONTAL_SCALING,
-        @JsonProperty("doc_pool_size") DOC_POOL_SIZE,
-        @JsonProperty("durability") DURABILITY
-
-        String toString() {
-            return this.name().toLowerCase()
+// Either value or values will be non-null, not both
+@ImmutableOptions
+record Variable(String name, Object value, List<Object> values) {
+    // By this point the variables have been permuted and only value is present
+    @CompileDynamic
+    def asYaml() {
+        def yaml = new YamlBuilder()
+        yaml {
+            name this.name
+            value this.value
         }
+        yaml.properties.content
+    }
+}
+
+@ImmutableOptions
+record Settings(List<Variable> variables, Object grpc) {}
+
+@ImmutableOptions
+record Workload(Object operations, Settings settings, Object include, Object exclude) {
+    @CompileDynamic
+    def toJson() {
+        // Some workload variables are used for meta purposes but we don't want to compare the database runs with them
+        return [
+                "operations": operations
+        ]
     }
 }
 
@@ -154,25 +167,15 @@ class PredefinedVariablePermutation {
 class Run {
     PerfConfig.Cluster cluster
     PerfConfig.Implementation impl
-    Object workload
+    Workload workload
 
     @CompileDynamic
     def toJson() {
         Map<String, Object> jsonVars = new HashMap<>()
-        if (workload.variables != null) {
-            if (workload.variables.custom != null) {
-                workload.variables.custom.forEach(var -> jsonVars.put(var.name, var.value))
-            }
-            if (workload.variables.predefined != null) {
-                workload.variables.predefined.forEach(var -> {
-                    if (var.name == "horizontalScaling") {
-                        jsonVars.put("horizontal_scaling", var.values[0])
-                    }
-                    else {
-                        jsonVars.put(var.name, var.values[0])
-                    }
-                })
-            }
+        if (workload.settings() != null && workload.settings().variables() != null) {
+            workload.settings().variables().forEach(var -> {
+                jsonVars.put(var.name(), var.value())
+            })
         }
 
         jsonVars.put("driverVer", 6)
@@ -183,17 +186,14 @@ class Run {
                 .excludeNulls()
                 .build()
 
-        // Some workload variables are used for meta purposes but we don't want to compare the database runs with them
-        def copiedWorkload = workload.clone()
-        copiedWorkload.variables = null
-        copiedWorkload.include = null
-        copiedWorkload.exclude = null
-
-        return gen.toJson([
+        // This is for comparison to the database, which isn't a 1:1 match to the config YAML, since some stuff
+        // gets removed and flattened out to simplify the database JSON.  For example, no need to record GRPC settings.
+        def out = gen.toJson([
                 "impl"    : impl.toJson(),
                 "vars"    : jsonVars,
                 "cluster" : cluster.toJsonRaw(true),
-                "workload": copiedWorkload,
+                "workload": workload.toJson(),
         ])
+        return out
     }
 }

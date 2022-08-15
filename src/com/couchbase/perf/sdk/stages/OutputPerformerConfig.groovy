@@ -1,7 +1,6 @@
 package com.couchbase.perf.sdk.stages
 
 
-import com.couchbase.perf.shared.config.PredefinedVariablePermutation
 import com.couchbase.stages.servers.InitialiseCluster
 import com.couchbase.stages.Stage
 import groovy.json.JsonBuilder
@@ -29,7 +28,7 @@ class OutputPerformerConfig extends Stage {
     private final config
     private final InitialiseCluster stageCluster
     private final InitialiseSDKPerformer stagePerformer
-    private final Object topLevelVariables
+    private final Object topLevelSettings
 
     OutputPerformerConfig(InitialiseCluster stageCluster,
                           InitialiseSDKPerformer stagePerformer,
@@ -37,7 +36,7 @@ class OutputPerformerConfig extends Stage {
                           PerfConfig.Cluster cluster,
                           PerfConfig.Implementation impl,
                           List<Run> runs,
-                          Object topLevelVariables,
+                          Object topLevelSettings,
                           String outputFilenameAbs) {
         this.stagePerformer = stagePerformer
         this.stageCluster = stageCluster
@@ -46,7 +45,7 @@ class OutputPerformerConfig extends Stage {
         this.runs = runs
         this.outputFilenameAbs = outputFilenameAbs
         this.config = config
-        this.topLevelVariables = topLevelVariables
+        this.topLevelSettings = topLevelSettings
     }
 
     @Override
@@ -65,8 +64,11 @@ class OutputPerformerConfig extends Stage {
             def yaml = new YamlBuilder()
             yaml {
                 uuid UUID.randomUUID().toString()
-                operations(run.workload.operations)
-                variables(run.workload.variables)
+                operations(run.workload.operations())
+                settings {
+                    variables(run.workload.settings().variables().collect { it.asYaml() })
+                    grpc(run.workload.settings().grpc())
+                }
             }
             yaml.content
         }).collect(Collectors.toList())
@@ -77,8 +79,8 @@ class OutputPerformerConfig extends Stage {
 
         // For apples-to-apples comparisons, we have to make sure that whenever we change something in the driver or
         // performer that might alter the results, that these are bumped.
-        topLevelVariables.driverVer = 6
-        topLevelVariables.performerVer = 1
+        topLevelSettings.driverVer = 6
+        topLevelSettings.performerVer = 1
 
         if (impl.language == "python" && !(impl.version.contains("."))){
             // todo move this
@@ -103,7 +105,7 @@ class OutputPerformerConfig extends Stage {
                 database(config.database)
             }
             runs runsAsYaml
-            variables topLevelVariables
+            settings topLevelSettings
         }
 
         def converted = YamlConverter.convertJsonToYaml(new StringReader(json.toString()))
