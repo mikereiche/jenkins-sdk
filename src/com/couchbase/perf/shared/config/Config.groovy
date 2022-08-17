@@ -139,12 +139,10 @@ record Variable(String name, Object value, List<Object> values) {
     // By this point the variables have been permuted and only value is present
     @CompileDynamic
     def asYaml() {
-        def yaml = new YamlBuilder()
-        yaml {
-            name this.name
-            value this.value
-        }
-        yaml.properties.content
+        return [
+            name: this.name,
+            value: this.value
+        ]
     }
 }
 
