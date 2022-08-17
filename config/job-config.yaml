@@ -57,7 +57,7 @@ variables:
   dryRun: false
 
   # Whether to ignore whatever runs are already in the database
-  force: true
+  force: false
 
   # If confident that Docker images are built and up-to-date
   skipDriverDockerBuild: false
