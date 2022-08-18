@@ -88,7 +88,7 @@ class TagProcessor {
                                 }
 
                                 out.add(line)
-                                boolean includedAlready = isLastLine || lines.get(i + 1) != commentMarker
+                                boolean includedAlready = isLastLine || !lines.get(i + 1).trim().startsWith(commentMarker)
                                 // logger.info("May need to modify ${file.getAbsolutePath()} ${versionRaw} include=${include} includedAlready=${includedAlready}")
                                 if (include && !includedAlready) {
                                     // Skip over the /*, e.g. don't include it in the output
