@@ -52,6 +52,7 @@ class ConfigParser {
                         }
                     }
                 }
+                return false
             }
             else {
                 throw new UnsupportedOperationException()
