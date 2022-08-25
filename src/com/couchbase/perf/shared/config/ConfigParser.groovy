@@ -34,23 +34,30 @@ class ConfigParser {
                 return out
             }
             else if (workload.include != null) {
-                if (workload.include.implementation.version != null) {
-                    def requiredVersion = ImplementationVersion.from(workload.include.implementation.version)
-                    def sdkVersion = ImplementationVersion.from(implementation.version)
-                    return sdkVersion.isAbove(requiredVersion) || sdkVersion == requiredVersion
-                }
-                else {
-                    def out = implementation.language == workload.include.implementation.language
-                    if (out) {
-                        ctx.env.log("Including based on language '${implementation.language}' workload ${workload}")
+                for (x in workload.include) {
+                    if (x.language == implementation.language) {
+                        if (x.version != null) {
+                            def requiredVersion = ImplementationVersion.from(x.version)
+                            def sdkVersion = ImplementationVersion.from(implementation.version)
+                            var include = sdkVersion.isAbove(requiredVersion) || sdkVersion == requiredVersion
+                            if (!include) {
+                                return false
+                            }
+                        } else {
+                            def out = implementation.language == x.language
+                            if (out) {
+                                ctx.env.log("Including based on language '${implementation.language}' workload ${workload}")
+                                return true
+                            }
+                        }
                     }
-                    return out
                 }
             }
             else {
                 throw new UnsupportedOperationException()
             }
         }
+        return true
     }
 
     /**
