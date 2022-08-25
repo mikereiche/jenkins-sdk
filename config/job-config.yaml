@@ -176,9 +176,10 @@ matrix:
           - name: poolSize
             value: 10000
       include:
-        implementation:
-          language: Java
+        - language: Java
           version: 3.3.0
+        - language: Go
+          version: 2.5.3
 
 # Top-level variables can be overwritten on a per-workload basis.
 settings:
