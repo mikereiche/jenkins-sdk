@@ -194,6 +194,5 @@ settings:
   variables:
     - name: forSeconds
       value: 300
-    # Not named horizontalScaling for historical reasons - rename when we need to rerun everything
-    - name: horizontal_scaling
+    - name: horizontalScaling
       value: 20
