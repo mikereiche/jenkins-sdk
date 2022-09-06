@@ -80,11 +80,11 @@ matrix:
       # A number of other fields will get filled in dynamically, both by CI and by jenkins-sdk.
 
   implementations:
-    - language: Java
-      version: 3.X.X
-
-    - language: Java
-      version: snapshot
+#    - language: Java
+#      version: 3.X.X
+#
+#    - language: Java
+#      version: snapshot
 
     - language: Scala
       version: 1.X.X
