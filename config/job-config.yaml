@@ -97,11 +97,11 @@ matrix:
 #      version: snapshot
 
     # Disabling .NET until performer review is completed
-#    - language: .NET
-#      version: 3.3.X
-#
-#    - language: .NET
-#      version: snapshot
+    - language: .NET
+      version: 3.3.X
+
+    - language: .NET
+      version: snapshot
 
     # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
     # Go temporarily removed as 2.4.0 not building
