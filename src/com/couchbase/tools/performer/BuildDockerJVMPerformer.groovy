@@ -32,7 +32,7 @@ class BuildDockerJVMPerformer {
             }
             if (!onlySource) {
                 imp.execute("docker build -f couchbase-jvm-clients/${client}-fit-performer/Dockerfile -t ${imageName} .",
-                    false, true)
+                        false, true, true)
             }
         }
     }

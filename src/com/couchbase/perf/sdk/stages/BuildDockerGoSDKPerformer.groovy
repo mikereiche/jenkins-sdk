@@ -39,7 +39,7 @@ class BuildDockerGoSDKPerformer extends Stage{
                     writeGoModFile(imp)
                     TagProcessor.processTags(new File(imp.currentDir()), ImplementationVersion.from(sdkVersion), false)
                 }
-                imp.execute("docker build -f performers/go/Dockerfile -t $imageName .")
+                imp.execute("docker build -f performers/go/Dockerfile -t $imageName .", false, true, true)
             }
         }
     }
