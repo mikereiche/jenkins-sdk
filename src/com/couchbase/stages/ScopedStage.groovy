@@ -11,12 +11,10 @@ class ScopedStage extends Stage {
 
     private final Stage parent
     private final List<Stage> children
-    private final boolean stopOnFailure
 
-    ScopedStage(Stage parent, List<Stage> children, boolean stopOnFailure = true) {
+    ScopedStage(Stage parent, List<Stage> children) {
         this.parent = parent
         this.children = children
-        this.stopOnFailure = stopOnFailure
     }
 
     @Override
@@ -26,29 +24,19 @@ class ScopedStage extends Stage {
 
     @Override
     void execute(StageContext ctx) {
-        try {
-            ctx.env.startStage(parent)
-            parent.stagesPre(ctx).forEach(stage -> stage.execute(ctx))
-            if (!ctx.dryRun) {
-                parent.executeImpl(ctx)
-            }
-            children.forEach(child -> {
-                try {
-                    child.execute(ctx)
-                }
-                finally {
-                    child.finish(ctx)
-                }
-            })
+        ctx.env.startStage(parent)
+        parent.stagesPre(ctx).forEach(stage -> stage.execute(ctx))
+        if (!ctx.dryRun) {
+            parent.executeImpl(ctx)
         }
-        catch (e) {
-            if (stopOnFailure) {
-                throw e
+        children.forEach(child -> {
+            try {
+                child.execute(ctx)
             }
-            else {
-                ctx.env.log("Failed with ${e}, but continuing")
+            finally {
+                child.finish(ctx)
             }
-        }
+        })
     }
 
     @Override

@@ -63,9 +63,6 @@ variables:
   skipDriverDockerBuild: false
   skipPerformerDockerBuild: false
 
-  # Stops after a failed run iff true
-  stopOnFailure: false
-
 matrix:
   clusters:
       # Currently CI is hardcoded to look for one cluster written in a specific format, so it can replace the hostname

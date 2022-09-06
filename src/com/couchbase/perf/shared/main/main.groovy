@@ -250,7 +250,7 @@ class Execute {
                 clusterChildren.add(new ScopedStage(performerStage, [new RunSDKDriver(output)]))
             })
 
-            stages.add(new ScopedStage(clusterStage, clusterChildren, ctx.jc.variables.stopOnFailure))
+            stages.add(new ScopedStage(clusterStage, clusterChildren))
         })
 
         return stages
