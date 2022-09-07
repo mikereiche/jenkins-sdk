@@ -78,10 +78,19 @@ matrix:
 
   implementations:
 #    - language: Java
-#      version: 3.X.X
+#      version: 3.0.0
 #
 #    - language: Java
-#      version: snapshot
+#      version: 3.1.0
+
+    - language: Java
+      version: 3.2.0
+
+    - language: Java
+      version: 3.3.0
+
+    - language: Java
+      version: snapshot
 
     - language: Scala
       version: 1.X.X
@@ -114,8 +123,8 @@ matrix:
 #    - language: Go
 #      version: 2.5.X
 #
-#    - language: Go
-#      version: snapshot
+    - language: Go
+      version: snapshot
 
   workloads:
 
