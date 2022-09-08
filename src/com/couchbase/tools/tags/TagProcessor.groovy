@@ -26,10 +26,44 @@ import java.util.logging.SimpleFormatter
  * throw new UnsupportedOperationException("This SDK version does not support this form of expiry");
  * // [end:<3.0.7]
  *
+ * So "3.0.7" should be read as ">=3.0.7"
+ *
+ * Other supported syntax:
+ * // [start:3.0.7&&<3.1.0]
+ * // [end:3.0.7&&<3.1.0]
+ *
+ * // [skip:<3.1.0]
+ *
+ * It's important to understand that the parser is _very_ dumb.  It doesn't track state, it doesn't know it's inside a
+ * [start] block, it can't handle nesting.  It just inserts comment markers on or immediately after the tag.
+ *
  * This tool is available in CLI form so it can also be used by the FIT CI jobs.
  */
 class TagProcessor {
     private static Logger logger = Logger.getLogger("")
+
+    @CompileStatic
+    static boolean match(String s, ImplementationVersion sdkVersion) {
+        boolean isLessThan = s.contains("<")
+        String versionRaw
+        if (isLessThan) {
+            versionRaw = s.split("<")[1].split("]")[0]
+        } else {
+            versionRaw = s.split(":")[1].split("]")[0]
+        }
+        def version = ImplementationVersion.from(versionRaw)
+        return (isLessThan ? (sdkVersion.isBelow(version)) : (sdkVersion.isAbove(version) || sdkVersion == version))
+    }
+
+    @CompileStatic
+    static boolean isMatch(String line, ImplementationVersion sdkVersion) {
+        if (line.contains("&&")) {
+            var split = line.split("&&")
+            return match(split[0], sdkVersion) && match(split[1], sdkVersion)
+        }
+
+        return match(line, sdkVersion)
+    }
 
     @CompileStatic
     public static void processTags(File curPath, ImplementationVersion sdkVersion, boolean restoreMode) {
@@ -68,15 +102,7 @@ class TagProcessor {
 
                         if (isStart || isEnd || isSkip) {
                             boolean isLastLine = i == lines.size() - 1
-                            String versionRaw
-                            boolean isLessThan = line.contains("<")
-                            if (isLessThan) {
-                                versionRaw = line.split("<")[1].split("]")[0]
-                            } else {
-                                versionRaw = line.split(":")[1].split("]")[0]
-                            }
-                            def version = ImplementationVersion.from(versionRaw)
-                            def match = (isLessThan ? (sdkVersion.isBelow(version)) : (sdkVersion.isAbove(version) || sdkVersion == version))
+                            boolean match = isMatch(line, sdkVersion)
 
                             if (isStart || isEnd) {
                                 boolean include = restoreMode || match
@@ -110,9 +136,10 @@ class TagProcessor {
                 }
 
                 if (needsOverwriting) {
+                    boolean fileEndedWithNewLine = lines.get(lines.size() - 1).isBlank()
                     // logger.info("Modifying file ${file.getAbsolutePath()}")
                     def w = file.newWriter()
-                    w << out.join(System.lineSeparator()) + System.getProperty("line.separator")
+                    w << out.join(System.lineSeparator()) + (fileEndedWithNewLine ? System.getProperty("line.separator") : "")
                     w.close()
 
                 }
