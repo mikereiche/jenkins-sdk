@@ -40,9 +40,7 @@ class ConfigParser {
                             def requiredVersion = ImplementationVersion.from(x.version)
                             def sdkVersion = ImplementationVersion.from(implementation.version)
                             var include = sdkVersion.isAbove(requiredVersion) || sdkVersion == requiredVersion
-                            if (!include) {
-                                return false
-                            }
+                            return include
                         } else {
                             def out = implementation.language == x.language
                             if (out) {
