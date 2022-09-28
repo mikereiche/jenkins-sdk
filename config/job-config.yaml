@@ -114,8 +114,8 @@ matrix:
 #    - language: Go
 #      version: 2.5.X
 #
-    - language: Go
-      version: snapshot
+#    - language: Go
+#      version: snapshot
 
   workloads:
 
