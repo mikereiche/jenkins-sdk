@@ -23,7 +23,7 @@ class BuildSDKDriver extends Stage {
     void executeImpl(StageContext ctx) {
         ctx.inSourceDirAbsolute {
             ctx.env.dir('transactions-fit-performer') {
-                ctx.env.execute("docker build -f perf-driver/Dockerfile -t driver .")
+                ctx.env.execute("docker build -f perf-driver/Dockerfile -t driver .", false, true, true)
             }
         }
     }

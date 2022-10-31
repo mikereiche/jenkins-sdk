@@ -1,11 +1,11 @@
 package com.couchbase.perf.sdk.stages
 
 import com.couchbase.context.StageContext
-import com.couchbase.context.environments.Environment
 import com.couchbase.stages.Stage
-import com.couchbase.tools.tags.TagProcessor
-import com.couchbase.versions.ImplementationVersion
+import com.couchbase.tools.performer.BuildDockerGoPerformer
+import groovy.transform.CompileStatic
 
+@CompileStatic
 class BuildDockerGoSDKPerformer extends Stage{
 
     private final String sdkVersion
@@ -31,35 +31,7 @@ class BuildDockerGoSDKPerformer extends Stage{
 
     @Override
     void executeImpl(StageContext ctx) {
-        def imp = ctx.env
-        // Build context needs to be perf-sdk as we need the .proto files
-        ctx.inSourceDirAbsolute {
-            imp.dir('transactions-fit-performer') {
-                imp.dir('performers/go') {
-                    writeGoModFile(imp)
-                    TagProcessor.processTags(new File(imp.currentDir()), ImplementationVersion.from(sdkVersion), false)
-                }
-                imp.execute("docker build -f performers/go/Dockerfile -t $imageName .", false, true, true)
-            }
-        }
-    }
-
-    private List writeGoModFile(Environment imp) {
-        def goMod = new File("${imp.currentDir()}/go.mod")
-        def lines = goMod.readLines()
-
-        goMod.write("")
-
-        for (int i = 0; i < lines.size(); i++) {
-            def line = lines[i]
-
-            if (line.contains("couchbase/gocb/v2")) {
-                goMod.append("\tgithub.com/couchbase/gocb/v2 v${sdkVersion}\n")
-            } else {
-                goMod.append(line + "\n")
-            }
-        }
-
+        BuildDockerGoPerformer.build(ctx.env, ctx.sourceDir(), Optional.of(sdkVersion), imageName)
     }
 
     String getImageName(){

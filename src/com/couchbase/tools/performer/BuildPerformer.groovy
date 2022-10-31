@@ -2,12 +2,9 @@ package com.couchbase.tools.performer
 
 import com.couchbase.context.environments.Environment
 import com.couchbase.tools.tags.TagProcessor
-import com.couchbase.versions.ImplementationVersion
 import groovy.cli.picocli.CliBuilder
-import groovy.transform.CompileStatic
 
 import java.util.logging.Logger
-
 
 /**
  * Building the performer Docker images can be non-trivial, often requiring manipulating the project build files.
@@ -38,9 +35,21 @@ class BuildPerformer {
             System.exit(-1)
         }
 
-        String sdkRaw = options.s
+        String sdkRaw = options.s.toLowerCase().trim()
         def env = new Environment()
         Optional<String> version = options.v ? Optional.of(options.v) : Optional.empty()
-        BuildDockerJVMPerformer.build(env, options.d, sdkRaw.replace("-sdk", ""), version, options.i, options.o)
+        boolean onlySource = options.o
+        String imageName = options.i
+        String dir = options.d
+
+        if (sdkRaw == "java-sdk" || sdkRaw == "scala" || sdkRaw == "kotlin") {
+            BuildDockerJVMPerformer.build(env, dir, sdkRaw.replace("-sdk", ""), version, imageName, onlySource)
+        }
+        else if (sdkRaw == "go") {
+            BuildDockerGoPerformer.build(env, dir, version, imageName, onlySource)
+        }
+        else {
+            logger.severe("Do not yet know how to build " + sdkRaw)
+        }
     }
 }
