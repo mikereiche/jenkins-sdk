@@ -38,7 +38,7 @@ class BuildDockerGoPerformer {
             def line = lines[i]
 
             if (line.contains("couchbase/gocb/v2") && sdkVersion.isPresent()) {
-                goMod.append("\tgithub.com/couchbase/gocb/v2 v${sdkVersion}\n")
+                goMod.append("\tgithub.com/couchbase/gocb/v2 v${sdkVersion.get()}\n")
             } else {
                 goMod.append(line + "\n")
             }
