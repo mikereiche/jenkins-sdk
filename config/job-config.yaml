@@ -106,17 +106,17 @@ matrix:
 
     # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
     # Go temporarily removed as 2.4.0 not building
-#    - language: Go
-#      version: 2.3.X
-#
-#    - language: Go
-#      version: 2.4.X
-#
-#    - language: Go
-#      version: 2.5.X
-#
-#    - language: Go
-#      version: snapshot
+    - language: Go
+      version: 2.3.X
+
+    - language: Go
+      version: 2.4.X
+
+    - language: Go
+      version: 2.5.X
+
+    - language: Go
+      version: snapshot
 
     # Disabled as not yet checked in
 #    - language: Python
