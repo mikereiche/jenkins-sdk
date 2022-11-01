@@ -33,8 +33,10 @@ class BuildDockerPythonSDKPerformer extends Stage{
         // Build context needs to be perf-sdk as we need the .proto files
         ctx.inSourceDirAbsolute {
             imp.dir('transactions-fit-performer') {
+                // todo under PYCBC-1397: why this loop?
                 for (int i = 0; i < 5; i ++) {
                     try {
+                        // todo under PYCBC-1397: needs to call writeRequirementsFile() otherwise it's always building master
                         imp.execute("docker build -f ./performers/python/Dockerfile -t $imageName .")
                         break
                     }

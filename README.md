@@ -3,7 +3,7 @@ A Jenkins shared library, for use by SDK team.
 (Well, that was the intent, but Jenkins won't allow untrusted libraries to use third-party libs.)
 
 # SDK Performance
-See the https://github.com/couchbaselabs/perf-sdk project for instructions.
+See https://github.com/couchbaselabs/transactions-fit-performer/blob/master/perf-driver/README.md for instructions.
 
 # CLI tools
 
@@ -22,5 +22,5 @@ To restore the code use the -r flag:
 See the comments on `BuilderPerformer` for more.
 
 ```
-./gradlew buildPerformer --args="-d <some_path> -s java-sdk -v 3.0.0 -i performer"
+./gradlew buildPerformer --args="-d <some_path> -s kotlin -v 1.0.0 -i performer"
 ```
