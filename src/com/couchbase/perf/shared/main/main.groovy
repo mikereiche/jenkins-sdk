@@ -3,6 +3,7 @@ package com.couchbase.perf.shared.main
 import com.couchbase.context.StageContext
 import com.couchbase.context.environments.Environment
 import com.couchbase.perf.sdk.stages.BuildSDKDriver
+import com.couchbase.perf.sdk.stages.Defer
 import com.couchbase.perf.sdk.stages.InitialiseSDKPerformer
 import com.couchbase.perf.sdk.stages.Log
 import com.couchbase.perf.sdk.stages.OutputPerformerConfig
@@ -225,6 +226,8 @@ class Execute {
         int runsTotal = 0
         input.forEach((k, v) -> runsTotal += v.size())
 
+        def failedJobs = new ArrayList<String>()
+
         input.forEach((cluster, runsForCluster) -> {
             def clusterStage = new InitialiseCluster(cluster)
             def clusterChildren = new ArrayList<Stage>()
@@ -256,11 +259,23 @@ class Execute {
 
                 clusterChildren.addAll(performerRuns)
                 // ScopedStage because we want to bring performer up, run driver, bring performer down
-                clusterChildren.add(new ScopedStage(performerStage, [new RunSDKDriver(output)]))
+                clusterChildren.add(new ScopedStage(performerStage, [new RunSDKDriver(output)],
+                        (err) -> {
+                            def jobName = "${performer.language} ${performer.version}"
+                            ctx.env.log("Job ${jobName} failed with err: ${err}, continuing")
+                            failedJobs.add(jobName)
+                        }))
             })
 
             stages.add(new ScopedStage(clusterStage, clusterChildren))
         })
+
+        stages.add(new Defer(() -> {
+            ctx.env.log("Failed jobs: ${failedJobs.size()}\n${failedJobs.join("\n")}")
+            if (!failedJobs.isEmpty()) {
+                throw new RuntimeException("${failedJobs.size()} jobs failed")
+            }
+        }))
 
         return stages
     }
