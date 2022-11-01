@@ -19,6 +19,7 @@ import com.couchbase.versions.DotNetVersions
 import com.couchbase.versions.GoVersions
 import com.couchbase.versions.ImplementationVersion
 import com.couchbase.versions.JVMVersions
+import com.couchbase.versions.PythonVersions
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.yaml.YamlSlurper
@@ -130,6 +131,14 @@ class Execute {
                     def allReleases = GoVersions.getAllReleases()
                     def highest = ImplementationVersion.highest(allReleases)
                     ctx.env.log("Found latest sha for Go: ${sha}")
+                    String version = highest.toString() + "-0." + sha
+                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, null))
+                }
+                else if (implementation.language == "Python") {
+                    def sha = PythonVersions.getLatestSha()
+                    def allReleases = PythonVersions.getAllReleases()
+                    def highest = ImplementationVersion.highest(allReleases)
+                    ctx.env.log("Found latest sha for Python: ${sha}")
                     String version = highest.toString() + "-0." + sha
                     implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, null))
                 }

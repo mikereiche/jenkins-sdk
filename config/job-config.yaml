@@ -118,6 +118,9 @@ matrix:
 #    - language: Go
 #      version: snapshot
 
+    - language: Python
+      version: snapshot
+
   workloads:
 
     # KV replaces
