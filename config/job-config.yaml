@@ -105,7 +105,6 @@ matrix:
       version: snapshot
 
     # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
-    # Go temporarily removed as 2.4.0 not building
     - language: Go
       version: 2.3.X
 
@@ -116,7 +115,12 @@ matrix:
       version: 2.5.X
 
     - language: Go
-      version: snapshot
+      version: 2.6.X
+
+    # snapshot not building
+    # invalid pseudo-version: version before v2.6.0 would have negative patch number
+#    - language: Go
+#      version: snapshot
 
     # Disabled as not yet checked in
 #    - language: Python
