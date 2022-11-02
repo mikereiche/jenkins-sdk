@@ -118,9 +118,8 @@ matrix:
       version: 2.6.X
 
     # snapshot not building
-    # invalid pseudo-version: version before v2.6.0 would have negative patch number
-#    - language: Go
-#      version: snapshot
+    - language: Go
+      version: snapshot
 
     # Disabled as not yet checked in
 #    - language: Python

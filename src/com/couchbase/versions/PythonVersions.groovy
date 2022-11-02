@@ -6,6 +6,7 @@ import groovy.transform.Memoized
 class PythonVersions {
     @Memoized
     static String getLatestSha() {
+        // todo under PYCBC-1397: refactor this now-shared code so it's not under JVMVersions
         String content = JVMVersions.read("https://api.github.com/repos/couchbase/couchbase-python-client/commits/master")
         def parser = new JsonSlurper()
         def json = parser.parseText(content)
