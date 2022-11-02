@@ -132,7 +132,7 @@ class Execute {
                     def allReleases = GoVersions.getAllReleases()
                     def highest = ImplementationVersion.highest(allReleases)
                     ctx.env.log("Found latest sha for Go: ${sha}")
-                    String version = highest.toString() + "-0." + sha
+                    String version = highest.toString() + "-" + sha
                     implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, null))
                 }
                 else if (implementation.language == "Python") {
