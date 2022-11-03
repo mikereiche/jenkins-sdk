@@ -36,6 +36,12 @@ class StartDockerImagePerformer extends Stage {
 
     @Override
     void finishImpl(StageContext ctx) {
-        ctx.env.executeSimple("docker kill ${containerName}")
+        try {
+            ctx.env.executeSimple("docker kill ${containerName}")
+        }
+        catch (RuntimeException err) {
+            // Probably just failed to build the performer, so continue
+            ctx.env.log("Failed to stop ${containerName} with err ${err}, continuing")
+        }
     }
 }
