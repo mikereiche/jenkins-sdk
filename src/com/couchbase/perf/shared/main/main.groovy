@@ -212,6 +212,9 @@ class Execute {
                 .collect(groupingBy((Run run) -> run.cluster))
 
         ctx.env.log("Have ${toRun.size()} runs not in database (or forced rerun), requiring ${groupedByCluster.size()} clusters")
+
+        toRun.forEach(run -> ctx.env.log("Run: ${run}"))
+
         return groupedByCluster
     }
 
