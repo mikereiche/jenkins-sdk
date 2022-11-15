@@ -69,7 +69,7 @@ stage("run") {
                     String imageId = "ami-02d1e544b84bf7502" // Amazon Linux 2
                     String hdSizeGB = 100 // CBD-5001 - seeing issues with the default 8GB.  The --block-device-mappings DeviceName must match the AMI's.
 
-                    String instanceId = runAWS("ec2 run-instances --image-id ${imageId} --count 1 --instance-type ${instanceType} --key-name cbdyncluster --security-group-ids sg-038fbc90bd62206af --region ${region} --output text --query 'Instances[*].InstanceId' --block-device-mappings 'DeviceName=/dev/xvda,Ebs={VolumeSize=${hdSizeGB}}'").trim()
+                    String instanceId = runAWS("ec2 run-instances --image-id ${imageId} --count 1 --instance-type ${instanceType} --key-name cbdyncluster --security-group-ids sg-40ff4629 --region ${region} --output text --query 'Instances[*].InstanceId' --block-device-mappings 'DeviceName=/dev/xvda,Ebs={VolumeSize=${hdSizeGB}}'").trim()
                     echo "Created AWS instance ${instanceId}"
                     String ip = null
 
