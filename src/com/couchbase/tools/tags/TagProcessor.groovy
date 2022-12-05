@@ -72,6 +72,14 @@ class TagProcessor {
             if (file.isFile()) {
                 // logger.info("Inspecting file ${file.getAbsolutePath()}")
 
+                boolean isPython = file.toString().endsWith(".py")
+                boolean isRuby = file.toString().endsWith(".rb")
+
+                var commentMarker = "//"
+                if (isPython || isRuby) {
+                    commentMarker = "#"
+                }
+
                 var out = new ArrayList<>()
                 var lines = file.readLines()
                 boolean needsOverwriting = false
@@ -79,15 +87,15 @@ class TagProcessor {
 
                 for (int i = 0; i < lines.size(); i++) {
                     var line = lines.get(i)
-                    boolean isStart = line.contains("// [start:")
-                    boolean isEnd = line.contains("// [end:")
-                    boolean isSkip = line.contains("// [skip:")
-                    boolean isSkipped = line.startsWith("// [skipped] ")
+                    boolean isStart = line.contains(commentMarker + " [start:")
+                    boolean isEnd = line.contains(commentMarker + " [end:")
+                    boolean isSkip = line.contains(commentMarker + " [skip:")
+                    boolean isSkipped = line.startsWith(commentMarker + " [skipped] ")
 
                     if (skipMode) {
                         needsOverwriting = true
                         if (!isSkipped) {
-                            out.add("// [skipped] " + line)
+                            out.add(commentMarker + " [skipped] " + line)
                         }
                         else {
                             // Line is already skipped, can just add it
@@ -96,7 +104,7 @@ class TagProcessor {
                     } else {
                         if (isSkipped) {
                             // Remove "// [skipped]
-                            line = line.substring(13)
+                            line = line.substring(commentMarker.length() + 11)
                             needsOverwriting = true
                         }
 
@@ -106,15 +114,26 @@ class TagProcessor {
 
                             if (isStart || isEnd) {
                                 boolean include = restoreMode || match
-                                String commentMarker
-                                if (isStart) {
-                                    commentMarker = "/*"
+                                String marker
+                                if (isPython) {
+                                    var leadingWhitespaceLength = line.length() - line.stripLeading().length()
+                                    marker = " ".repeat(leadingWhitespaceLength) + "'''"
+                                } else if (isRuby) {
+                                    if (isStart) {
+                                        marker = "=begin"
+                                    } else {
+                                        marker = "=end"
+                                    }
                                 } else {
-                                    commentMarker = "*/"
+                                    if (isStart) {
+                                        marker = "/*"
+                                    } else {
+                                        marker = "*/"
+                                    }
                                 }
 
                                 out.add(line)
-                                boolean includedAlready = isLastLine || !lines.get(i + 1).trim().startsWith(commentMarker)
+                                boolean includedAlready = isLastLine || !lines.get(i + 1).trim().startsWith(marker)
                                 // logger.info("May need to modify ${file.getAbsolutePath()} ${versionRaw} include=${include} includedAlready=${includedAlready}")
                                 if (include && !includedAlready) {
                                     // Skip over the /*, e.g. don't include it in the output
@@ -123,7 +142,7 @@ class TagProcessor {
                                 }
                                 if (!include && includedAlready) {
                                     needsOverwriting = true
-                                    out.add(commentMarker)
+                                    out.add(marker)
                                 }
                             } else { // isSkip
                                 skipMode = !restoreMode && match
