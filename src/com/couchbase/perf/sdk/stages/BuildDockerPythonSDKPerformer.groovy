@@ -1,25 +1,27 @@
 package com.couchbase.perf.sdk.stages
 
 import com.couchbase.context.StageContext
-import com.couchbase.context.environments.Environment
 import com.couchbase.stages.Stage
+import com.couchbase.tools.performer.BuildDockerPythonPerformer
 
-class BuildDockerPythonSDKPerformer extends Stage{
+class BuildDockerPythonSDKPerformer extends Stage {
 
     private final String sdkVersion
+    private final String sha
     final String imageName
 
     static String genImageName(String sdkVersion) {
         return "performer-python" + sdkVersion
     }
 
-    BuildDockerPythonSDKPerformer(String sdkVersion) {
-        this(BuildDockerPythonSDKPerformer.genImageName(sdkVersion), sdkVersion)
+    BuildDockerPythonSDKPerformer(String sdkVersion, String sha) {
+        this(genImageName(sdkVersion), sdkVersion, sha)
     }
 
-    BuildDockerPythonSDKPerformer(String imageName, String sdkVersion) {
+    BuildDockerPythonSDKPerformer(String imageName, String sdkVersion, String sha) {
         this.sdkVersion = sdkVersion
         this.imageName = imageName
+        this.sha = sha
     }
 
     @Override
@@ -29,39 +31,7 @@ class BuildDockerPythonSDKPerformer extends Stage{
 
     @Override
     void executeImpl(StageContext ctx) {
-        def imp = ctx.env
-        // Build context needs to be perf-sdk as we need the .proto files
-        ctx.inSourceDirAbsolute {
-            imp.dir('transactions-fit-performer') {
-                // todo under PYCBC-1397: why this loop?
-                for (int i = 0; i < 5; i ++) {
-                    try {
-                        // todo under PYCBC-1397: needs to call writeRequirementsFile() otherwise it's always building master
-                        imp.execute("docker build -f ./performers/python/Dockerfile -t $imageName .")
-                        break
-                    }
-                    catch (err) {
-                        ctx.env.log(".python performer failed to build, retrying")
-                    }
-                 }
-            }
-        }
-    }
-
-    private List writeRequirementsFile(Environment imp) {
-        def requirements = new File("${imp.currentDir()}/requirements.txt")
-        def lines = requirements.readLines()
-        requirements.write("")
-
-        for (int i = 0; i < lines.size(); i++) {
-            def line = lines[i]
-
-            if (line.contains("git+https://github.com/couchbase/couchbase-python-client.git")) {
-                requirements.append("git+https://github.com/couchbase/couchbase-python-client.git@${sdkVersion}\n")
-            } else {
-                requirements.append(line + "\n")
-            }
-        }
+        BuildDockerPythonPerformer.build(ctx.env, ctx.sourceDir(), Optional.of(sdkVersion), Optional.ofNullable(sha), imageName)
     }
 
     String getImageName(){

@@ -1,30 +1,22 @@
 package com.couchbase.versions
 
-import groovy.json.JsonSlurper
+import com.couchbase.tools.network.NetworkUtil
 import groovy.transform.Memoized
 
 
 class GoVersions {
     @Memoized
     static String getLatestSha() {
-        String content = JVMVersions.read("https://api.github.com/repos/couchbase/gocb/commits/master")
-        def parser = new JsonSlurper()
-        def json = parser.parseText(content)
+        def json = NetworkUtil.readJson("https://api.github.com/repos/couchbase/gocb/commits/master")
         String sha = json.sha
         String commitDate = json.commit.committer.date
-
-
         return commitDate.replaceAll("[^0-9]", "") + "-" + sha.substring(0, 12)
     }
 
     @Memoized
     static Set<ImplementationVersion> getAllReleases() {
         def out = new HashSet<ImplementationVersion>()
-
-        String url = "https://api.github.com/repos/couchbase/gocb/tags"
-        String content = JVMVersions.read(url)
-        def parser = new JsonSlurper()
-        def json = parser.parseText(content)
+        def json = NetworkUtil.readJson("https://api.github.com/repos/couchbase/gocb/tags")
 
         for (doc in json) {
             String version = doc.name

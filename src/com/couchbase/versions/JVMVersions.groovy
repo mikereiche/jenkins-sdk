@@ -1,38 +1,18 @@
 package com.couchbase.versions
 
-import groovy.json.JsonSlurper
+import com.couchbase.tools.network.NetworkUtil
 import groovy.transform.Memoized
 
 
 class JVMVersions {
-    public static String read(String url, int attempts = 5) {
-        while (true) {
-            try {
-                def get = new URL(url).openConnection();
-                return get.getInputStream().getText()
-            }
-            catch (err) {
-                attempts -= 1
-                if (attempts <= 0) {
-                    throw err
-                }
-                else {
-                    System.err.println("Retrying on ${url} on error ${err} on attempt ${attempts}")
-                }
-            }
-        }
-    }
-
     @Memoized
     static ImplementationVersion getLatestSnapshotBuild(String client) {
-        String snapshotsContent = read("https://oss.sonatype.org/content/repositories/snapshots/com/couchbase/client/${client}/maven-metadata.xml")
-        def snapshots = new groovy.xml.XmlSlurper().parseText(snapshotsContent)
+        def snapshots = NetworkUtil.readXml("https://oss.sonatype.org/content/repositories/snapshots/com/couchbase/client/${client}/maven-metadata.xml")
 
         // "latest" doesn't look up to date so assuming list will always be time-ordered
         def lastSnapshot = snapshots.versioning.versions.childNodes()[snapshots.versioning.versions.childNodes().size() - 1].text()
 
-        String content = read("https://oss.sonatype.org/content/repositories/snapshots/com/couchbase/client/${client}/${lastSnapshot}/maven-metadata.xml")
-        def xml = new groovy.xml.XmlSlurper().parseText(content)
+        def xml = NetworkUtil.readXml("https://oss.sonatype.org/content/repositories/snapshots/com/couchbase/client/${client}/${lastSnapshot}/maven-metadata.xml")
         // "20220715.074746-6"
         def timestamp = xml.versioning.snapshot.timestamp
         def builderNumber = xml.versioning.snapshot.buildNumber
@@ -48,9 +28,7 @@ class JVMVersions {
 
         while (true) {
             String url = "https://search.maven.org/solrsearch/select?q=g:com.couchbase.client+AND+a:${client}&start=${start}&core=gav&rows=20&wt=json"
-            String content = read(url)
-            def parser = new JsonSlurper()
-            def json = parser.parseText(content)
+            def json = NetworkUtil.readJson(url)
             def docs = json.response.docs
 
             if (docs.size() == 0) {

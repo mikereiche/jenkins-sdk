@@ -50,7 +50,7 @@ class InitialiseSDKPerformer extends Stage {
                 imageName = stage1.imageName
                 return produceStages(ctx, stage1, stage1.getImageName())
             } else if (impl.language == "Python"){
-                def stage1 = new BuildDockerPythonSDKPerformer(impl.version)
+                def stage1 = new BuildDockerPythonSDKPerformer(impl.version, impl.sha)
                 imageName = stage1.imageName
                 return produceStages(ctx, stage1, stage1.getImageName())
             } else{
