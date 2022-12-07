@@ -121,9 +121,11 @@ matrix:
     - language: Go
       version: snapshot
 
-    # Disabled as not yet checked in
-#    - language: Python
-#      version: snapshot
+    - language: Python
+      version: snapshot
+
+    - language: Python
+      version: 4.1.X
 
   workloads:
 
