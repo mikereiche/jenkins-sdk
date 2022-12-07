@@ -32,17 +32,28 @@ class BuildDockerPythonPerformer {
         }
     }
 
-    static private void writePythonRequirementsFile(Environment imp, Optional<String> sdkVersion, Optional<String> sha) {
+    private static void writePythonRequirementsFile(Environment imp, Optional<String> sdkVersion, Optional<String> sha) {
         def requirements = new File("${imp.currentDir()}/cb_requirement.txt")
         def lines = requirements.readLines()
         requirements.write("")
 
         for (String line : lines) {
-            if ((line.contains("couchbase") && !line.contains("/"))
-                    || line.contains("git+https://github.com/couchbase/couchbase-python-client.git")) {
-                var version = sha.orElse(sdkVersion.orElse("master"))
-                logger.info("PYCBC INSTALL FROM = git+https://github.com/couchbase/couchbase-python-client.git@${version}#egg=couchbase")
-                requirements.append("git+https://github.com/couchbase/couchbase-python-client.git@${version}#egg=couchbase\n")
+            if ((line.contains("couchbase") && !line.contains("/")) || line.contains("github.com/couchbase/couchbase-python-client")) {
+                sha.ifPresentOrElse(
+                    (shaValue) -> {
+                        requirements.append("git+https://github.com/couchbase/couchbase-python-client.git@${shaValue}#egg=couchbase\n")
+                    },
+                    () -> {
+                        sdkVersion.ifPresentOrElse(
+                            (versionValue) -> {
+                                requirements.append("couchbase==${versionValue}\n")
+                            },
+                            () -> {
+                                requirements.append("git+https://github.com/couchbase/couchbase-python-client.git@master#egg=couchbase\n")
+                            }
+                        )
+                    }
+                )
             } else {
                 requirements.append(line + "\n")
             }
