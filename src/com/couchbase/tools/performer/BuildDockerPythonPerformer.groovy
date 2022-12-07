@@ -10,12 +10,16 @@ import java.util.logging.Logger
 
 @CompileStatic
 class BuildDockerPythonPerformer {
-    /**
-     * @param path absolute path to above 'transactions-fit-performer'
-     * @param sdkVersion (e.g. '3.2.3'). If not present, it indicates to just build master.
-     */
     private static Logger logger = Logger.getLogger("")
 
+    /**
+     * @param imp        the build environment
+     * @param path       absolute path to above 'transactions-fit-performer'
+     * @param sdkVersion (e.g. '3.2.3'). If not present (and sha is not present), it indicates to just build master.
+     * @param sha        (e.g. '20e862d'). If present, it indicates to build from specific commit
+     * @param imageName  the name of the docker image
+     * @param onlySource whether to skip the docker build
+     */
     static void build(Environment imp, String path, Optional<String> sdkVersion, Optional<String> sha, String imageName, boolean onlySource = false) {
         imp.dirAbsolute(path) {
             imp.dir('transactions-fit-performer') {
