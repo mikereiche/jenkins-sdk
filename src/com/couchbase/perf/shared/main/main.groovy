@@ -140,8 +140,8 @@ class Execute {
                     def allReleases = PythonVersions.getAllReleases()
                     def highest = ImplementationVersion.highest(allReleases)
                     ctx.env.log("Found latest sha for Python: ${sha}")
-                    String version = highest.toString() + "-0." + sha
-                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, null))
+                    String version = highest.toString() + "-" + sha
+                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha))
                 }
                 else {
                     throw new UnsupportedOperationException("Cannot support snapshot builds with language ${implementation.language} yet")
@@ -153,6 +153,7 @@ class Execute {
                 else if (implementation.language == "Kotlin") implementationsToAdd.addAll(jvmVersions(ctx, implementation, "kotlin-client"))
                 else if (implementation.language == ".NET") implementationsToAdd.addAll(versions(ctx, implementation, ".NET", DotNetVersions.allReleases))
                 else if (implementation.language == "Go") implementationsToAdd.addAll(versions(ctx, implementation, "Go", GoVersions.allReleases))
+                else if (implementation.language == "Python") implementationsToAdd.addAll(versions(ctx, implementation, "Python", PythonVersions.allReleases))
                 else {
                     throw new UnsupportedOperationException("Cannot support snapshot builds with language ${implementation.language} yet")
                 }
