@@ -126,6 +126,12 @@ matrix:
 
     - language: Python
       version: 4.1.X
+      
+    - language: Node
+      version: snapshot
+    
+    - language: Node
+      version: 4.2.X
 
   workloads:
 

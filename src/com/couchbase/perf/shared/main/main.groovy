@@ -21,6 +21,7 @@ import com.couchbase.versions.GoVersions
 import com.couchbase.versions.ImplementationVersion
 import com.couchbase.versions.JVMVersions
 import com.couchbase.versions.PythonVersions
+import com.couchbase.versions.NodeVersions
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.yaml.YamlSlurper
@@ -143,6 +144,14 @@ class Execute {
                     String version = highest.toString() + "-" + sha
                     implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha))
                 }
+                else if (implementation.language == "Node") {
+                    def sha = NodeVersions.getLatestSha()
+                    def allReleases = NodeVersions.getAllReleases()
+                    def highest = ImplementationVersion.highest(allReleases)
+                    ctx.env.log("Found latest sha for Node: ${sha}")
+                    String version = highest.toString() + "-" + sha
+                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha))
+                }
                 else {
                     throw new UnsupportedOperationException("Cannot support snapshot builds with language ${implementation.language} yet")
                 }
@@ -154,6 +163,7 @@ class Execute {
                 else if (implementation.language == ".NET") implementationsToAdd.addAll(versions(ctx, implementation, ".NET", DotNetVersions.allReleases))
                 else if (implementation.language == "Go") implementationsToAdd.addAll(versions(ctx, implementation, "Go", GoVersions.allReleases))
                 else if (implementation.language == "Python") implementationsToAdd.addAll(versions(ctx, implementation, "Python", PythonVersions.allReleases))
+                else if (implementation.language == "Node") implementationsToAdd.addAll(versions(ctx, implementation, "Node", NodeVersions.allReleases))
                 else {
                     throw new UnsupportedOperationException("Cannot support snapshot builds with language ${implementation.language} yet")
                 }
