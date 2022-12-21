@@ -20,6 +20,8 @@ class StageContext {
     // Whether to ignore whatever's already in the database
     boolean force = false
 
+    int runsRequired = 1
+
     // The full job config
     Object jc
 

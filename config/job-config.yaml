@@ -63,6 +63,9 @@ variables:
   skipDriverDockerBuild: false
   skipPerformerDockerBuild: false
 
+  # How many times we require each permutation to be run.  Smoothes out variance.
+  runsRequired: 1
+
 matrix:
   clusters:
       # Currently CI is hardcoded to look for one cluster written in a specific format, so it can replace the hostname

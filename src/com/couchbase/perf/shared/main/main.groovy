@@ -298,6 +298,7 @@ class Execute {
         ctx.performerServer = jc.servers.performer
         ctx.dryRun = jc.variables.dryRun
         ctx.force = jc.variables.force
+        ctx.runsRequired = jc.variables.runsRequired
         String version = jcPrep(ctx, args)
         def allPerms = parseConfig(ctx)
         PerfDatabase.migrate(ctx, args)
