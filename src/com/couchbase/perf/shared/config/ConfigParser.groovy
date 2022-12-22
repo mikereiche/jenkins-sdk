@@ -25,8 +25,14 @@ class ConfigParser {
      */
     @CompileDynamic
     static boolean includeRun(StageContext ctx, Object workload, PerfConfig.Implementation implementation, PerfConfig.Cluster cluster) {
-        if (cluster.isProtostellar() && implementation.language != "Java") {
-            return false
+        if (cluster.isProtostellar()) {
+            // Currently only specific SDKs can run Protostellar
+            if (implementation.language != "Java") {
+                return false
+            }
+            if (!implementation.isGerrit()) {
+                return false
+            }
         }
 
         // Java doesn't support all KV operations in Protostellar yet
