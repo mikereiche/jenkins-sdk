@@ -78,7 +78,7 @@ class PerfConfig {
         // Only present on AWS
         String region
 
-        // "couchbase", "protostellar"
+        // "protostellar" or null (haven't set "couchbase" as it would require rerunning everything)
         String scheme
 
         // Only present if Protostellar
