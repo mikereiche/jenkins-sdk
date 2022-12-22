@@ -66,18 +66,34 @@ variables:
   # How many times we require each permutation to be run.  Smoothes out variance.
   runsRequired: 1
 
+  # Whether the failure of an individual job should stop everything.
+  stopOnFailure: false
+
 matrix:
   clusters:
       # Currently CI is hardcoded to look for one cluster written in a specific format, so it can replace the hostname
+      # Update: now "two" clusters, for stellar-nebula testing
       # In future, may return to having jenkins-sdk control cluster creation (CBD-4948)
     - type: unmanaged
       hostname: localhost
       # When run by jenkins-sdk, jenkins-sdk will use `hostname`, and the driver will use `hostname_docker`.
       # They need to be separate to allow the driver to connect to the cluster when both are running inside Docker.
       hostname_docker: cbs
+      scheme: couchbase
       storage: couchstore
       replicas: 0
       # A number of other fields will get filled in dynamically, both by CI and by jenkins-sdk.
+
+      # Stellar Nebula testing - there is logic elsewhere that will only run this against a hardcoded list of performers
+      # that support SN.
+      # This isn't a separate cluster, it's just the same cluster with Stellar Gateway running.  We record it as two
+      # clusters so we end up with the desired separate set of database results.
+    - type: unmanaged
+      hostname: localhost
+      hostname_docker: cbs
+      scheme: protostellar
+      storage: couchstore
+      replicas: 0
 
   implementations:
     - language: Java
@@ -86,17 +102,8 @@ matrix:
     - language: Java
       version: snapshot
 
-    - language: Scala
-      version: 1.X.X
-
-    - language: Scala
-      version: snapshot
-
-    - language: Kotlin
-      version: 1.X.X
-
-    - language: Kotlin
-      version: snapshot
+    - language: Java
+      version: refs/changes/19/183619/29
 
     - language: .NET
       version: 3.3.X
@@ -160,6 +167,28 @@ matrix:
           - name: poolSize
             value: 10000
 
+            # Experiments for Java Stellar Nebula
+          - name: com.couchbase.protostellar.executorType
+            type: tunable
+            include:
+              - implementation:
+                  language: Java
+                  version: refs/changes/19/183619/29
+              - cluster:
+                  scheme: protostellar
+            values: ["ForkJoinPool"]
+            # values: ["ForkJoinPool", "ThreadPool"]
+          - name: com.couchbase.protostellar.executorMaxThreadCount
+            type: tunable
+            include:
+              - implementation:
+                  language: Java
+                  version: refs/changes/19/183619/29
+              - cluster:
+                  scheme: protostellar
+            #values: [null, "1", "2", "4", "8", "16", "32", "64"]
+            values: ["1", "2", "4"]
+
     # KV inserts
     - operations:
         - op: insert
@@ -172,6 +201,7 @@ matrix:
           - name: docNum
             value: 10000000
 
+    # Transactions
     - operations:
         - transaction:
             ops:
@@ -190,7 +220,9 @@ matrix:
           - name: poolSize
             value: 10000
       include:
+        # todo port this to use Include - though will need to support both AND and OR
         - language: Java
+          # todo support 3.3.0+
           version: 3.3.0
         - language: Go
           version: 2.5.3

@@ -1,6 +1,6 @@
 package com.couchbase.perf.shared.config
 
-
+import com.couchbase.perf.shared.config.PerfConfig.Implementation
 import com.fasterxml.jackson.annotation.JsonProperty
 import groovy.json.JsonGenerator
 import groovy.transform.CompileDynamic
@@ -78,7 +78,17 @@ class PerfConfig {
         // Only present on AWS
         String region
 
+        // "couchbase", "protostellar"
+        String scheme
+
+        // Only present if Protostellar
+        String stellarNebulaSha
+
         // Any new fields here probably want adding into toJsonRaw below, and into the driver config
+
+        boolean isProtostellar() {
+            return scheme == "protostellar"
+        }
 
         @CompileDynamic
         def toJsonRaw(boolean forDatabaseComparison) {
@@ -93,11 +103,15 @@ class PerfConfig {
                     "instance"  : instance,
                     "compaction": compaction,
                     "topology"  : topology,
-                    "region"    : region
+                    "region"    : region,
+                    "scheme"    : scheme,
             ]
             if (!forDatabaseComparison) {
                 out.put("hostname", hostname)
                 out.put("hostname_docker", hostname_docker)
+            }
+            if (isProtostellar()) {
+                out.put("stellarNebulaSha", stellarNebulaSha)
             }
             return out
         }
@@ -107,10 +121,13 @@ class PerfConfig {
     static class Implementation {
         // "Java"
         String language
-        // "3.3.3" or "3.3.3-6abad3"
+
+        // "3.3.3" or "3.3.3-6abad3" or "refs/changes/94/184294/1"
         String version
+
         // "6abad3", nullable - used for some languages to handle snapshot builds
         String sha
+
         // A null port means jenkins-sdk needs to bring it up
         Integer port
 
@@ -123,6 +140,10 @@ class PerfConfig {
             this.sha = sha
         }
 
+        boolean isGerrit() {
+            return version.startsWith("refs/")
+        }
+
         @CompileDynamic
         def toJson() {
             return [
@@ -133,15 +154,37 @@ class PerfConfig {
     }
 }
 
-// Either value or values will be non-null, not both
+/**
+ * Whether a given thing should be included in this run.
+ *
+ * Includes are AND-based - all Includes must be satisfied for the run to be included.
+ */
+record Include(Implementation implementation,
+               PerfConfig.Cluster cluster) {}
+
+/**
+ * Read from job-config.yaml.
+ *
+ * Either value or values will be non-null, not both.
+ *
+ * At the point all variables have been permuted ready to be written to a per-run config, only name and value will be present.
+ *
+ * include decides whether a variable is included - usually used to specify per-SDK tunables
+ */
 @ImmutableOptions
-record Variable(String name, Object value, List<Object> values) {
+record Variable(String name,
+                Object value,
+                // "tunable" or null
+                String type = null,
+                List<Object> values = null,
+                List<Include> include = null) {
     // By this point the variables have been permuted and only value is present
     @CompileDynamic
     def asYaml() {
         return [
-            name: this.name,
-            value: this.value
+                name: this.name,
+                value: this.value,
+                type: this.type,
         ]
     }
 }
@@ -150,7 +193,10 @@ record Variable(String name, Object value, List<Object> values) {
 record Settings(List<Variable> variables, Object grpc) {}
 
 @ImmutableOptions
-record Workload(Object operations, Settings settings, Object include, Object exclude) {
+record Workload(Object operations,
+                Settings settings,
+                Object include,
+                Object exclude) {
     @CompileDynamic
     def toJson() {
         // Some workload variables are used for meta purposes but we don't want to compare the database runs with them

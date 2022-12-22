@@ -1,6 +1,13 @@
+// For the SDK performance CI job.
+
 import java.util.stream.Collectors
 
 String GERRIT_REPO = 'ssh://review.couchbase.org:29418/transactions-fit-performer.git'
+
+Boolean INSTALL_STELLAR_NEBULA = true
+// Checkout specific SN so we know we're performance testing the same thing.
+// Note: couchbase-jvm-clients contains its own version of SN, so will be building against that GRPC.  Watch out for GRPC incompatibilities...
+String STELLAR_NEBULA_SHA = "945b3d0e611ddb7549453fa30b22905cb4d33a9e"
 
 def runAWS(String command) {
     return sh(script: "aws ${command}", returnStdout: true)
@@ -43,13 +50,21 @@ stage("run") {
 //        echo "ssh couchbase@${agentIp}"
 ////    }
 
-    node("ubuntu20") {
+    node("ubuntu16") {
         // Private repo, so cannot check out directly on AWS node.  Need to scp it over.
         dir ("transactions-fit-performer") {
             checkout([$class: 'GitSCM', userRemoteConfigs: [[url: "git@github.com:couchbaselabs/transactions-fit-performer.git"]]])
             if (TRANSACTIONS_FIT_PERFORMER_REFSPEC != '') {
                 echo 'TRANSACTIONS_FIT_PERFORMER_REFSPEC is not null. So applying gerrit changes'
                 checkout([$class: 'GitSCM', branches: [[name: "FETCH_HEAD"]],  userRemoteConfigs: [[refspec: "$TRANSACTIONS_FIT_PERFORMER_REFSPEC", url: "$GERRIT_REPO"]]])
+                sh(script: "git log -n 3")
+            }
+        }
+
+        if (INSTALL_STELLAR_NEBULA) {
+            // Also a private repo
+            dir ("stellar-nebula") {
+                checkout([$class: 'GitSCM', branches: [[name: "945b3d0e611ddb7549453fa30b22905cb4d33a9e"]], userRemoteConfigs: [[url: "git@github.com:couchbase/stellar-nebula.git"]]])
                 sh(script: "git log -n 3")
             }
         }
@@ -80,6 +95,9 @@ stage("run") {
                         ip = waitForInstanceToBeReady(region, instanceId)
 
                         sh(script: 'scp -C -r -o "StrictHostKeyChecking=no" -i $SSH_KEY_PATH transactions-fit-performer ec2-user@' + ip + ":transactions-fit-performer")
+                        if (INSTALL_STELLAR_NEBULA) {
+                            sh(script: 'scp -C -r -o "StrictHostKeyChecking=no" -i $SSH_KEY_PATH stellar-nebula ec2-user@' + ip + ":stellar-nebula")
+                        }
 
                         // Setup Docker
                         runSSH(ip, "sudo yum update -y", true)
@@ -95,6 +113,13 @@ stage("run") {
                         runSSH(ip, "docker run -d --name cbs --network perf -p 8091-8096:8091-8096 -p 11210-11211:11210-11211 couchbase:7.1.1 >/dev/null 2>&1", true)
 
                         runSSH(ip, "sudo yum install -y git java-17-amazon-corretto-devel", true)
+                        if (INSTALL_STELLAR_NEBULA) {
+                            runSSH(ip, "sudo yum install -y go", true)
+                            runSSH(ip, "curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v3.19.6/protoc-3.19.6-linux-x86_64.zip")
+                            runSSH(ip, "unzip protoc-3.19.6-linux-x86_64.zip -d /home/ec2-user/.local")
+                            runSSH(ip, "go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28")
+                            runSSH(ip, "go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2")
+                        }
 
                         runSSH(ip, "git clone https://github.com/couchbaselabs/jenkins-sdk")
                         runSSH(ip, "git clone https://github.com/couchbase/couchbase-jvm-clients")
@@ -107,14 +132,13 @@ stage("run") {
 
                         try {
                             // sed: look for the start of the cluster section; /a adds on the next line
-                            // + ssh -o StrictHostKeyChecking=no -i **** ec2-user@3.19.245.79 'sed -i /-' type: 'unmanaged/a ' instance: 'c5.4xlarge jenkins-sdk/config/job-config.yaml'
-                            // + ssh -o StrictHostKeyChecking=no -i **** ec2-user@3.14.13.107 'sed -i /-' type: unmanaged/a instance: 'c5.4xlarge jenkins-sdk/config/job-config.yaml'
-                            // sed: -e expression #1, char 2: unterminated address regex
-                            // + ssh -o StrictHostKeyChecking=no -i **** ec2-user@3.137.136.169 'sed -i /-' type: unmanaged/a instance: 'c5.4xlarge jenkins-sdk/config/job-config.yaml'
                             runSSH(ip, 'sed -i "/- type: unmanaged/a\\      instance: ' + instanceType + '" jenkins-sdk/config/job-config.yaml')
                             runSSH(ip, 'sed -i "/- type: unmanaged/a\\      region: ' + region + '" jenkins-sdk/config/job-config.yaml')
                             runSSH(ip, 'sed -i "/- type: unmanaged/a\\      compaction: disabled" jenkins-sdk/config/job-config.yaml')
                             runSSH(ip, 'sed -i "/- type: unmanaged/a\\      topology: A" jenkins-sdk/config/job-config.yaml')
+                            if (INSTALL_STELLAR_NEBULA) {
+                                runSSH(ip, 'sed -i "/- type: unmanaged/a\\      stellarNebulaSha: ' + STELLAR_NEBULA_SHA + '" jenkins-sdk/config/job-config.yaml')
+                            }
                             runSSH(ip, "cat jenkins-sdk/config/job-config.yaml")
                         }
                         catch (error) {
@@ -126,6 +150,11 @@ stage("run") {
 
                         // Cluster should be up by now
                         script {
+                            if (INSTALL_STELLAR_NEBULA) {
+                                runSSH(ip, 'PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" cd stellar-nebula && PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" go generate')
+                                runSSH(ip, 'PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" cd stellar-nebula && PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" go run ./cmd/dev --no-legacy &')
+                            }
+
                             // Have 32GB on these nodes, leave 4GB for the driver and performer
                             def memoryQuota = 28000
                             runSSH(ip, "docker exec cbs opt/couchbase/bin/couchbase-cli cluster-init -c localhost --cluster-username Administrator --cluster-password password --services data,index,query --cluster-ramsize ${memoryQuota}")

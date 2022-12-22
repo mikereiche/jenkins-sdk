@@ -4,6 +4,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import com.couchbase.stages.Stage
 
+import java.nio.file.Files
 import java.time.LocalDateTime
 
 // The abstraction that allows commands to be executed correctly on Jenkins, or localhost, or wherever required.
@@ -18,6 +19,7 @@ class Environment {
     // Absolute location of the workspace (temporary working space)
     public final String workspaceAbs
     private final File logFile
+    private final Object config
 
     @CompileDynamic
     Environment() {
@@ -30,6 +32,7 @@ class Environment {
         this()
         this.executableOverrides = config.environment.executables != null ? config.environment.executables : new HashMap<>();
         this.envvar = config.environment.envvar != null ? config.environment.envvar : new HashMap<>()
+        this.config = config
 
         envvarConverted.add("PATH=" + System.getenv("PATH"))
 
@@ -249,20 +252,33 @@ class Environment {
         }
     }
 
+    /**
+     * Creates a temp dir intentionally outside of the workspace, so we can safely run git commands without getting
+     * "Your local changes to the following files would be overwritten by checkout" errors.
+     */
     void tempDir(Closure voidClosure) {
-        def tempDir = "$workspaceAbs/temp-${UUID.randomUUID().toString().substring(0, 4)}"
-        mkdirs(tempDir)
-        dirAbsolute(tempDir, voidClosure)
-    }
-
-    void sourceCheckoutDirAbsolute(Closure voidClosure) {
-        def tempDir = "$workspaceAbs/source"
-        mkdirs(tempDir)
+        var file = Files.createTempDirectory("temp-${UUID.randomUUID().toString().substring(0, 4)}")
+        def tempDir = file.toAbsolutePath().toString()
+        log("Created temp dir ${tempDir}")
         dirAbsolute(tempDir, voidClosure)
     }
 
     void checkout(String c) {
         execute("git clone $c")
+    }
+
+    /**
+     * The source dir is the directory above jenkins-sdk and transactions-fit-performer
+     */
+    @CompileDynamic
+    String sourceDirAbsolute() {
+        return config.servers.driver.source
+    }
+
+    // Runs the closure inside the source directory
+    def inSourceDirAbsolute(Closure closure) {
+        def sd = sourceDirAbsolute()
+        dirAbsolute(sd, closure)
     }
 }
 

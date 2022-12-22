@@ -1,6 +1,7 @@
 package com.couchbase.perf.shared.config
 
 import com.couchbase.context.StageContext
+import com.couchbase.perf.shared.config.PerfConfig.Cluster
 import com.couchbase.versions.ImplementationVersion
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -19,8 +20,23 @@ class ConfigParser {
         return yamlMapper.readValue(new File(filename), PerfConfig.class)
     }
 
+    /**
+     * Whether a possible run should actually be included.
+     */
     @CompileDynamic
-    static boolean includeRun(StageContext ctx, Object workload, PerfConfig.Implementation implementation) {
+    static boolean includeRun(StageContext ctx, Object workload, PerfConfig.Implementation implementation, PerfConfig.Cluster cluster) {
+        if (cluster.isProtostellar() && implementation.language != "Java") {
+            return false
+        }
+
+        // Java doesn't support all KV operations in Protostellar yet
+        for (final def op in workload.operations) {
+            var supportedInJavaProtostellar = op.op == "get" || op.op == "insert" || op.op == "remove"
+            if (cluster.isProtostellar() && !supportedInJavaProtostellar) {
+                return false
+            }
+        }
+
         if (workload.exclude == null && workload.include == null) {
             return true
         }
@@ -38,9 +54,14 @@ class ConfigParser {
                     if (x.language == implementation.language) {
                         if (x.version != null) {
                             def requiredVersion = ImplementationVersion.from(x.version)
-                            def sdkVersion = ImplementationVersion.from(implementation.version)
-                            var include = sdkVersion.isAbove(requiredVersion) || sdkVersion == requiredVersion
-                            return include
+                            if (!implementation.isGerrit()) {
+                                def sdkVersion = ImplementationVersion.from(implementation.version)
+                                var include = sdkVersion.isAbove(requiredVersion) || sdkVersion == requiredVersion
+                                return include
+                            }
+                            else {
+                                return false
+                            }
                         } else {
                             def out = implementation.language == x.language
                             if (out) {
@@ -71,10 +92,12 @@ class ConfigParser {
             var v = variables.get(0)
             if (v.values() != null) {
                 v.values().forEach(value -> {
-                    out.add(Set.of(new Variable(v.name(), value, null)))
+                    if (value != null) {
+                        out.add(Set.of(new Variable(v.name(), value)))
+                    }
                 })
             } else if (v.value() != null) {
-                out.add(Set.of(new Variable(v.name(), v.value(), null)))
+                out.add(Set.of(new Variable(v.name(), v.value())))
             }
 
         } else {
@@ -88,13 +111,15 @@ class ConfigParser {
                 permsWithout.forEach(without -> {
                     if (v.values() != null) {
                         v.values().forEach(value -> {
-                            var newV = new Variable(v.name(), value, null)
-                            var toAdd = new HashSet(without)
-                            toAdd.add(newV)
-                            out.add(toAdd)
+                            if (value != null) {
+                                var newV = new Variable(v.name(), value)
+                                var toAdd = new HashSet(without)
+                                toAdd.add(newV)
+                                out.add(toAdd)
+                            }
                         })
                     } else if (v.value() != null) {
-                        var newV = new Variable(v.name(), v.value(), null)
+                        var newV = new Variable(v.name(), v.value())
                         var toAdd = new HashSet(without)
                         toAdd.add(newV)
                         out.add(toAdd)
@@ -106,6 +131,9 @@ class ConfigParser {
         return out
     }
 
+    /**
+     * Merges the top-level settings with the workload's settings.
+     */
     static Settings merge(Settings top, Settings descended) {
         var grpc = descended.grpc() == null
                 ? top.grpc()
@@ -127,11 +155,13 @@ class ConfigParser {
 
                     var merged = merge(config.settings, workload.settings())
 
-                    var perms = calculateVariablePermutations(ctx, merged.variables())
+                    var variablesThatApply = includeVariablesThatApplyToThisRun(ctx, cluster, impl, merged.variables())
+
+                    var perms = calculateVariablePermutations(ctx, variablesThatApply)
                     perms.forEach(perm -> {
                         var newWorkload = new Workload(workload.operations(), new Settings(perm.toList(), merged.grpc()), workload.include(), workload.exclude())
 
-                        if (includeRun(ctx, newWorkload, impl)) {
+                        if (includeRun(ctx, newWorkload, impl, cluster)) {
                             def run = new Run()
                             run.cluster = cluster
                             run.impl = impl
@@ -144,5 +174,44 @@ class ConfigParser {
             }
         }
         return out
+    }
+
+    static List<Variable> includeVariablesThatApplyToThisRun(StageContext stageContext,
+                                                             Cluster cluster,
+                                                             PerfConfig.Implementation implementation,
+                                                             List<Variable> variables) {
+        return variables.findAll {
+            if (it.include() == null) {
+                return true
+            }
+
+            var ret = true
+
+            for (def inc in it.include()) {
+                if (inc.implementation() != null) {
+                    if (inc.implementation().language != implementation.language || inc.implementation().version != implementation.version) {
+                        ret = false
+                    }
+                }
+
+                if (inc.cluster() != null) {
+                    if (inc.cluster().version != null && inc.cluster().version != cluster.version) ret = false
+                    if (inc.cluster().nodeCount != null && inc.cluster().nodeCount != cluster.nodeCount) ret = false
+                    if (inc.cluster().memory != null && inc.cluster().memory != cluster.memory) ret = false
+                    if (inc.cluster().cpuCount != null && inc.cluster().cpuCount != cluster.cpuCount) ret = false
+                    if (inc.cluster().type != null && inc.cluster().type != cluster.type) ret = false
+                    if (inc.cluster().storage != null && inc.cluster().storage != cluster.storage) ret = false
+                    if (inc.cluster().replicas != null && inc.cluster().replicas != cluster.replicas) ret = false
+                    if (inc.cluster().instance != null && inc.cluster().instance != cluster.instance) ret = false
+                    if (inc.cluster().compaction != null && inc.cluster().compaction != cluster.compaction) ret = false
+                    if (inc.cluster().topology != null && inc.cluster().topology != cluster.topology) ret = false
+                    if (inc.cluster().region != null && inc.cluster().region != cluster.region) ret = false
+                    if (inc.cluster().scheme != null && inc.cluster().scheme != cluster.scheme) ret = false
+                    if (inc.cluster().stellarNebulaSha != null && inc.cluster().stellarNebulaSha != cluster.stellarNebulaSha) ret = false
+                }
+            }
+
+            return ret
+        }
     }
 }

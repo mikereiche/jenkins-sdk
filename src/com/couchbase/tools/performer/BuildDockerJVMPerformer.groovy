@@ -5,34 +5,81 @@ import com.couchbase.tools.tags.TagProcessor
 import com.couchbase.versions.ImplementationVersion
 import groovy.transform.CompileStatic
 
+import java.util.stream.Collectors
+
 /**
  * Building the JVM performers requires some pom.xml manipulation to pull in the correct transitive core-io version.
  *
- * There are two main modes, resulting in different manipulations, and selected by passing in an Optional sdkVersion:
+ * There are three main modes, resulting in different manipulations, and selected by passing in an Optional sdkVersion:
  * 1. Compiling master.
  * 2. Compiling a specific sdkVersion.
+ * 3. Compiling a specific Gerrit changeset.
  */
 @CompileStatic
 class BuildDockerJVMPerformer {
     /**
      * @param path absolute path to above 'couchbase-jvm-clients'
      * @param client 'java', 'kotlin'
-     * @param sdkVersion '3.2.3'.  If not present, it indicates to just build master.
+     * @param sdkVersion '3.2.3' or 'refs/changes/94/184294/1'.  If not present, it indicates to just build master.
      */
     static void build(Environment imp, String path, String client, Optional<String> sdkVersion, String imageName, boolean onlySource = false) {
-        imp.dirAbsolute(path) {
-            imp.dir("couchbase-jvm-clients") {
-                writeParentPomFile(imp, sdkVersion.isPresent())
-                imp.dir("${client}-fit-performer") {
-                    sdkVersion.ifPresent(ver -> {
-                        writePerformerPomFile(imp, client + "-client" + (client == "scala" ? "_2.12" : ""), ver)
-                        TagProcessor.processTags(new File(imp.currentDir() + "/src"), ImplementationVersion.from(ver), false)
-                    })
+        var isGerrit = sdkVersion.isPresent() && sdkVersion.get().startsWith("refs/")
+        if (isGerrit) {
+            imp.tempDir {
+                // We need:
+                // 1. transactions-fit-performer and couchbase-jvm-clients to exist at the same level, since the Dockerfile from
+                //    the latter needs to copy files from the former.
+                // 2. The performer Dockerfile explicitly mentions those two directories.
+                // 3. Don't want to trash any existing couchbase-jvm-clients folder.
+                //
+                // So we do this - checkout the source to a temp dir, move it over to next to transactions-fit-performer
+                // with a different partially randomised name ("couchbase-jvm-clients-34cad"), and modify the Dockerfile
+                // to point there.
+                //
+                // We leave those temporary directories afterwards for now as a) this is probably running on CI and b)
+                // deleting files is always a little risky.
+                imp.execute("pwd", false, true, true)
+                imp.execute("git clone https://github.com/couchbase/couchbase-jvm-clients", false, true, true)
+                var temp = "temp-${UUID.randomUUID().toString().substring(0, 4)}"
+                imp.dir("couchbase-jvm-clients") {
+                    imp.execute("git fetch ssh://programmatix@review.couchbase.org:29418/couchbase-jvm-clients ${sdkVersion.get()}", false, true, true)
+                    imp.execute("git checkout FETCH_HEAD", false, true, true)
+                    imp.execute("git log -n 1", false, true, true)
+                    def file = new File("${imp.currentDir()}/java-fit-performer/Dockerfile")
+                    def modified = file.readLines().stream()
+                            .map(line -> {
+                                if (line == "COPY couchbase-jvm-clients couchbase-jvm-clients/") {
+                                    return "COPY couchbase-jvm-clients-${temp} couchbase-jvm-clients/"
+                                } else {
+                                    return line
+                                }
+                            })
+                            .collect(Collectors.toList())
+                    file.write(modified.join("\n"))
+                }
+                imp.execute("mv couchbase-jvm-clients ${path}/couchbase-jvm-clients-${temp}")
+                imp.dirAbsolute("${path}/couchbase-jvm-clients-${temp}") {
+                    writeParentPomFile(imp, false)
+                }
+                imp.dirAbsolute(path) {
+                    imp.execute("docker build -f couchbase-jvm-clients-${temp}/${client}-fit-performer/Dockerfile -t ${imageName} .", false, true, true)
                 }
             }
-            if (!onlySource) {
-                imp.execute("docker build -f couchbase-jvm-clients/${client}-fit-performer/Dockerfile -t ${imageName} .",
-                        false, true, true)
+        }
+        else {
+            imp.dirAbsolute(path) {
+                imp.dir("couchbase-jvm-clients") {
+                    writeParentPomFile(imp, sdkVersion.isPresent())
+                    imp.dir("${client}-fit-performer") {
+                        sdkVersion.ifPresent(ver -> {
+                            writePerformerPomFile(imp, client + "-client" + (client == "scala" ? "_2.12" : ""), ver)
+                            TagProcessor.processTags(new File(imp.currentDir() + "/src"), ImplementationVersion.from(ver), false)
+                        })
+                    }
+                }
+                if (!onlySource) {
+                    imp.execute("docker build -f couchbase-jvm-clients/${client}-fit-performer/Dockerfile -t ${imageName} .", false, true, true)
+                }
             }
         }
     }

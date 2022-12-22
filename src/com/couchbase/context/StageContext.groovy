@@ -30,15 +30,12 @@ class StageContext {
         return !dryRun || stage instanceof OutputPerformerConfig
     }
 
-    @CompileDynamic
     String sourceDir() {
-        return jc.servers.driver.source
+        return env.sourceDirAbsolute()
     }
 
-    // Runs the closure inside the source directory
     def inSourceDirAbsolute(Closure closure) {
-        def sd = sourceDir()
-        env.dirAbsolute(sd, closure)
+        env.inSourceDirAbsolute(closure)
     }
 
     @CompileDynamic
@@ -49,5 +46,10 @@ class StageContext {
     @CompileDynamic
     boolean skipPerformerDockerBuild() {
         return jc.variables.skipPerformerDockerBuild
+    }
+
+    @CompileDynamic
+    boolean stopOnFailure() {
+        return jc.variables.stopOnFailure
     }
 }

@@ -38,10 +38,6 @@ class Execute {
             dbPwd = args[0]
             ctx.jc.database.password = args[0]
         }
-
-        // todo needs to move
-        // String mostRecentCommit = ctx.env.executeSimple("git ls-remote https://github.com/couchbase/couchbase-python-client.git HEAD | tail -1 | sed 's/HEAD//g'")
-
     }
 
     @CompileStatic
@@ -158,6 +154,15 @@ class Execute {
                     throw new UnsupportedOperationException("Cannot support snapshot builds with language ${implementation.language} yet")
                 }
             }
+            else if (implementation.version.startsWith('refs/')) {
+                if (!["Java", "Scala", "Kotlin"].contains(implementation.language)) {
+                    throw new UnsupportedOperationException("Gerrit builds not currently supported for " + implementation.language)
+                }
+                implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, implementation.version, null, null))
+            }
+            else {
+                throw new UnsupportedOperationException("Unknown version type " + implementation.version)
+            }
         })
 
         config.matrix.implementations.removeIf(v -> v.version == "snapshot" || v.version.contains('X'))
@@ -172,20 +177,26 @@ class Execute {
             String adminUsername = "Administrator"
             String adminPassword = "password"
 
-            var resp1 = getContents("http://" + hostname + ":8091/pools/default", adminUsername, adminPassword)
-            var resp2 = getContents("http://" + hostname + ":8091/pools", adminUsername, adminPassword)
+            try {
+                var resp1 = getContents("http://" + hostname + ":8091/pools/default", adminUsername, adminPassword)
+                var resp2 = getContents("http://" + hostname + ":8091/pools", adminUsername, adminPassword)
 
-            def jsonSlurper = new JsonSlurper()
+                def jsonSlurper = new JsonSlurper()
 
-            var raw1 = jsonSlurper.parseText(resp1)
-            var raw2 = jsonSlurper.parseText(resp2)
+                var raw1 = jsonSlurper.parseText(resp1)
+                var raw2 = jsonSlurper.parseText(resp2)
 
-            var node1 = raw1.nodes[0]
+                var node1 = raw1.nodes[0]
 
-            cluster.nodeCount = raw1.nodes.size()
-            cluster.memory = raw1.memoryQuota
-            cluster.cpuCount = node1.cpuCount
-            cluster.version = raw2.implementationVersion
+                cluster.nodeCount = raw1.nodes.size()
+                cluster.memory = raw1.memoryQuota
+                cluster.cpuCount = node1.cpuCount
+                cluster.version = raw2.implementationVersion
+            }
+            catch (Throwable err) {
+                ctx.env.log("Could not connect to cluster ${hostname} with ${adminUsername}:${adminPassword}")
+                throw err
+            }
         })
     }
 
@@ -266,8 +277,11 @@ class Execute {
                 clusterChildren.add(new ScopedStage(performerStage, [new RunSDKDriver(output)],
                         (err) -> {
                             def jobName = "${performer.language} ${performer.version}"
-                            ctx.env.log("Job ${jobName} failed with err: ${err}, continuing")
+                            ctx.env.log("Job ${jobName} failed with err: ${err}")
                             failedJobs.add(jobName)
+                            if (ctx.stopOnFailure()) {
+                                throw err
+                            }
                         }))
             })
 

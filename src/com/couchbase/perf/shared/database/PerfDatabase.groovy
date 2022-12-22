@@ -39,6 +39,9 @@ class PerfDatabase {
         sql.execute(st)
     }
 
+    /**
+     * Sets up the database.
+     */
     static void migrate(StageContext ctx, String[] args) {
         def sql = getConnection(ctx, args)
         execute(sql, ctx, "CREATE TABLE IF NOT EXISTS runs (id uuid PRIMARY KEY, datetime timestamp, params jsonb)")
@@ -56,6 +59,10 @@ class PerfDatabase {
         execute(sql, ctx, "delete from metrics where run_id not in (select id from runs);")
     }
 
+    /**
+     * We have a bunch of runs specified in job-config.yaml.  See which ones already exist in the database (we can
+     * skip those).
+     */
     static List<RunFromDb> compareRunsAgainstDb(StageContext ctx, List <Run> runs, String[] args) {
         ctx.env.log("Connecting to database ${databaseUrl(ctx)} to check existing runs")
         def sql = getConnection(ctx, args)
@@ -63,9 +70,9 @@ class PerfDatabase {
         return runs.stream()
                 .map(run -> {
                     def json = run.toJson()
-                    def statement = "SELECT id FROM runs WHERE params @> '${json}'::jsonb"
+                    def statement = 'SELECT id FROM runs WHERE params @> ?.jsonparam::jsonb'
                     def dbRunIds = new ArrayList<String>()
-                    sql.eachRow(statement) {
+                    sql.eachRow(statement, [jsonparam: json]) {
                         dbRunIds.add(it.getString("id"))
                     }
                     ctx.env.log("Found ${dbRunIds.size()} entries for run $statement")
