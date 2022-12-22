@@ -75,7 +75,7 @@ class PerfDatabase {
                     sql.eachRow(statement, [jsonparam: json]) {
                         dbRunIds.add(it.getString("id"))
                     }
-                    ctx.env.log("Found ${dbRunIds.size()} entries for run $statement")
+                    ctx.env.log("Found ${dbRunIds.size()} entries for run ${json}")
                     def r = new RunFromDb()
                     r.run = run
                     r.dbRunIds = dbRunIds
