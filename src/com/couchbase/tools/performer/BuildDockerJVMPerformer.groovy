@@ -42,7 +42,7 @@ class BuildDockerJVMPerformer {
                 imp.execute("git clone https://github.com/couchbase/couchbase-jvm-clients", false, true, true)
                 var temp = "temp-${UUID.randomUUID().toString().substring(0, 4)}"
                 imp.dir("couchbase-jvm-clients") {
-                    imp.execute("git fetch ssh://programmatix@review.couchbase.org:29418/couchbase-jvm-clients ${sdkVersion.get()}", false, true, true)
+                    imp.execute("git fetch https://review.couchbase.org/couchbase-jvm-clients ${sdkVersion.get()}", false, true, true)
                     imp.execute("git checkout FETCH_HEAD", false, true, true)
                     imp.execute("git log -n 1", false, true, true)
                     def file = new File("${imp.currentDir()}/java-fit-performer/Dockerfile")
