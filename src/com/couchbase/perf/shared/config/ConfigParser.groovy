@@ -99,11 +99,11 @@ class ConfigParser {
             if (v.values() != null) {
                 v.values().forEach(value -> {
                     if (value != null) {
-                        out.add(Set.of(new Variable(v.name(), value)))
+                        out.add(Set.of(new Variable(v.name(), value, v.type())))
                     }
                 })
             } else if (v.value() != null) {
-                out.add(Set.of(new Variable(v.name(), v.value())))
+                out.add(Set.of(new Variable(v.name(), v.value(), v.type())))
             }
 
         } else {
@@ -118,14 +118,14 @@ class ConfigParser {
                     if (v.values() != null) {
                         v.values().forEach(value -> {
                             if (value != null) {
-                                var newV = new Variable(v.name(), value)
+                                var newV = new Variable(v.name(), value, v.type())
                                 var toAdd = new HashSet(without)
                                 toAdd.add(newV)
                                 out.add(toAdd)
                             }
                         })
                     } else if (v.value() != null) {
-                        var newV = new Variable(v.name(), v.value())
+                        var newV = new Variable(v.name(), v.value(), v.type())
                         var toAdd = new HashSet(without)
                         toAdd.add(newV)
                         out.add(toAdd)

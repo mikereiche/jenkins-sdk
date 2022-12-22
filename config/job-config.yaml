@@ -103,7 +103,7 @@ matrix:
       version: snapshot
 
     - language: Java
-      version: refs/changes/19/183619/29
+      version: refs/changes/19/183619/30
 
     - language: .NET
       version: 3.3.X
@@ -168,6 +168,15 @@ matrix:
             value: 10000
 
             # Experiments for Java Stellar Nebula
+          - name: com.couchbase.protostellar.overrideHostname
+            type: tunable
+            include:
+              - implementation:
+                  language: Java
+                  version: refs/changes/19/183619/30
+              - cluster:
+                  scheme: protostellar
+            values: ["localhost"]
           - name: com.couchbase.protostellar.executorType
             type: tunable
             include:
@@ -183,7 +192,7 @@ matrix:
             include:
               - implementation:
                   language: Java
-                  version: refs/changes/19/183619/29
+                  version: refs/changes/19/183619/30
               - cluster:
                   scheme: protostellar
             #values: [null, "1", "2", "4", "8", "16", "32", "64"]
