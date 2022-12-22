@@ -104,7 +104,7 @@ class PerfConfig {
                     "compaction": compaction,
                     "topology"  : topology,
                     "region"    : region,
-                    "scheme"    : scheme == null ? "couchbase" : scheme,
+                    "scheme"    : scheme,
             ]
             if (!forDatabaseComparison) {
                 out.put("hostname", hostname)
