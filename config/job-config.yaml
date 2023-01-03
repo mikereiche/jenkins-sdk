@@ -85,6 +85,7 @@ matrix:
 
       # Stellar Nebula testing - there is logic elsewhere that will only run this against a hardcoded list of performers
       # that support SN.
+      # There's also hardcoded logic that will only run workloads that the Java SDK can currently support on Protostellar.
       # This isn't a separate cluster, it's just the same cluster with Stellar Gateway running.  We record it as two
       # clusters so we end up with the desired separate set of database results.
     - type: unmanaged
@@ -180,7 +181,7 @@ matrix:
                   version: refs/changes/19/183619/30
               - cluster:
                   scheme: protostellar
-            values: ["localhost"]
+            values: ["172.17.0.1"]
           - name: com.couchbase.protostellar.executorType
             type: tunable
             include:
