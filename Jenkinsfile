@@ -150,11 +150,6 @@ stage("run") {
 
                         // Cluster should be up by now
                         script {
-                            if (INSTALL_STELLAR_NEBULA) {
-                                runSSH(ip, 'PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" cd stellar-nebula && PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" go generate')
-                                runSSH(ip, 'PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" cd stellar-nebula && PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" go run ./cmd/dev --no-legacy &')
-                            }
-
                             // Have 32GB on these nodes, leave 4GB for the driver and performer
                             def memoryQuota = 28000
                             runSSH(ip, "docker exec cbs opt/couchbase/bin/couchbase-cli cluster-init -c localhost --cluster-username Administrator --cluster-password password --services data,index,query --cluster-ramsize ${memoryQuota}")
@@ -164,6 +159,12 @@ stage("run") {
                             // We're focussed on SDK performance, so disable server settings that can affect performance
                             // Note that per CBD-5001, this means we need to periodically compact manually
                             runSSH(ip, 'curl -u Administrator:password http://localhost:8091/controller/setAutoCompaction -d databaseFragmentationThreshold[percentage]="undefined" -d parallelDBAndViewCompaction=false')
+
+                            if (INSTALL_STELLAR_NEBULA) {
+                                runSSH(ip, 'PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" cd stellar-nebula && PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" go generate')
+                                // Cluster definitely needs to be up before this or SN bails out
+                                runSSH(ip, 'PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" cd stellar-nebula && PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" go run ./cmd/dev --no-legacy &')
+                            }
                         }
 
                         // Run jenkins-sdk, which will do everything else
