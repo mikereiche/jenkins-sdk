@@ -13,8 +13,8 @@ def runAWS(String command) {
     return sh(script: "aws ${command}", returnStdout: true)
 }
 
-def runSSH(String ip, String command, boolean returnStdout = false) {
-    sh(script: 'ssh -o "StrictHostKeyChecking=no" -i $SSH_KEY_PATH ec2-user@' + ip + " '" + command + "'", returnStdout: returnStdout)
+def runSSH(String ip, String command, boolean returnStdout = false, boolean inBackground = false) {
+    sh(script: 'ssh ' + (inBackground ? '-f ' : '') + '-o "StrictHostKeyChecking=no" -i $SSH_KEY_PATH ec2-user@' + ip + " '" + command + "'", returnStdout: returnStdout)
 }
 
 def ignore(String command) {
@@ -161,9 +161,13 @@ stage("run") {
                             runSSH(ip, 'curl -u Administrator:password http://localhost:8091/controller/setAutoCompaction -d databaseFragmentationThreshold[percentage]="undefined" -d parallelDBAndViewCompaction=false')
 
                             if (INSTALL_STELLAR_NEBULA) {
-                                runSSH(ip, 'PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" cd stellar-nebula && PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" go generate')
+                                runSSH(ip, 'cd stellar-nebula && PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" go generate')
                                 // Cluster definitely needs to be up before this or SN bails out
-                                runSSH(ip, 'PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" cd stellar-nebula && PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" go run ./cmd/dev --no-legacy &')
+                                runSSH(ip, 'cd stellar-nebula && PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" go run ./cmd/dev --no-legacy < /dev/null > sn.log 2> sn.err.log &', false, true)
+
+                                echo "http://${ip}:8091"
+                                echo "ssh -i ~/keys/cbdyncluster.pem ec2-user@${ip}"
+                                sleep(60 * 60 * 12)
                             }
                         }
 
