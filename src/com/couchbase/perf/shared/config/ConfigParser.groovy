@@ -49,11 +49,18 @@ class ConfigParser {
         else {
             // Only support *clude.implementation.language currently, could support others in future
             if (workload.exclude != null) {
-                def out = implementation.language != workload.exclude.implementation.language
-                if (!out) {
-                    ctx.env.log("Excluding based on language '${implementation.language}' workload ${workload}")
+                for (x in workload.exclude) {
+                    if (x.language == implementation.language) {
+                        if (x.version != null) {
+                            return x.version != implementation.version
+                        } else {
+                            if (implementation.language != x.language) {
+                                ctx.env.log("Excluding based on language '${implementation.language}' workload ${workload}")
+                                return false
+                            }
+                        }
+                    }
                 }
-                return out
             }
             else if (workload.include != null) {
                 for (x in workload.include) {

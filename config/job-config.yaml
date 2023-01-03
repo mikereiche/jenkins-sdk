@@ -153,6 +153,9 @@ matrix:
         variables:
           - name: poolSize
             value: 10000
+      exclude:
+        - language: Java
+          version: refs/changes/19/183619/30
 
     # KV gets
     - operations:
@@ -210,6 +213,9 @@ matrix:
         variables:
           - name: docNum
             value: 10000000
+      exclude:
+        - language: Java
+          version: refs/changes/19/183619/30
 
     # Transactions
     - operations:
@@ -236,6 +242,9 @@ matrix:
           version: 3.3.0
         - language: Go
           version: 2.5.3
+      exclude:
+        - language: Java
+          version: refs/changes/19/183619/30
 
 # Top-level variables can be overwritten on a per-workload basis.
 settings:

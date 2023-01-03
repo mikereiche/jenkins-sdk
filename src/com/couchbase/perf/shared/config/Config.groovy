@@ -84,7 +84,7 @@ class PerfConfig {
         // Only present if Protostellar
         String stellarNebulaSha
 
-        // Any new fields here probably want adding into toJsonRaw below, and into the driver config
+        // Any new fields here probably want adding into toJsonRaw below, and into the driver config, and includeVariablesThatApplyToThisRun
 
         boolean isProtostellar() {
             return scheme == "protostellar"
