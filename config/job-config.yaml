@@ -95,8 +95,9 @@ matrix:
       replicas: 0
 
   implementations:
-    - language: Java
-      version: 3.X.X
+    # Temporarily removing Java as 3.4.1 not building
+#    - language: Java
+#      version: 3.X.X
 
     - language: Java
       version: snapshot
@@ -127,8 +128,9 @@ matrix:
       version: 2.6.X
 
     # snapshot not building
-    - language: Go
-      version: snapshot
+    # github.com/couchbase/gocb/v2: reading github.com/couchbase/gocb/go.mod at revision v2.6.0-20221215141909-de24405a24d7: unknown revision v2.6.0-20221215141909-de24405a24d7
+#    - language: Go
+#      version: snapshot
 
     - language: Python
       version: snapshot
@@ -181,7 +183,7 @@ matrix:
             include:
               - implementation:
                   language: Java
-                  version: refs/changes/19/183619/29
+                  version: refs/changes/19/183619/30
               - cluster:
                   scheme: protostellar
             values: ["ForkJoinPool"]
