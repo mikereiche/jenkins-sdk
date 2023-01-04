@@ -97,14 +97,14 @@ matrix:
 
   implementations:
     # Temporarily removing Java as 3.4.1 not building
-#    - language: Java
-#      version: 3.X.X
+    - language: Java
+      version: 3.X.X
 
     - language: Java
       version: snapshot
 
     - language: Java
-      version: refs/changes/19/183619/30
+      version: refs/changes/35/184435/1
 
     - language: .NET
       version: 3.3.X
@@ -162,7 +162,7 @@ matrix:
             value: 10000
       exclude:
         - language: Java
-          version: refs/changes/19/183619/30
+          version: refs/changes/35/184435/1
 
     # KV gets
     - operations:
@@ -184,7 +184,7 @@ matrix:
             include:
               - implementation:
                   language: Java
-                  version: refs/changes/19/183619/30
+                  version: refs/changes/35/184435/1
               - cluster:
                   scheme: protostellar
             values: ["172.17.0.1"]
@@ -193,7 +193,7 @@ matrix:
             include:
               - implementation:
                   language: Java
-                  version: refs/changes/19/183619/30
+                  version: refs/changes/35/184435/1
               - cluster:
                   scheme: protostellar
             values: ["ForkJoinPool"]
@@ -203,11 +203,10 @@ matrix:
             include:
               - implementation:
                   language: Java
-                  version: refs/changes/19/183619/30
+                  version: refs/changes/35/184435/1
               - cluster:
                   scheme: protostellar
-            #values: [null, "1", "2", "4", "8", "16", "32", "64"]
-            values: ["1", "2", "4"]
+            values: ["1", "2", "4", "8", "16", "32", "64"]
 
     # KV inserts
     - operations:
@@ -222,7 +221,7 @@ matrix:
             value: 10000000
       exclude:
         - language: Java
-          version: refs/changes/19/183619/30
+          version: refs/changes/35/184435/1
 
     # Transactions
     - operations:
@@ -251,7 +250,7 @@ matrix:
           version: 2.5.3
       exclude:
         - language: Java
-          version: refs/changes/19/183619/30
+          version: refs/changes/35/184435/1
 
 # Top-level variables can be overwritten on a per-workload basis.
 settings:
