@@ -34,17 +34,19 @@ class ConfigParser {
                 exclude = true
                 excludeReasons.add("SDK ${implementation.language} does not support Protostellar")
             }
-            if (!implementation.isGerrit()) {
-                exclude = true
-                excludeReasons.add("Java can only support Protostellar in Gerrit changesets")
-            }
-
-            // Java doesn't support all KV operations in Protostellar yet
-            for (final def op in workload.operations) {
-                var supportedInJavaProtostellar = op.op == "get" || op.op == "insert" || op.op == "remove"
-                if (!supportedInJavaProtostellar) {
+            else {
+                if (!implementation.isGerrit()) {
                     exclude = true
-                    excludeReasons.add("Java cannot yet support Protostellar with operation ${op}")
+                    excludeReasons.add("Java can only support Protostellar in Gerrit changesets")
+                }
+
+                // Java doesn't support all KV operations in Protostellar yet
+                for (final def op in workload.operations) {
+                    var supportedInJavaProtostellar = op.op == "get" || op.op == "insert" || op.op == "remove"
+                    if (!supportedInJavaProtostellar) {
+                        exclude = true
+                        excludeReasons.add("Java cannot yet support Protostellar with operation ${op}")
+                    }
                 }
             }
         }
