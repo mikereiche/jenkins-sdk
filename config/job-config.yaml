@@ -117,7 +117,6 @@ matrix:
 #      stellarNebulaSha: 945b3d0e611ddb7549453fa30b22905cb4d33a9e
 
   implementations:
-    # Temporarily removing Java as 3.4.1 not building
     - language: Java
       version: 3.X.X
 
@@ -125,7 +124,7 @@ matrix:
       version: snapshot
 
     - language: Java
-      version: refs/changes/35/184435/1
+      version: refs/changes/70/184470/1
 
     - language: .NET
       version: 3.3.X
@@ -183,7 +182,7 @@ matrix:
             value: 10000
       exclude:
         - language: Java
-          version: refs/changes/35/184435/1
+          version: refs/changes/70/184470/1
 
     # KV gets
     - operations:
@@ -205,29 +204,40 @@ matrix:
             include:
               - implementation:
                   language: Java
-                  version: refs/changes/35/184435/1
+                  version: refs/changes/70/184470/1
               - cluster:
                   scheme: protostellar
+            # This magic string allows a Docker container to talk to STG running on the host's network
             values: ["172.17.0.1"]
           - name: com.couchbase.protostellar.executorType
             type: tunable
             include:
               - implementation:
                   language: Java
-                  version: refs/changes/35/184435/1
+                  version: refs/changes/70/184470/1
               - cluster:
                   scheme: protostellar
-            values: ["ForkJoinPool"]
-            # values: ["ForkJoinPool", "ThreadPool"]
+            values: ["ForkJoinPool", "ThreadPool"]
+
           - name: com.couchbase.protostellar.executorMaxThreadCount
             type: tunable
             include:
               - implementation:
                   language: Java
-                  version: refs/changes/35/184435/1
+                  version: refs/changes/70/184470/1
               - cluster:
                   scheme: protostellar
-            values: ["1", "2", "4", "8", "16", "32", "64"]
+            values: ["1", "2", "4", "8", "16"]
+
+          - name: com.couchbase.protostellar.numEndpoints
+            type: tunable
+            include:
+              - implementation:
+                  language: Java
+                  version: refs/changes/70/184470/1
+              - cluster:
+                  scheme: protostellar
+            values: ["1", "2", "4", "8", "16"]
 
     # KV inserts
     - operations:
@@ -242,7 +252,7 @@ matrix:
             value: 10000000
       exclude:
         - language: Java
-          version: refs/changes/35/184435/1
+          version: refs/changes/70/184470/1
 
     # Transactions
     - operations:
@@ -271,7 +281,7 @@ matrix:
           version: 2.5.3
       exclude:
         - language: Java
-          version: refs/changes/35/184435/1
+          version: refs/changes/70/184470/1
 
 # Top-level variables can be overwritten on a per-workload basis.
 settings:
