@@ -209,9 +209,9 @@ record Workload(Object operations,
 @CompileStatic
 @ToString(includeNames = true, includePackage = false)
 class Run {
-    PerfConfig.Cluster cluster
     PerfConfig.Implementation impl
     Workload workload
+    PerfConfig.Cluster cluster
 
     @CompileDynamic
     def toJson() {

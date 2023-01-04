@@ -25,72 +25,78 @@ class ConfigParser {
      */
     @CompileDynamic
     static boolean includeRun(StageContext ctx, Object workload, PerfConfig.Implementation implementation, PerfConfig.Cluster cluster) {
+        boolean exclude = false
+        var excludeReasons = []
+
         if (cluster.isProtostellar()) {
             // Currently only specific SDKs can run Protostellar
             if (implementation.language != "Java") {
-                return false
+                exclude = true
+                excludeReasons.add("SDK ${implementation.language} does not support Protostellar")
             }
             if (!implementation.isGerrit()) {
-                return false
+                exclude = true
+                excludeReasons.add("Java can only support Protostellar in Gerrit changesets")
+            }
+
+            // Java doesn't support all KV operations in Protostellar yet
+            for (final def op in workload.operations) {
+                var supportedInJavaProtostellar = op.op == "get" || op.op == "insert" || op.op == "remove"
+                if (!supportedInJavaProtostellar) {
+                    exclude = true
+                    excludeReasons.add("Java cannot yet support Protostellar with operation ${op}")
+                }
             }
         }
 
-        // Java doesn't support all KV operations in Protostellar yet
-        for (final def op in workload.operations) {
-            var supportedInJavaProtostellar = op.op == "get" || op.op == "insert" || op.op == "remove"
-            if (cluster.isProtostellar() && !supportedInJavaProtostellar) {
-                return false
-            }
-        }
-
-        if (workload.exclude == null && workload.include == null) {
-            return true
-        }
-        else {
-            // Only support *clude.implementation.language currently, could support others in future
-            if (workload.exclude != null) {
-                for (x in workload.exclude) {
-                    if (x.language == implementation.language) {
-                        if (x.version != null) {
-                            return x.version != implementation.version
-                        } else {
-                            if (implementation.language != x.language) {
-                                ctx.env.log("Excluding based on language '${implementation.language}' workload ${workload}")
-                                return false
-                            }
+        if (workload.exclude != null) {
+            for (x in workload.exclude) {
+                if (x.language == implementation.language) {
+                    if (x.version != null) {
+                        if (x.version == implementation.version) {
+                            excludeReasons.add("Excluding based on version ${x.version} ${implementation.version}")
+                            exclude = true
+                        }
+                    } else {
+                        if (implementation.language != x.language) {
+                            excludeReasons.add("Excluding based on language ${x.language} ${implementation.language}")
+                            exclude = true
                         }
                     }
                 }
             }
-            else if (workload.include != null) {
-                for (x in workload.include) {
-                    if (x.language == implementation.language) {
-                        if (x.version != null) {
-                            def requiredVersion = ImplementationVersion.from(x.version)
-                            if (!implementation.isGerrit()) {
-                                def sdkVersion = ImplementationVersion.from(implementation.version)
-                                var include = sdkVersion.isAbove(requiredVersion) || sdkVersion == requiredVersion
-                                return include
+        }
+
+        if (workload.include != null) {
+            exclude = true
+            excludeReasons.add("Excluding by default based on include settings")
+
+            for (x in workload.include) {
+                if (x.language == implementation.language) {
+                    if (x.version != null) {
+                        def requiredVersion = ImplementationVersion.from(x.version)
+                        if (!implementation.isGerrit()) {
+                            def sdkVersion = ImplementationVersion.from(implementation.version)
+                            var include = sdkVersion.isAbove(requiredVersion) || sdkVersion == requiredVersion
+                            if (include) {
+                                exclude = false
                             }
-                            else {
-                                return false
-                            }
-                        } else {
-                            def out = implementation.language == x.language
-                            if (out) {
-                                ctx.env.log("Including based on language '${implementation.language}' workload ${workload}")
-                                return true
-                            }
+                        }
+                    } else {
+                        if (implementation.language == x.language) {
+                            exclude = false
                         }
                     }
                 }
-                return false
-            }
-            else {
-                throw new UnsupportedOperationException()
             }
         }
-        return true
+
+        if (exclude) {
+            ctx.env.log("Excluding ${implementation.language} ${implementation.version} run ${workload} cluster ${cluster} because:")
+            excludeReasons.forEach(er -> ctx.env.log("   ${er}"))
+        }
+
+        return !exclude
     }
 
     /**

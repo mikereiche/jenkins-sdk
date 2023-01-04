@@ -171,9 +171,6 @@ class Execute {
                 implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, implementation.version, null, null))
             }
             // If adding another special type here, remember to add it to removeIf below
-            else {
-                throw new UnsupportedOperationException("Unknown version type " + implementation.version)
-            }
         })
 
         config.matrix.implementations.removeIf(v -> v.version == "snapshot" || v.version.contains('X') || v.version.startsWith('refs/'))
