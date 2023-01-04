@@ -53,6 +53,10 @@ class InitialiseSDKPerformer extends Stage {
                 def stage1 = new BuildDockerPythonSDKPerformer(impl.version, impl.sha)
                 imageName = stage1.imageName
                 return produceStages(ctx, stage1, stage1.getImageName())
+            } else if (impl.language == "Node") {
+                def stage1 = new BuildDockerNodeSDKPerformer(impl.version, impl.sha)
+                imageName = stage1.imageName
+                return produceStages(ctx, stage1, stage1.getImageName())
             } else{
                 throw new IllegalArgumentException("Unknown performer ${impl.language}")
             }
