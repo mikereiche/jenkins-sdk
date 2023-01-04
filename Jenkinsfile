@@ -164,10 +164,6 @@ stage("run") {
                                 runSSH(ip, 'cd stellar-nebula && PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" go generate')
                                 // Cluster definitely needs to be up before this or SN bails out
                                 runSSH(ip, 'cd stellar-nebula && PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" go run ./cmd/dev --no-legacy < /dev/null > sn.log 2> sn.err.log &', false, true)
-
-                                echo "http://${ip}:8091"
-                                echo "ssh -i ~/keys/cbdyncluster.pem ec2-user@${ip}"
-                                sleep(60 * 60 * 12)
                             }
                         }
 
