@@ -196,10 +196,20 @@ class Execute {
 
                 var node1 = raw1.nodes[0]
 
-                cluster.nodeCount = raw1.nodes.size()
-                cluster.memory = raw1.memoryQuota
-                cluster.cpuCount = node1.cpuCount
-                cluster.version = raw2.implementationVersion
+                // These null checks so we can set these params in the config when wanting to compare localhost against
+                // a copy of the prod database.
+                if (cluster.nodeCount == null) {
+                    cluster.nodeCount = raw1.nodes.size()
+                }
+                if (cluster.memory == null) {
+                    cluster.memory = raw1.memoryQuota
+                }
+                if (cluster.cpuCount == null) {
+                    cluster.cpuCount = node1.cpuCount
+                }
+                if (cluster.version == null) {
+                    cluster.version = raw2.implementationVersion
+                }
             }
             catch (Throwable err) {
                 ctx.env.log("Could not connect to cluster ${hostname} with ${adminUsername}:${adminPassword}")

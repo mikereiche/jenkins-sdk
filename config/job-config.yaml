@@ -81,7 +81,17 @@ matrix:
       hostname_docker: cbs
       storage: couchstore
       replicas: 0
-      # A number of other fields will get filled in dynamically, both by CI and by jenkins-sdk.
+      # A number of other fields will get filled in dynamically, both by CI and by jenkins-sdk.  Uncomment the below
+      # to help with localhost testing against a copy of the prod database.
+      # Remember to also change top-level variables.
+#      topology: A
+#      region: us-east-2
+#      version: 7.1.1-3175-enterprise
+#      cpuCount: 16
+#      instance: c5.4xlarge
+#      nodeCount: 1
+#      compaction: disabled
+#      memory: 28000
 
       # Stellar Nebula testing - there is logic elsewhere that will only run this against a hardcoded list of performers
       # that support SN.
@@ -94,6 +104,17 @@ matrix:
       scheme: protostellar
       storage: couchstore
       replicas: 0
+      # A number of other fields will get filled in dynamically, both by CI and by jenkins-sdk.  Uncomment the below
+      # to help with localhost testing against a copy of the prod database.
+#      topology: A
+#      region: us-east-2
+#      version: 7.1.1-3175-enterprise
+#      cpuCount: 16
+#      instance: c5.4xlarge
+#      nodeCount: 1
+#      compaction: disabled
+#      memory: 28000
+#      stellarNebulaSha: 945b3d0e611ddb7549453fa30b22905cb4d33a9e
 
   implementations:
     # Temporarily removing Java as 3.4.1 not building
