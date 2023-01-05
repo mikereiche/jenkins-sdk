@@ -123,8 +123,9 @@ matrix:
     - language: Java
       version: snapshot
 
-    - language: Java
-      version: refs/changes/70/184470/3
+    # Disabling as see INTERNAL errors from SN
+#    - language: Java
+#      version: refs/changes/70/184470/3
 
     # https://review.couchbase.org/c/couchbase-jvm-clients/+/184307
     # CoreIoKvOps test - only supports KV gets
