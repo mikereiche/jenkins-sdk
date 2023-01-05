@@ -271,7 +271,10 @@ class Execute {
             ctx.env.log("Cluster ${cluster} requires ${groupedByPerformer.size()} performers")
 
             groupedByPerformer.forEach((performer, runsForClusterAndPerformer) -> {
-                def performerRuns = [new Log("Run ${++runIdx} of ${runsTotal}")]
+                def performerRuns = []
+
+                // We can perform multiple runs inside a single execution of a driver+performer pair.
+                runsForClusterAndPerformer.forEach(run -> new Log("Run ${++runIdx} of ${runsTotal} ${run.impl.language} ${run.impl.version}"))
 
                 def performerStage = new InitialiseSDKPerformer(performer)
                 def runId = UUID.randomUUID().toString()
