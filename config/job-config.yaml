@@ -24,15 +24,15 @@ servers:
     # couchbase-net-client
     # WARNING: It will automatically delete and re-checkout the directory 'couchbase-net-client' under here   (if need to run .NET performer)
     #          As the .NET performer requires this directory structure.
-    source: c:\dev
+    source: /home/ec2-user
 
 # Generally only CI should be talking to production database.  For local performance testing, spin up a localhost database.
 # The password gets replaced by an environment variable when running on CI
 database:
   # When run by jenkins-sdk, jenkins-sdk will use `hostname`, and the driver will use `hostname_docker`.
   # They need to be separate to allow the driver to connect to the database when both are running inside Docker.
-  hostname: localhost
-  hostname_docker: timedb
+  hostname: performance.sdk.couchbase.com
+  hostname_docker: performance.sdk.couchbase.com
   port: 5432
   username: postgres
   password: password
@@ -117,9 +117,8 @@ matrix:
 #      stellarNebulaSha: 945b3d0e611ddb7549453fa30b22905cb4d33a9e
 
   implementations:
-    # Temporarily removing Java as 3.4.0 not building
-#    - language: Java
-#      version: 3.X.X
+    - language: Java
+      version: 3.X.X
 
     - language: Java
       version: snapshot
@@ -129,48 +128,48 @@ matrix:
 
     # https://review.couchbase.org/c/couchbase-jvm-clients/+/184307
     # CoreIoKvOps test - only supports KV gets
-    - language: Java
-      version: refs/changes/07/184307/8
+#    - language: Java
+#      version: refs/changes/07/184307/8
 
-#    - language: .NET
-#      version: 3.3.X
-#
-#    - language: .NET
-#      version: 3.4.X
-#
-#    - language: .NET
+    - language: .NET
+      version: 3.3.X
+
+    - language: .NET
+      version: 3.4.X
+
+    - language: .NET
+      version: snapshot
+
+    # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
+    - language: Go
+      version: 2.3.X
+
+    - language: Go
+      version: 2.4.X
+
+    - language: Go
+      version: 2.5.X
+
+    # Temporarily removing Go as 2.6.0 not building
+#    - language: Go
+#      version: 2.6.X
+
+    # snapshot not building
+    # github.com/couchbase/gocb/v2: reading github.com/couchbase/gocb/go.mod at revision v2.6.0-20221215141909-de24405a24d7: unknown revision v2.6.0-20221215141909-de24405a24d7
+#    - language: Go
+#      version: snapshot
+
+    - language: Python
+      version: snapshot
+
+    - language: Python
+      version: 4.1.X
+
+#    - language: Node
 #      version: snapshot
 #
-#    # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
-#    - language: Go
-#      version: 2.3.X
-#
-#    - language: Go
-#      version: 2.4.X
-#
-#    - language: Go
-#      version: 2.5.X
-#
-#    # Temporarily removing Go as 2.6.0 not building
-##    - language: Go
-##      version: 2.6.X
-#
-#    # snapshot not building
-#    # github.com/couchbase/gocb/v2: reading github.com/couchbase/gocb/go.mod at revision v2.6.0-20221215141909-de24405a24d7: unknown revision v2.6.0-20221215141909-de24405a24d7
-##    - language: Go
-##      version: snapshot
-#
-#    - language: Python
-#      version: snapshot
-#
-#    - language: Python
-#      version: 4.1.X
-#
-##    - language: Node
-##      version: snapshot
-##
-##    - language: Node
-##      version: 4.2.X
+#    - language: Node
+#      version: 4.2.X
 
   workloads:
 
@@ -288,9 +287,6 @@ matrix:
           version: 3.3.0
         - language: Go
           version: 2.5.3
-      exclude:
-        - language: Java
-          version: refs/changes/70/184470/3
 
 # Top-level variables can be overwritten on a per-workload basis.
 settings:
