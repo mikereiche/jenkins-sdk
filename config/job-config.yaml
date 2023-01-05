@@ -128,8 +128,10 @@ matrix:
 
     # https://review.couchbase.org/c/couchbase-jvm-clients/+/184307
     # CoreIoKvOps test - only supports KV gets
-#    - language: Java
-#      version: refs/changes/07/184307/8
+    - language: Java
+      version: refs/changes/07/184307/8
+
+      # If changing or adding any Gerrit patches, may need to make changes in ConfigParser
 
     - language: .NET
       version: 3.3.X
@@ -189,6 +191,8 @@ matrix:
       exclude:
         - language: Java
           version: refs/changes/70/184470/3
+        - language: Java
+          version: refs/changes/07/184307/7
 
     # KV gets
     - operations:
@@ -261,6 +265,8 @@ matrix:
       exclude:
         - language: Java
           version: refs/changes/70/184470/3
+        - language: Java
+          version: refs/changes/07/184307/7
 
     # Transactions
     - operations:

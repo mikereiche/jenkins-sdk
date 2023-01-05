@@ -40,6 +40,12 @@ class ConfigParser {
                     excludeReasons.add("Java can only support Protostellar in Gerrit changesets")
                 }
 
+                // Don't have a better way of doing this currently...
+                if (implementation.version == "refs/changes/07/184307/8") {
+                    exclude = true
+                    excludeReasons.add("${implementation.version} doesn't support Protostellar")
+                }
+
                 // Java doesn't support all KV operations in Protostellar yet
                 for (final def op in workload.operations) {
                     var supportedInJavaProtostellar = op.op == "get" || op.op == "insert" || op.op == "remove"
