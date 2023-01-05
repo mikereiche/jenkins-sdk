@@ -220,7 +220,8 @@ matrix:
                   version: refs/changes/70/184470/3
               - cluster:
                   scheme: protostellar
-            values: ["ForkJoinPool", "ThreadPool"]
+            values: ["ThreadPool"]
+            # values: ["ForkJoinPool", "ThreadPool"]
 
           - name: com.couchbase.protostellar.executorMaxThreadCount
             type: tunable
