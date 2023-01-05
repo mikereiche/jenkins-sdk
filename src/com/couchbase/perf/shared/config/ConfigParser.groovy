@@ -70,8 +70,7 @@ class ConfigParser {
         }
 
         if (workload.include != null) {
-            exclude = true
-            excludeReasons.add("Excluding by default based on include settings")
+            def excludedByInclude = true
 
             for (x in workload.include) {
                 if (x.language == implementation.language) {
@@ -81,15 +80,20 @@ class ConfigParser {
                             def sdkVersion = ImplementationVersion.from(implementation.version)
                             var include = sdkVersion.isAbove(requiredVersion) || sdkVersion == requiredVersion
                             if (include) {
-                                exclude = false
+                                excludedByInclude = false
                             }
                         }
                     } else {
                         if (implementation.language == x.language) {
-                            exclude = false
+                            excludedByInclude = false
                         }
                     }
                 }
+            }
+
+            if (excludedByInclude) {
+                exclude = true
+                excludeReasons.add("There was an include section that did not match this")
             }
         }
 
