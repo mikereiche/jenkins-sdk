@@ -54,20 +54,20 @@ environment:
 # These settings will not be saved to the database
 variables:
   # Outputs what would be performed, without actually performing it.  Config files still get written.
-  dryRun: true
+  dryRun: false
 
   # Whether to ignore whatever runs are already in the database
   force: false
 
   # If confident that Docker images are built and up-to-date
-  skipDriverDockerBuild: true
-  skipPerformerDockerBuild: true
+  skipDriverDockerBuild: false
+  skipPerformerDockerBuild: false
 
   # How many times we require each permutation to be run.  Smoothes out variance.
   runsRequired: 1
 
   # Whether the failure of an individual job should stop everything.
-  stopOnFailure: true
+  stopOnFailure: false
 
 matrix:
   clusters:
@@ -127,45 +127,50 @@ matrix:
     - language: Java
       version: refs/changes/70/184470/3
 
-    - language: .NET
-      version: 3.3.X
+    # https://review.couchbase.org/c/couchbase-jvm-clients/+/184307
+    # CoreIoKvOps test - only supports KV gets
+    - language: Java
+      version: refs/changes/07/184307/8
 
-    - language: .NET
-      version: 3.4.X
-
-    - language: .NET
-      version: snapshot
-
-    # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
-    - language: Go
-      version: 2.3.X
-
-    - language: Go
-      version: 2.4.X
-
-    - language: Go
-      version: 2.5.X
-
-    # Temporarily removing Go as 2.6.0 not building
-#    - language: Go
-#      version: 2.6.X
-
-    # snapshot not building
-    # github.com/couchbase/gocb/v2: reading github.com/couchbase/gocb/go.mod at revision v2.6.0-20221215141909-de24405a24d7: unknown revision v2.6.0-20221215141909-de24405a24d7
-#    - language: Go
-#      version: snapshot
-
-    - language: Python
-      version: snapshot
-
-    - language: Python
-      version: 4.1.X
-
-#    - language: Node
+#    - language: .NET
+#      version: 3.3.X
+#
+#    - language: .NET
+#      version: 3.4.X
+#
+#    - language: .NET
 #      version: snapshot
 #
-#    - language: Node
-#      version: 4.2.X
+#    # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
+#    - language: Go
+#      version: 2.3.X
+#
+#    - language: Go
+#      version: 2.4.X
+#
+#    - language: Go
+#      version: 2.5.X
+#
+#    # Temporarily removing Go as 2.6.0 not building
+##    - language: Go
+##      version: 2.6.X
+#
+#    # snapshot not building
+#    # github.com/couchbase/gocb/v2: reading github.com/couchbase/gocb/go.mod at revision v2.6.0-20221215141909-de24405a24d7: unknown revision v2.6.0-20221215141909-de24405a24d7
+##    - language: Go
+##      version: snapshot
+#
+#    - language: Python
+#      version: snapshot
+#
+#    - language: Python
+#      version: 4.1.X
+#
+##    - language: Node
+##      version: snapshot
+##
+##    - language: Node
+##      version: 4.2.X
 
   workloads:
 
