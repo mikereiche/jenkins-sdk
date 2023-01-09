@@ -123,9 +123,10 @@ matrix:
     - language: Java
       version: snapshot
 
-    # Disabling as see INTERNAL errors from SN
-#    - language: Java
-#      version: refs/changes/70/184470/3
+    # https://review.couchbase.org/c/couchbase-jvm-clients/+/184600
+    # Current head of Protostellar fork
+    - language: Java
+      version: refs/changes/46/184646/2
 
     # https://review.couchbase.org/c/couchbase-jvm-clients/+/184307
     # CoreIoKvOps test - only supports KV gets
@@ -168,11 +169,12 @@ matrix:
     - language: Python
       version: 4.1.X
 
-    - language: Node
-      version: snapshot
-
-    - language: Node
-      version: 4.2.X
+    # Temporarily removing Node as failing to stream
+#    - language: Node
+#      version: snapshot
+#
+#    - language: Node
+#      version: 4.2.X
 
   workloads:
 
@@ -191,7 +193,7 @@ matrix:
             value: 10000
       exclude:
         - language: Java
-          version: refs/changes/70/184470/3
+          version: refs/changes/46/184646/2
         - language: Java
           version: refs/changes/07/184307/7
 
@@ -215,7 +217,7 @@ matrix:
             include:
               - implementation:
                   language: Java
-                  version: refs/changes/70/184470/3
+                  version: refs/changes/46/184646/2
               - cluster:
                   scheme: protostellar
             # This magic string allows a Docker container to talk to STG running on the host's network
@@ -226,7 +228,7 @@ matrix:
             include:
               - implementation:
                   language: Java
-                  version: refs/changes/70/184470/3
+                  version: refs/changes/46/184646/2
               - cluster:
                   scheme: protostellar
             values: ["ThreadPool"]
@@ -237,7 +239,7 @@ matrix:
             include:
               - implementation:
                   language: Java
-                  version: refs/changes/70/184470/3
+                  version: refs/changes/46/184646/2
               - cluster:
                   scheme: protostellar
             values: ["1", "2", "4", "8", "16"]
@@ -247,10 +249,10 @@ matrix:
             include:
               - implementation:
                   language: Java
-                  version: refs/changes/70/184470/3
+                  version: refs/changes/46/184646/2
               - cluster:
                   scheme: protostellar
-            values: ["1", "2", "4", "8", "16"]
+            values: [ "1", "2", "4", "8", "16" ]
 
     # KV inserts
     - operations:
@@ -265,7 +267,7 @@ matrix:
             value: 10000000
       exclude:
         - language: Java
-          version: refs/changes/70/184470/3
+          version: refs/changes/46/184646/2
         - language: Java
           version: refs/changes/07/184307/7
 
