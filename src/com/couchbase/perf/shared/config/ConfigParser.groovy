@@ -81,12 +81,19 @@ class ConfigParser {
             for (x in workload.include) {
                 if (x.language == implementation.language) {
                     if (x.version != null) {
-                        def requiredVersion = ImplementationVersion.from(x.version)
-                        if (!implementation.isGerrit()) {
-                            def sdkVersion = ImplementationVersion.from(implementation.version)
-                            var include = sdkVersion.isAbove(requiredVersion) || sdkVersion == requiredVersion
-                            if (include) {
+                        if (x.version.startsWith("refs/")) {
+                            if (x.version == implementation.version) {
                                 excludedByInclude = false
+                            }
+                        }
+                        else {
+                            def requiredVersion = ImplementationVersion.from(x.version)
+                            if (!implementation.isGerrit()) {
+                                def sdkVersion = ImplementationVersion.from(implementation.version)
+                                var include = sdkVersion.isAbove(requiredVersion) || sdkVersion == requiredVersion
+                                if (include) {
+                                    excludedByInclude = false
+                                }
                             }
                         }
                     } else {
