@@ -214,7 +214,7 @@ matrix:
 
       exclude:
         - language: Java
-          version: refs/changes/69/184669/1
+          version: refs/changes/87/184687/1
 
     # KV inserts
     - operations:
@@ -229,7 +229,7 @@ matrix:
             value: 10000000
       exclude:
         - language: Java
-          version: refs/changes/69/184669/1
+          version: refs/changes/87/184687/1
         - language: Java
           version: refs/changes/07/184307/7
 
@@ -304,7 +304,7 @@ matrix:
 
       include:
         - language: Java
-          version: refs/changes/69/184669/1
+          version: refs/changes/87/184687/1
 
 
     # KV gets - test number of PS endpoints for Java Stellar Nebula
@@ -322,6 +322,10 @@ matrix:
           - name: poolSize
             value: 10000
 
+          # Just make it easier to find these results
+          - name: experimentName
+            values: [ "numEndpoints" ]
+
           - name: com.couchbase.protostellar.overrideHostname
             type: tunable
             include:
@@ -338,7 +342,7 @@ matrix:
 
       include:
         - language: Java
-          version: refs/changes/69/184669/1
+          version: refs/changes/87/184687/1
 
 
     # KV gets - test reusing stubs or not for Java Stellar Nebula
@@ -363,6 +367,10 @@ matrix:
                   scheme: protostellar
             values: [ "172.17.0.1" ]
 
+          # Just make it easier to find these results
+          - name: experimentName
+            values: [ "reuseStubs" ]
+
           - name: "com.couchbase.protostellar.reuseStubs"
             type: tunable
             include:
@@ -372,7 +380,7 @@ matrix:
 
       include:
         - language: Java
-          version: refs/changes/69/184669/1
+          version: refs/changes/87/184687/1
 
 # Top-level variables can be overwritten on a per-workload basis.
 settings:
