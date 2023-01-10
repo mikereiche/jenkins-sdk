@@ -283,6 +283,10 @@ matrix:
             # This magic string allows a Docker container to talk to STG running on the host's network
             values: [ "172.17.0.1" ]
 
+          # Just make it easier to find these results
+          - name: experimentName
+            values: [ "ThreadPool" ]
+
           - name: com.couchbase.protostellar.executorType
             type: tunable
             include:
