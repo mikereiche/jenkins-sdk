@@ -338,7 +338,7 @@ matrix:
             include:
               - cluster:
                   scheme: protostellar
-            values: [ "1", "2", "4", "8", "16", "32", "64" ]
+            values: [ "1", "2", "3", "4", "8", "16", "32", "64" ]
 
       include:
         - language: Java
