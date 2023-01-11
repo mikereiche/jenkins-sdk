@@ -126,7 +126,7 @@ matrix:
     # https://review.couchbase.org/c/couchbase-jvm-clients/+/184600
     # Current head of Protostellar fork
     - language: Java
-      version: refs/changes/87/184687/1
+      version: refs/changes/16/184816/1
 
     # https://review.couchbase.org/c/couchbase-jvm-clients/+/184307
     # CoreIoKvOps test - only supports KV gets
@@ -193,7 +193,7 @@ matrix:
             value: 10000
       exclude:
         - language: Java
-          version: refs/changes/87/184687/1
+          version: refs/changes/16/184816/1
         - language: Java
           version: refs/changes/07/184307/7
 
@@ -214,7 +214,7 @@ matrix:
 
       exclude:
         - language: Java
-          version: refs/changes/87/184687/1
+          version: refs/changes/16/184816/1
 
     # KV inserts
     - operations:
@@ -229,7 +229,7 @@ matrix:
             value: 10000000
       exclude:
         - language: Java
-          version: refs/changes/87/184687/1
+          version: refs/changes/16/184816/1
         - language: Java
           version: refs/changes/07/184307/7
 
@@ -259,93 +259,7 @@ matrix:
         - language: Go
           version: 2.5.3
 
-    # KV gets - test threadpool variants for Java Stellar Nebula
-    - operations:
-        - op: get
-          bounds:
-            forSeconds: $forSeconds
-          docLocation:
-            method: pool
-            poolSize: $poolSize
-            poolSelectionStrategy: randomUniform
-
-      settings:
-        variables:
-          - name: poolSize
-            value: 10000
-
-            # Experiments for Java Stellar Nebula
-          - name: com.couchbase.protostellar.overrideHostname
-            type: tunable
-            include:
-              - cluster:
-                  scheme: protostellar
-            # This magic string allows a Docker container to talk to STG running on the host's network
-            values: [ "172.17.0.1" ]
-
-          # Just make it easier to find these results
-          - name: experimentName
-            values: [ "ThreadPool" ]
-
-          - name: com.couchbase.protostellar.executorType
-            type: tunable
-            include:
-              - cluster:
-                  scheme: protostellar
-            values: ["ForkJoinPool", "ThreadPool"]
-
-          - name: com.couchbase.protostellar.executorMaxThreadCount
-            type: tunable
-            include:
-              - cluster:
-                  scheme: protostellar
-            # Seeing issues that _might_ be caused by 1 thread
-            values: [ "8", "16", "32" ]
-
-      include:
-        - language: Java
-          version: refs/changes/87/184687/1
-
-
-    # KV gets - test number of PS endpoints for Java Stellar Nebula
-    - operations:
-        - op: get
-          bounds:
-            forSeconds: $forSeconds
-          docLocation:
-            method: pool
-            poolSize: $poolSize
-            poolSelectionStrategy: randomUniform
-
-      settings:
-        variables:
-          - name: poolSize
-            value: 10000
-
-          # Just make it easier to find these results
-          - name: experimentName
-            values: [ "numEndpoints" ]
-
-          - name: com.couchbase.protostellar.overrideHostname
-            type: tunable
-            include:
-              - cluster:
-                  scheme: protostellar
-            values: [ "172.17.0.1" ]
-
-          - name: com.couchbase.protostellar.numEndpoints
-            type: tunable
-            include:
-              - cluster:
-                  scheme: protostellar
-            values: [ "1", "2", "3", "4", "8", "16", "32", "64" ]
-
-      include:
-        - language: Java
-          version: refs/changes/87/184687/1
-
-
-    # KV gets - test reusing stubs or not for Java Stellar Nebula
+    # KV gets - test GRPC's build-in load balancing
     - operations:
         - op: get
           bounds:
@@ -369,18 +283,39 @@ matrix:
 
           # Just make it easier to find these results
           - name: experimentName
-            values: [ "reuseStubs" ]
+            values: [ "protostellarLoadBalancing" ]
 
-          - name: "com.couchbase.protostellar.reuseStubs"
+          - name: "com.couchbase.protostellar.loadBalancing"
             type: tunable
             include:
               - cluster:
                   scheme: protostellar
-            values: [ "true", "false" ]
+            values: [ "1", "2", "4", "8", "16" ]
+
+          - name: "com.couchbase.protostellar.loadBalancingStrategy"
+            type: tunable
+            include:
+              - cluster:
+                  scheme: protostellar
+            values: [ "round_robin" ]
+
+          - name: "com.couchbase.protostellar.loadBalancingSingle"
+            type: tunable
+            include:
+              - cluster:
+                  scheme: protostellar
+            values: [ "true", "false"  ]
+
+          - name: "com.couchbase.protostellar.numEndpoints"
+            type: tunable
+            include:
+              - cluster:
+                  scheme: protostellar
+            values: [ "1" ]
 
       include:
         - language: Java
-          version: refs/changes/87/184687/1
+          version: refs/changes/16/184816/1
 
 # Top-level variables can be overwritten on a per-workload basis.
 settings:
