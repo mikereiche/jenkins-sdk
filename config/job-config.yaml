@@ -169,12 +169,11 @@ matrix:
     - language: Python
       version: 4.1.X
 
-    # Temporarily removing Node as failing to stream
-#    - language: Node
-#      version: snapshot
-#
-#    - language: Node
-#      version: 4.2.X
+    - language: Node
+      version: snapshot
+
+    - language: Node
+      version: 4.2.X
 
   workloads:
 
