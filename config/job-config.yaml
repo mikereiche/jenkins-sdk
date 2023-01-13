@@ -126,7 +126,7 @@ matrix:
     # https://review.couchbase.org/c/couchbase-jvm-clients/+/184600
     # Current head of Protostellar fork
     - language: Java
-      version: refs/changes/16/184816/1
+      version: refs/changes/59/184959/1
 
     # https://review.couchbase.org/c/couchbase-jvm-clients/+/184307
     # CoreIoKvOps test - only supports KV gets
@@ -193,7 +193,7 @@ matrix:
             value: 10000
       exclude:
         - language: Java
-          version: refs/changes/16/184816/1
+          version: refs/changes/59/184959/1
         - language: Java
           version: refs/changes/07/184307/7
 
@@ -214,7 +214,7 @@ matrix:
 
       exclude:
         - language: Java
-          version: refs/changes/16/184816/1
+          version: refs/changes/59/184959/1
 
     # KV inserts
     - operations:
@@ -229,7 +229,7 @@ matrix:
             value: 10000000
       exclude:
         - language: Java
-          version: refs/changes/16/184816/1
+          version: refs/changes/59/184959/1
         - language: Java
           version: refs/changes/07/184307/7
 
@@ -315,7 +315,7 @@ matrix:
 
       include:
         - language: Java
-          version: refs/changes/16/184816/1
+          version: refs/changes/59/184959/1
 
 # Top-level variables can be overwritten on a per-workload basis.
 settings:
