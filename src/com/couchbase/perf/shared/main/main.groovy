@@ -16,6 +16,7 @@ import com.couchbase.perf.shared.database.RunFromDb
 import com.couchbase.perf.shared.stages.StopDockerContainer
 import com.couchbase.stages.*
 import com.couchbase.stages.servers.InitialiseCluster
+import com.couchbase.versions.CppVersions
 import com.couchbase.versions.DotNetVersions
 import com.couchbase.versions.GoVersions
 import com.couchbase.versions.ImplementationVersion
@@ -148,6 +149,14 @@ class Execute {
                     String version = highest.toString() + "-" + sha
                     implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha))
                 }
+                else if (implementation.language == "C++") {
+                    def sha = CppVersions.getLatestSha()
+                    def allReleases = CppVersions.getAllReleases()
+                    def highest = ImplementationVersion.highest(allReleases)
+                    ctx.env.log("Found latest sha for C++: ${sha}")
+                    String version = highest.toString() + "-" + sha
+                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha))
+                }
                 else {
                     throw new UnsupportedOperationException("Cannot support snapshot builds with language ${implementation.language} yet")
                 }
@@ -160,6 +169,7 @@ class Execute {
                 else if (implementation.language == "Go") implementationsToAdd.addAll(versions(ctx, implementation, "Go", GoVersions.allReleases))
                 else if (implementation.language == "Python") implementationsToAdd.addAll(versions(ctx, implementation, "Python", PythonVersions.allReleases))
                 else if (implementation.language == "Node") implementationsToAdd.addAll(versions(ctx, implementation, "Node", NodeVersions.allReleases))
+                else if (implementation.language == "C++") implementationsToAdd.addAll(versions(ctx, implementation, "C++", CppVersions.allReleases))
                 else {
                     throw new UnsupportedOperationException("Cannot support snapshot builds with language ${implementation.language} yet")
                 }
