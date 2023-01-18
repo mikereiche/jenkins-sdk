@@ -169,6 +169,12 @@ matrix:
     - language: Python
       version: 4.1.X
 
+    - language: C++
+      version: snapshot
+
+    - language: C++
+      version: 1.0.0-dp.2
+
     # Temporarily removing Node as failing to stream
 #    - language: Node
 #      version: snapshot
