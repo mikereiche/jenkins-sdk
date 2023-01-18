@@ -336,3 +336,7 @@ settings:
       value: 300
     - name: horizontalScaling
       value: 20
+    # All tests get run against all supported APIs by default.  There is code logic that filters to the APIs each SDK
+    # actually supports.
+    - name: api
+      values: ["DEFAULT", "ASYNC"]

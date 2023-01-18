@@ -24,7 +24,7 @@ class ConfigParser {
      * Whether a possible run should actually be included.
      */
     @CompileDynamic
-    static boolean includeRun(StageContext ctx, Object workload, PerfConfig.Implementation implementation, PerfConfig.Cluster cluster) {
+    static boolean includeRun(StageContext ctx, Workload workload, PerfConfig.Implementation implementation, PerfConfig.Cluster cluster) {
         boolean exclude = false
         var excludeReasons = []
 
@@ -110,6 +110,32 @@ class ConfigParser {
             }
         }
 
+        // (Currently) need hardcoded logic to filter the APIs to what the performer supports, rather than using
+        // performerCapsFetch - see CBD-5264.
+        var api = workload.settings().variables().find { it.name() == "api" }
+        if (api != null) {
+            boolean isOne = api.value() == "DEFAULT"
+            boolean isTwo = api.value() == "ASYNC"
+            boolean isThree = api.value() == "THREE"
+
+            boolean isTransactionWorkload = workload.operations.get(0).op == "transaction"
+
+            // Python runs only in ASYNC (multiprocessing) mode for performance testing
+            boolean supportsOne = !(implementation.language in ["Python"])
+            boolean supportsTwo = implementation.language in ["Java", "Python"]
+            boolean supportsThree = implementation.language in ["Java"]
+
+            // Java transactions does not have an async API
+            if (isTransactionWorkload && implementation.language == "Java") {
+                supportsTwo = false
+            }
+
+            if ((isOne && !supportsOne) || (isTwo && !supportsTwo) || (isThree && !supportsThree)) {
+                exclude = true
+                excludeReasons.add("SDK ${implementation.language} does not support API ${api.value()}")
+            }
+        }
+
         if (exclude) {
             ctx.env.log("Excluding ${implementation.language} ${implementation.version} run ${workload} cluster ${cluster} because:")
             excludeReasons.forEach(er -> ctx.env.log("   ${er}"))
@@ -130,6 +156,7 @@ class ConfigParser {
             var v = variables.get(0)
             if (v.values() != null) {
                 v.values().forEach(value -> {
+                    // null values are filtered out for good reasons that I now forget...
                     if (value != null) {
                         out.add(Set.of(new Variable(v.name(), value, v.type())))
                     }
