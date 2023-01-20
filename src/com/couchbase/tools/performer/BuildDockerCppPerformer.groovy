@@ -23,35 +23,33 @@ class BuildDockerCppPerformer {
         imp.dirAbsolute(path) {
             imp.dir('transactions-fit-performer') {
                 imp.dir('performers/cpp') {
-                    writeCppShaFile(imp, sdkVersion, sha)
                     sdkVersion.ifPresent(v -> {
                         TagProcessor.processTags(new File(imp.currentDir()), ImplementationVersion.from(v), false)
                     })
                 }
                 if (!onlySource) {
-                    imp.execute("docker build -f ./performers/cpp/Dockerfile -t $imageName .", false, true, true)
+                    String branch = getSdkBranch(sdkVersion, sha);
+                    String cmd = "docker build -f ./performers/cpp/Dockerfile -t $imageName --build-arg SDK_BRANCH=$branch  ."
+                    imp.execute(cmd, false, true, true)
                 }
             }
         }
     }
 
-    private static void writeCppShaFile(Environment imp, Optional<String> sdkVersion, Optional<String> sha) {
-        def file = new File("${imp.currentDir()}/cb_version.txt")
-
+    private static String getSdkBranch(Optional<String> sdkVersion, Optional<String> sha) {
+        String res = "main"
         sha.ifPresentOrElse(
             (shaValue) -> {
-                file.write(shaValue)
+                res = shaValue
             },
             () -> {
-                sdkVersion.ifPresentOrElse(
-                        (versionValue) -> {
-                            file.write("tags/${versionValue}")
-                        },
-                        () -> {
-                            file.write("main")
-                        }
+                sdkVersion.ifPresent(
+                    (versionValue) -> {
+                        res = "tags/${versionValue}"
+                    }
                 )
             }
         )
+        return res
     }
 }
