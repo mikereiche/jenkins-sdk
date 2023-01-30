@@ -221,6 +221,29 @@ matrix:
         - language: Java
           version: refs/changes/59/184959/1
 
+    # KV gets - experiment for testing different numbers of threads
+    - operations:
+        - op: get
+          bounds:
+            forSeconds: $forSeconds
+          docLocation:
+            method: pool
+            poolSize: $poolSize
+            poolSelectionStrategy: randomUniform
+
+      settings:
+        variables:
+          - name: poolSize
+            value: 10000
+          - name: horizontalScaling
+            values: [1, 2, 4, 8, 16, 32]
+          # Just make it easier to find these results
+          - name: experimentName
+            values: [ "numThreads" ]
+      include:
+        - language: Node
+          version: 4.2.0
+
     # KV inserts
     - operations:
         - op: insert
