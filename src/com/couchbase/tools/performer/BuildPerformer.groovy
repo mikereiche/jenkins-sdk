@@ -24,7 +24,7 @@ class BuildPerformer {
         // We only use "java-sdk" here to distinguish the SDK integrated version from the OG Java performer.
         cli.with {
             d longOpt: 'directory', args: 1, argName: 'd', required: true, 'Directory containing transactions-fit-performer'
-            s longOpt: 'sdk', args: 1, argName: 'sdk', required: true, 'SDK to build (java-sdk, scala, kotlin, go)'
+            s longOpt: 'sdk', args: 1, argName: 'sdk', required: true, 'SDK to build (java-sdk, scala, kotlin, go, python, c++)'
             v longOpt: 'version', args: 1, argName: 'v', 'Version'
             i longOpt: 'image', args: 1, argName: 'i', required: true, 'Docker image name'
             o longOpt: 'only-source', argName: 'o', 'Only modify source, no Docker build'
@@ -47,6 +47,12 @@ class BuildPerformer {
         }
         else if (sdkRaw == "go") {
             BuildDockerGoPerformer.build(env, dir, version, imageName, onlySource)
+        }
+        else if (sdkRaw == "python") {
+            BuildDockerPythonPerformer.build(env, dir, version, Optional.empty(), imageName, onlySource)
+        }
+        else if (sdkRaw == "c++") {
+            BuildDockerCppPerformer.build(env, dir, version, Optional.empty(), imageName, onlySource)
         }
         else {
             logger.severe("Do not yet know how to build " + sdkRaw)
