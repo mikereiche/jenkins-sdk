@@ -151,10 +151,9 @@ class Execute {
                 }
                 else if (implementation.language == "C++") {
                     def sha = CppVersions.getLatestSha()
-                    def allReleases = CppVersions.getAllReleases()
-                    def highest = ImplementationVersion.highest(allReleases)
+                    // Version number is hardcoded for now - TODO: Change this when the next version is released
+                    def version = CppVersions.getLatestSnapshotLabel("1.0.0")
                     ctx.env.log("Found latest sha for C++: ${sha}")
-                    String version = highest.toString() + "-" + sha
                     implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha))
                 }
                 else {
