@@ -240,9 +240,6 @@ matrix:
           # Just make it easier to find these results
           - name: experimentName
             values: [ "numThreads" ]
-      include:
-        - language: Node
-          version: 4.2.0
 
     # KV inserts
     - operations:
@@ -300,7 +297,7 @@ settings:
     - name: forSeconds
       value: 300
     - name: horizontalScaling
-      value: 20
+      value: [1,20]
     # All tests get run against all supported APIs by default.  There is code logic that filters to the APIs each SDK
     # actually supports.
     - name: api
