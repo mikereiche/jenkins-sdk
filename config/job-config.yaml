@@ -243,6 +243,8 @@ matrix:
       include:
         - language: Node
           version: 4.2.0
+        - language: C++
+          version: 1.0.0-20230203.123955-b883d27
 
 
     # KV inserts
