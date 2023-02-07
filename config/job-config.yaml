@@ -145,14 +145,15 @@ matrix:
       version: snapshot
 
     # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
-    - language: Go
-      version: 2.3.X
-
-    - language: Go
-      version: 2.4.X
-
-    - language: Go
-      version: 2.5.X
+    # Not building due to GOCBC-1377
+#    - language: Go
+#      version: 2.3.X
+#
+#    - language: Go
+#      version: 2.4.X
+#
+#    - language: Go
+#      version: 2.5.X
 
     # Temporarily removing Go as 2.6.0 not building
 #    - language: Go
