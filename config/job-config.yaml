@@ -222,7 +222,7 @@ matrix:
         - language: Java
           version: refs/changes/59/184959/1
 
-    # KV gets - experiment for testing different numbers of threads
+    # KV gets - experiment for testing different horizontal scaling values
     - operations:
         - op: get
           bounds:
@@ -240,12 +240,7 @@ matrix:
             values: [1, 2, 4, 8, 16, 32]
           # Just make it easier to find these results
           - name: experimentName
-            values: [ "numThreads" ]
-      include:
-        - language: Node
-          version: 4.2.0
-        - language: C++
-          version: 1.0.0-20230203.123955-b883d27
+            values: [ "horizontalScaling" ]
 
 
     # KV inserts
