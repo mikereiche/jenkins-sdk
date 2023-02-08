@@ -117,11 +117,6 @@ matrix:
 #      stellarNebulaSha: 945b3d0e611ddb7549453fa30b22905cb4d33a9e
 
   implementations:
-    - language: Java
-      version: 3.X.X
-
-    - language: Java
-      version: snapshot
 
     # https://review.couchbase.org/c/couchbase-jvm-clients/+/184600
     # Current head of Protostellar fork
@@ -196,6 +191,12 @@ matrix:
         variables:
           - name: poolSize
             value: 10000
+          - name: concurrencyMechanism
+            type: tunable
+            value: multiprocessing
+            include:
+              - implementation:
+                  language: Python
       exclude:
         - language: Java
           version: refs/changes/59/184959/1
@@ -216,6 +217,12 @@ matrix:
         variables:
           - name: poolSize
             value: 10000
+          - name: concurrencyMechanism
+            type: tunable
+            value: multiprocessing
+            include:
+              - implementation:
+                  language: Python
 
       exclude:
         - language: Java
@@ -256,6 +263,12 @@ matrix:
         variables:
           - name: docNum
             value: 10000000
+          - name: concurrencyMechanism
+            type: tunable
+            value: multiprocessing
+            include:
+              - implementation:
+                  language: Python
       exclude:
         - language: Java
           version: refs/changes/59/184959/1
