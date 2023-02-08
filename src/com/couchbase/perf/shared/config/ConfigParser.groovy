@@ -120,9 +120,8 @@ class ConfigParser {
 
             boolean isTransactionWorkload = workload.operations.get(0).op == "transaction"
 
-            // Python runs only in ASYNC (multiprocessing) mode for performance testing
-            boolean supportsOne = !(implementation.language in ["Python"])
-            boolean supportsTwo = implementation.language in ["Java", "Python"]
+            boolean supportsOne = true
+            boolean supportsTwo = implementation.language in ["Java"]
             boolean supportsThree = implementation.language in ["Java"]
 
             // Java transactions does not have an async API
@@ -254,7 +253,8 @@ class ConfigParser {
 
             for (def inc in it.include()) {
                 if (inc.implementation() != null) {
-                    if (inc.implementation().language != implementation.language || inc.implementation().version != implementation.version) {
+                    if (inc.implementation().language != implementation.language
+                            || (inc.implementation().version != null && inc.implementation().version != implementation.version)) {
                         ret = false
                     }
                 }
