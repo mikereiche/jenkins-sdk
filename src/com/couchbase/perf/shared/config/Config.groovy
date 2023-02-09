@@ -131,13 +131,17 @@ class PerfConfig {
         // A null port means jenkins-sdk needs to bring it up
         Integer port
 
+        // True iff "snapshot" was the originally specified version
+        boolean isSnapshot
+
         Implementation() {}
 
-        Implementation(String language, String version, Integer port, String sha = null) {
+        Implementation(String language, String version, Integer port, String sha = null, boolean isSnapshot = false) {
             this.language = language
             this.version = version
             this.port = port
             this.sha = sha
+            this.isSnapshot = isSnapshot
         }
 
         boolean isGerrit() {
