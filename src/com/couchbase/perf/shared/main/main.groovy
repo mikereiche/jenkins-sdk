@@ -126,12 +126,9 @@ class Execute {
                     implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha))
                 }
                 else if (implementation.language == "Go") {
-                    def sha = GoVersions.getLatestSha()
-                    def allReleases = GoVersions.getAllReleases()
-                    def highest = ImplementationVersion.highest(allReleases)
-                    ctx.env.log("Found latest sha for Go: ${sha}")
-                    String version = highest.toString() + "-" + sha
-                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, null))
+                    def snapshot = GoVersions.getLatestGoModEntry()
+                    ctx.env.log("Found gomod entry for Go: ${snapshot}")
+                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null, null))
                 }
                 else if (implementation.language == "Python") {
                     def sha = PythonVersions.getLatestSha()
