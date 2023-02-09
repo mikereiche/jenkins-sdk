@@ -136,7 +136,7 @@ class Execute {
                     def highest = ImplementationVersion.highest(allReleases)
                     ctx.env.log("Found latest sha for Python: ${sha}")
                     String version = highest.toString() + "-" + sha
-                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha, true))
+                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha.split("-").last(), true))
                 }
                 else if (implementation.language == "Node") {
                     def sha = NodeVersions.getLatestSha()
