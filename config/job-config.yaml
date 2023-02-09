@@ -135,6 +135,18 @@ matrix:
 
       # If changing or adding any Gerrit patches, may need to make changes in ConfigParser
 
+    - language: Scala
+      version: 1.X.X
+
+    - language: Scala
+      version: snapshot
+
+    - language: Kotlin
+      version: 1.X.X
+
+    - language: Kotlin
+      version: snapshot
+
     - language: .NET
       version: 3.3.X
 
@@ -154,14 +166,12 @@ matrix:
     - language: Go
       version: 2.5.X
 
-    # Temporarily removing Go as 2.6.0 not building
-#    - language: Go
-#      version: 2.6.X
+    - language: Go
+      version: 2.6.X
 
     # snapshot not building
-    # github.com/couchbase/gocb/v2: reading github.com/couchbase/gocb/go.mod at revision v2.6.0-20221215141909-de24405a24d7: unknown revision v2.6.0-20221215141909-de24405a24d7
-#    - language: Go
-#      version: snapshot
+    - language: Go
+      version: snapshot
 
     - language: Python
       version: snapshot
@@ -221,7 +231,7 @@ matrix:
         - language: Java
           version: refs/changes/59/184959/1
 
-    # KV gets - experiment for testing different numbers of threads
+    # KV gets - experiment for testing different horizontal scaling values
     - operations:
         - op: get
           bounds:
@@ -239,11 +249,10 @@ matrix:
             values: [1, 2, 4, 8, 16, 32]
           # Just make it easier to find these results
           - name: experimentName
-            values: [ "numThreads" ]
+            values: [ "horizontalScaling" ]
       include:
-        - language: Node
-          version: 4.2.0
-
+        # Expensive to run against every version of every SDK, so just test the latest.
+        - version: snapshot
 
     # KV inserts
     - operations:
@@ -301,7 +310,7 @@ settings:
     - name: forSeconds
       value: 300
     - name: horizontalScaling
-      value: 20
+      values: [1,20]
     # All tests get run against all supported APIs by default.  There is code logic that filters to the APIs each SDK
     # actually supports.
     - name: api

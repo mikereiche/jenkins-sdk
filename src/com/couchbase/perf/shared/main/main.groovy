@@ -105,17 +105,17 @@ class Execute {
                 if (implementation.language == "Java") {
                     def snapshot = JVMVersions.getLatestSnapshotBuild("java-client")
                     ctx.env.log("Found snapshot build for Java: ${snapshot}")
-                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null))
+                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null, null, true))
                 }
                 else if (implementation.language == "Kotlin") {
                     def snapshot = JVMVersions.getLatestSnapshotBuild("kotlin-client")
                     ctx.env.log("Found snapshot build for Kotlin: ${snapshot}")
-                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null))
+                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null, null, true))
                 }
                 else if (implementation.language == "Scala") {
                     def snapshot = JVMVersions.getLatestSnapshotBuild("scala-client_2.12")
                     ctx.env.log("Found snapshot build for Scala: ${snapshot}")
-                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null))
+                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null, null, true))
                 }
                 else if (implementation.language == ".NET") {
                     def sha = DotNetVersions.getLatestSha()
@@ -123,15 +123,12 @@ class Execute {
                     def highest = ImplementationVersion.highest(allReleases)
                     ctx.env.log("Found latest sha for Dotnet: ${sha}")
                     String version = highest.toString() + "-" + sha
-                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha))
+                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha, true))
                 }
                 else if (implementation.language == "Go") {
-                    def sha = GoVersions.getLatestSha()
-                    def allReleases = GoVersions.getAllReleases()
-                    def highest = ImplementationVersion.highest(allReleases)
-                    ctx.env.log("Found latest sha for Go: ${sha}")
-                    String version = highest.toString() + "-" + sha
-                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, null))
+                    def snapshot = GoVersions.getLatestGoModEntry()
+                    ctx.env.log("Found gomod entry for Go: ${snapshot}")
+                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null, null, true))
                 }
                 else if (implementation.language == "Python") {
                     def sha = PythonVersions.getLatestSha()
@@ -139,7 +136,7 @@ class Execute {
                     def highest = ImplementationVersion.highest(allReleases)
                     ctx.env.log("Found latest sha for Python: ${sha}")
                     String version = highest.toString() + "-" + sha
-                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha.split("-").last()))
+                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha.split("-").last(), true))
                 }
                 else if (implementation.language == "Node") {
                     def sha = NodeVersions.getLatestSha()
@@ -147,14 +144,14 @@ class Execute {
                     def highest = ImplementationVersion.highest(allReleases)
                     ctx.env.log("Found latest sha for Node: ${sha}")
                     String version = highest.toString() + "-" + sha
-                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha))
+                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha, true))
                 }
                 else if (implementation.language == "C++") {
                     def sha = CppVersions.getLatestSha()
                     // Version number is hardcoded for now - TODO: Change this when the next version is released
                     def version = CppVersions.getLatestSnapshotLabel("1.0.0")
                     ctx.env.log("Found latest sha for C++: ${sha}")
-                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha))
+                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha, true))
                 }
                 else {
                     throw new UnsupportedOperationException("Cannot support snapshot builds with language ${implementation.language} yet")

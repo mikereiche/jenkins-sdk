@@ -79,10 +79,16 @@ class ConfigParser {
             def excludedByInclude = true
 
             for (x in workload.include) {
-                if (x.language == implementation.language) {
+                // Missing language field will match all languages (useful for e.g. running against "snapshot" on all SDKs)
+                if (x.language == implementation.language || x.language == null) {
                     if (x.version != null) {
                         if (x.version.startsWith("refs/")) {
                             if (x.version == implementation.version) {
+                                excludedByInclude = false
+                            }
+                        }
+                        else if (x.version == "snapshot") {
+                            if (implementation.isSnapshot) {
                                 excludedByInclude = false
                             }
                         }
@@ -97,9 +103,8 @@ class ConfigParser {
                             }
                         }
                     } else {
-                        if (implementation.language == x.language) {
-                            excludedByInclude = false
-                        }
+                        // Missing version field will match all versions.
+                        excludedByInclude = false
                     }
                 }
             }
