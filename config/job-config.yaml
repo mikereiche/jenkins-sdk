@@ -308,7 +308,7 @@ settings:
     - name: forSeconds
       value: 300
     - name: horizontalScaling
-      values: [1,20]
+      value: 20
     # All tests get run against all supported APIs by default.  There is code logic that filters to the APIs each SDK
     # actually supports.
     - name: api
