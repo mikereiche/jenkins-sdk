@@ -196,12 +196,6 @@ matrix:
         variables:
           - name: poolSize
             value: 10000
-          - name: concurrencyMechanism
-            type: tunable
-            value: multiprocessing
-            include:
-              - implementation:
-                  language: Python
       exclude:
         - language: Java
           version: refs/changes/59/184959/1
@@ -217,18 +211,10 @@ matrix:
             method: pool
             poolSize: $poolSize
             poolSelectionStrategy: randomUniform
-
       settings:
         variables:
           - name: poolSize
             value: 10000
-          - name: concurrencyMechanism
-            type: tunable
-            value: multiprocessing
-            include:
-              - implementation:
-                  language: Python
-
       exclude:
         - language: Java
           version: refs/changes/59/184959/1
@@ -268,12 +254,6 @@ matrix:
         variables:
           - name: docNum
             value: 10000000
-          - name: concurrencyMechanism
-            type: tunable
-            value: multiprocessing
-            include:
-              - implementation:
-                  language: Python
       exclude:
         - language: Java
           version: refs/changes/59/184959/1
@@ -324,3 +304,9 @@ settings:
     # actually supports.
     - name: api
       values: ["DEFAULT", "ASYNC"]
+    - name: concurrencyMechanism
+      type: tunable
+      value: multiprocessing
+      include:
+        - implementation:
+            language: Python
