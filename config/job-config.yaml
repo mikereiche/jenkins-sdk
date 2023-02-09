@@ -242,11 +242,8 @@ matrix:
           - name: experimentName
             values: [ "horizontalScaling" ]
       include:
-        - language: Node
-          version: 4.2.0
-        - language: C++
-          version: 1.0.0-20230203.123955-b883d27
-
+        # Expensive to run against every version of every SDK, so just test the latest.
+        - version: snapshot
 
     # KV inserts
     - operations:
