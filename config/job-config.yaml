@@ -135,6 +135,18 @@ matrix:
 
       # If changing or adding any Gerrit patches, may need to make changes in ConfigParser
 
+    - language: Scala
+      version: 1.X.X
+
+    - language: Scala
+      version: snapshot
+
+    - language: Kotlin
+      version: 1.X.X
+
+    - language: Kotlin
+      version: snapshot
+
     - language: .NET
       version: 3.3.X
 
@@ -145,24 +157,21 @@ matrix:
       version: snapshot
 
     # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
-    # Not building due to GOCBC-1377
-#    - language: Go
-#      version: 2.3.X
-#
-#    - language: Go
-#      version: 2.4.X
-#
-#    - language: Go
-#      version: 2.5.X
+    - language: Go
+      version: 2.3.X
 
-    # Temporarily removing Go as 2.6.0 not building
-#    - language: Go
-#      version: 2.6.X
+    - language: Go
+      version: 2.4.X
+
+    - language: Go
+      version: 2.5.X
+
+    - language: Go
+      version: 2.6.X
 
     # snapshot not building
-    # github.com/couchbase/gocb/v2: reading github.com/couchbase/gocb/go.mod at revision v2.6.0-20221215141909-de24405a24d7: unknown revision v2.6.0-20221215141909-de24405a24d7
-#    - language: Go
-#      version: snapshot
+    - language: Go
+      version: snapshot
 
     - language: Python
       version: snapshot
