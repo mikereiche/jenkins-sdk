@@ -305,10 +305,17 @@ settings:
     batch: 1000
     compression: true
   variables:
+    # 5 minutes is completely arbitrary, and we may need to reduce it in future as the permutations grow.
+    #  However, this length has proved useful for various reasons:
+    #  a) we need to trim off some seconds from the start to accommodate e.g. JVM warmup
+    #  b) it's proven long enough for performers that aren't correctly streaming back results to OOM - better to fail and know
+    #  c) it's _maybe_ long enough to catch SDK memory leaks and other over-time issues.  Hasn't been proven either way,
+    #     but it does 'feel' like the minimum that might catch such errors.
+    # (b) and (c) could be addressed by a dedicated smaller set of long soak tests, though.
     - name: forSeconds
       value: 300
     - name: horizontalScaling
-      value: 20
+      values: [1,20]
     # All tests get run against all supported APIs by default.  There is code logic that filters to the APIs each SDK
     # actually supports.
     - name: api
