@@ -29,6 +29,8 @@ import groovy.yaml.YamlSlurper
 
 import java.util.stream.Collectors
 
+import static com.couchbase.versions.Versions.jvmVersions
+import static com.couchbase.versions.Versions.versions
 import static java.util.stream.Collectors.groupingBy
 
 
@@ -55,46 +57,6 @@ class Execute {
         def get = new URL(url).openConnection()
         get.setRequestProperty("Authorization", "Basic " + Base64.encoder.encodeToString((username + ":" + password).bytes))
         return get.getInputStream().getText()
-    }
-
-    static List<PerfConfig.Implementation> versions(StageContext ctx, Object implementation, String client, Set<ImplementationVersion> versions) {
-        String[] split = implementation.version.split("\\.")
-        Integer lookingForMajor = null
-        Integer lookingForMinor = null
-        Integer lookingForPatch = null
-
-        if (split[0] != 'X') lookingForMajor = Integer.parseInt(split[0])
-        if (split[1] != 'X') lookingForMinor = Integer.parseInt(split[1])
-        if (split[2] != 'X') lookingForPatch = Integer.parseInt(split[2])
-
-        List<ImplementationVersion> lookingFor = versions.stream()
-                .filter(v -> {
-                    boolean out = true
-
-                    // Bit of hardcoded logic to filter out Kotlin developer previews, since they don't compile with
-                    // the current performer
-                    if (implementation.language == "Kotlin"
-                        && v.snapshot != null
-                        && v.snapshot.startsWith("-dp")) {
-                        ctx.env.log("Filtering out kotlin ${v.toString()}")
-                        out = false
-                    }
-
-                    if (out && lookingForMajor != null && lookingForMajor != v.major) out = false
-                    if (out && lookingForMinor != null && lookingForMinor != v.minor) out = false
-                    if (out && lookingForPatch != null && lookingForPatch != v.patch) out = false
-                    return out
-                })
-                .toList()
-
-        return lookingFor.stream()
-                .map(v -> new PerfConfig.Implementation(implementation.language, v.toString(), null))
-                .toList()
-    }
-
-    static List<PerfConfig.Implementation> jvmVersions(StageContext ctx, Object implementation, String client) {
-        def allVersions = JVMVersions.getAllJVMReleases(client)
-        return versions(ctx, implementation, client, allVersions)
     }
 
     static void modifyConfig(StageContext ctx, PerfConfig config) {
@@ -159,14 +121,14 @@ class Execute {
                 }
             }
             else if (implementation.version.contains('X')) {
-                if (implementation.language == "Java") implementationsToAdd.addAll(jvmVersions(ctx, implementation, "java-client"))
-                else if (implementation.language == "Scala") implementationsToAdd.addAll(jvmVersions(ctx, implementation, "scala-client_2.12"))
-                else if (implementation.language == "Kotlin") implementationsToAdd.addAll(jvmVersions(ctx, implementation, "kotlin-client"))
-                else if (implementation.language == ".NET") implementationsToAdd.addAll(versions(ctx, implementation, ".NET", DotNetVersions.allReleases))
-                else if (implementation.language == "Go") implementationsToAdd.addAll(versions(ctx, implementation, "Go", GoVersions.allReleases))
-                else if (implementation.language == "Python") implementationsToAdd.addAll(versions(ctx, implementation, "Python", PythonVersions.allReleases))
-                else if (implementation.language == "Node") implementationsToAdd.addAll(versions(ctx, implementation, "Node", NodeVersions.allReleases))
-                else if (implementation.language == "C++") implementationsToAdd.addAll(versions(ctx, implementation, "C++", CppVersions.allReleases))
+                if (implementation.language == "Java") implementationsToAdd.addAll(jvmVersions(ctx.env, implementation, "java-client"))
+                else if (implementation.language == "Scala") implementationsToAdd.addAll(jvmVersions(ctx.env, implementation, "scala-client_2.12"))
+                else if (implementation.language == "Kotlin") implementationsToAdd.addAll(jvmVersions(ctx.env, implementation, "kotlin-client"))
+                else if (implementation.language == ".NET") implementationsToAdd.addAll(versions(ctx.env, implementation, ".NET", DotNetVersions.allReleases))
+                else if (implementation.language == "Go") implementationsToAdd.addAll(versions(ctx.env, implementation, "Go", GoVersions.allReleases))
+                else if (implementation.language == "Python") implementationsToAdd.addAll(versions(ctx.env, implementation, "Python", PythonVersions.allReleases))
+                else if (implementation.language == "Node") implementationsToAdd.addAll(versions(ctx.env, implementation, "Node", NodeVersions.allReleases))
+                else if (implementation.language == "C++") implementationsToAdd.addAll(versions(ctx.env, implementation, "C++", CppVersions.allReleases))
                 else {
                     throw new UnsupportedOperationException("Cannot support snapshot builds with language ${implementation.language} yet")
                 }

@@ -78,6 +78,9 @@ class BuildDockerJVMPerformer {
                     }
                 }
                 if (!onlySource) {
+                    // We use the same Dockerfile for all 3 build modes.  This means we're usually unnecessarily building
+                    // protostellar.pom.xml and core-io-deps/pom.xml, which aren't going to be used.  But it does
+                    // avoid needing to maintain two Dockerfiles.
                     imp.execute("docker build -f couchbase-jvm-clients/${client}-fit-performer/Dockerfile -t ${imageName} .", false, true, true)
                 }
             }
