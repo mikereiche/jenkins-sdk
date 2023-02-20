@@ -295,6 +295,70 @@ matrix:
         - language: Go
           version: 2.5.3
 
+    # KV gets - experiment for testing different numbers of IO threads in the C++ SDK
+    - operations:
+        - op: get
+          bounds:
+            forSeconds: $forSeconds
+          docLocation:
+            method: pool
+            poolSize: $poolSize
+            poolSelectionStrategy: randomUniform
+      settings:
+        variables:
+          - name: poolSize
+            value: 10000
+          - name: experimentName
+            values: [ "numIOThreads" ]
+          - name: numIOThreads
+            type: tunable
+            values: [ '1', '2', '4', '8', '16', '32' ]
+      include:
+        - language: C++
+          version: snapshot
+
+    # KV inserts - experiment for testing different numbers of IO threads in the C++ SDK
+    - operations:
+        - op: insert
+          bounds:
+            forSeconds: $forSeconds
+          docLocation:
+            method: uuid
+      settings:
+        variables:
+          - name: docNum
+            value: 10000000
+          - name: experimentName
+            values: [ "numIOThreads" ]
+          - name: numIOThreads
+            type: tunable
+            values: [ '1', '2', '4', '8', '16', '32' ]
+      include:
+        - language: C++
+          version: snapshot
+
+    # KV replaces - experiment for testing different numbers of IO threads in the C++ SDK
+    - operations:
+        - op: replace
+          bounds:
+            forSeconds: $forSeconds
+          docLocation:
+            method: pool
+            poolSize: $poolSize
+            poolSelectionStrategy: counter
+      settings:
+        variables:
+          - name: poolSize
+            value: 10000
+          - name: experimentName
+            values: [ "numIOThreads" ]
+          - name: numIOThreads
+            type: tunable
+            values: [ '1', '2', '4', '8', '16', '32' ]
+      include:
+        - language: C++
+          version: snapshot
+
 # Top-level variables can be overwritten on a per-workload basis.
 settings:
   # These GRPC settings are believed to give good results (CBD-4975).  GRPC settings don't get written to the
