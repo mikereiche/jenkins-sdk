@@ -133,7 +133,7 @@ class TagProcessor {
                                 }
 
                                 out.add(line)
-                                boolean includedAlready = isLastLine || !lines.get(i + 1).trim().startsWith(marker)
+                                boolean includedAlready = isLastLine || !lines.get(i + 1).startsWith(marker)
                                 // logger.info("May need to modify ${file.getAbsolutePath()} ${versionRaw} include=${include} includedAlready=${includedAlready}")
                                 if (include && !includedAlready) {
                                     // Skip over the /*, e.g. don't include it in the output
@@ -191,7 +191,7 @@ class TagProcessor {
 
         def cli = new CliBuilder()
         cli.with {
-            r longOpt: 'restore', argName: 'd', 'Restore mode'
+            r longOpt: 'restore', argName: 'r', 'Restore mode'
             d longOpt: 'directory', args: 1, argName: 'd', required: true, 'Directory to scan'
             v longOpt: 'version', args: 1, argName: 'v', required: true, 'Version'
         }
