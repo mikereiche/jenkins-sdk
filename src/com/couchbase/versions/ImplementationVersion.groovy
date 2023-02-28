@@ -3,7 +3,7 @@ package com.couchbase.versions
 import groovy.transform.CompileStatic
 
 @CompileStatic
-class ImplementationVersion {
+class ImplementationVersion implements Comparable<ImplementationVersion> {
     public final int major;
     public final int minor;
     public final int patch;
@@ -67,31 +67,65 @@ class ImplementationVersion {
         return result
     }
 
+    public int compareTo(ImplementationVersion other) {
+        if (equals(other)) return 0
+
+        // Comparing the implementation versions following the SemVer specification (https://semver.org/)
+        if (major < other.major) return -1
+        if (major > other.major) return 1
+        if (minor < other.minor) return -1
+        if (minor > other.minor) return 1
+        if (patch < other.patch) return -1;
+        if (patch > other.patch) return 1;
+
+        if (snapshot && other.snapshot) {
+            var identifiers = snapshot.split('\\.')
+            var otherIdentifiers = other.snapshot.split('\\.')
+            var shortestLength = Math.min(identifiers.length, otherIdentifiers.length)
+
+            for (int i = 0; i < shortestLength; i++) {
+                var identifier = identifiers[i]
+                var otherIdentifier = otherIdentifiers[i]
+
+                boolean isNumeric = identifier.chars().allMatch(Character::isDigit)
+                boolean isOtherNumeric = otherIdentifier.chars().allMatch(Character::isDigit)
+
+                // Numeric identifiers always have lower precedence than non-numeric identifiers.
+                if (isNumeric && !isOtherNumeric) return -1
+                if (!isNumeric && isOtherNumeric) return 1
+
+                if (isNumeric && isOtherNumeric) {
+                    // Identifiers consisting of only digits are compared numerically.
+                    int num = Integer.parseInt(identifier)
+                    int otherNum = Integer.parseInt(otherIdentifier)
+                    if (num < otherNum) return -1
+                    if (num > otherNum) return 1
+                } else {
+                    // Identifiers with letters or hyphens are compared lexically in ASCII sort order.
+                    if (identifier < otherIdentifier) return -1
+                    if (identifier > otherIdentifier) return 1
+                }
+            }
+            return Integer.compare(identifiers.length, otherIdentifiers.length)
+        }
+
+        // When major, minor, and patch are equal, a pre-release version has lower precedence than a normal version
+        if (snapshot == null) {
+            return 1
+        } else {
+            return -1
+        }
+    }
+
     public boolean isBelow(ImplementationVersion other) {
-        if (major < other.major) return true;
-        if (major > other.major) return false;
-        if (minor < other.minor) return true;
-        if (minor > other.minor) return false;
-        return patch < other.patch;
+        return this < other
     }
 
     public boolean isAbove(ImplementationVersion other) {
-        if (major < other.major) return false;
-        if (major > other.major) return true;
-        if (minor < other.minor) return false;
-        if (minor > other.minor) return true;
-        return patch > other.patch;
+        return this > other
     }
 
     public static ImplementationVersion highest(Iterable<ImplementationVersion> versions) {
-        ImplementationVersion highest = null
-
-        versions.forEach(version -> {
-            if (highest == null || version.isAbove(highest)) {
-                highest = version
-            }
-        })
-
-        return highest
+        return versions.max()
     }
 }

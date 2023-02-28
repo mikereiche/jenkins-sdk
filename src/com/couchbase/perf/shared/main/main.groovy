@@ -148,10 +148,11 @@ class Execute {
                 }
                 else if (implementation.language == "C++") {
                     def sha = CppVersions.getLatestSha()
-                    // Version number is hardcoded for now - TODO: Change this when the next version is released
-                    def version = CppVersions.getLatestSnapshotLabel("1.0.0")
+                    def allReleases = CppVersions.getAllReleases()
+                    def highest = ImplementationVersion.highest(allReleases)
                     ctx.env.log("Found latest sha for C++: ${sha}")
-                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha, true))
+                    String version = highest.toString() + "-" + sha
+                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, version, null, sha.split("-").last(), true))
                 }
                 else {
                     throw new UnsupportedOperationException("Cannot support snapshot builds with language ${implementation.language} yet")
