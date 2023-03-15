@@ -158,20 +158,20 @@ matrix:
 
     # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
     # Go needs SDKQE-2831 to avoid 'bad scheme' errors
-#    - language: Go
-#      version: 2.3.X
-#
-#    - language: Go
-#      version: 2.4.X
-#
-#    - language: Go
-#      version: 2.5.X
-#
-#    - language: Go
-#      version: 2.6.X
-#
-#    - language: Go
-#      version: snapshot
+    - language: Go
+      version: 2.3.X
+
+    - language: Go
+      version: 2.4.X
+
+    - language: Go
+      version: 2.5.X
+
+    - language: Go
+      version: 2.6.X
+
+    - language: Go
+      version: snapshot
 
     - language: Python
       version: snapshot
