@@ -89,8 +89,12 @@ class Execute {
                 }
                 else if (implementation.language == "Go") {
                     def snapshot = GoVersions.getLatestGoModEntry()
-                    ctx.env.log("Found gomod entry for Go: ${snapshot}")
-                    implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null, null, true))
+                    if (snapshot == null) {
+                        ctx.env.log("Skipping go snapshot")
+                    } else {
+                        ctx.env.log("Found gomod entry for Go: ${snapshot}")
+                        implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null, null, true))
+                    }
                 }
                 else if (implementation.language == "Python") {
                     def sha = PythonVersions.getLatestSha()
