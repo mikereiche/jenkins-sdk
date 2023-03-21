@@ -8,7 +8,15 @@ class GoVersions {
     @Memoized
     static ImplementationVersion getLatestGoModEntry() {
         def json = NetworkUtil.readJson("https://api.github.com/repos/couchbase/gocb/commits/master")
+
+        def tagsJson = NetworkUtil.readJson("https://api.github.com/repos/couchbase/gocb/tags")
+        def latestTagSha = tagsJson[0].commit.sha
+
         String sha = json.sha
+        if (sha == latestTagSha) {
+            return null
+        }
+
         String commitDate = json.commit.committer.date
         String goModSha = commitDate.replaceAll("[^0-9]", "") + "-" + sha.substring(0, 12)
 
