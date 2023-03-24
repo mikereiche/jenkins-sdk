@@ -33,16 +33,20 @@ class BuildPerformer {
         def cli = new CliBuilder()
         // We only use "java-sdk" here to distinguish the SDK integrated version from the OG Java performer.
         cli.with {
-            d longOpt: 'directory', args: 1, argName: 'd', required: true, 'Directory containing transactions-fit-performer'
-            s longOpt: 'sdk', args: 1, argName: 'sdk', required: true, 'SDK to build (java-sdk, scala, kotlin, go, python, c++)'
-            v longOpt: 'version', args: 1, argName: 'v', 'Version'
-            i longOpt: 'image', args: 1, argName: 'i', required: true, 'Docker image name'
-            o longOpt: 'only-source', argName: 'o', 'Only modify source, no Docker build'
-            va longOpt: 'validationMode', args: 1, argName: 'va', 'Validation mode.  "auto" = build various versions of the SDK'
+            d(longOpt: 'directory', args: 1, required: true, 'Directory containing transactions-fit-performer')
+            s(longOpt: 'sdk', args: 1, required: true, 'SDK to build (java-sdk, scala, kotlin, go, python, c++)')
+            v(longOpt: 'version', args: 1, 'Version')
+            i(longOpt: 'image', args: 1, required: true, 'Docker image name')
+            o(longOpt: 'only-source', 'Only modify source, no Docker build')
+            b(longOpt: 'build-validation', args: 1, 'Validation mode.  "auto" = build various versions of the SDK')
         }
+
+        cli.usage()
+
         def options = cli.parse(args)
         if (!options) {
             logger.severe("Not enough arguments provided")
+            cli.usage()
             System.exit(-1)
         }
 
@@ -52,10 +56,10 @@ class BuildPerformer {
         boolean onlySource = options.o
         String imageName = options.i
         String dir = options.d
-        String validationMode = options.va
+        String validationMode = options.b
 
         ArrayList<Optional<String>> versionsToBuild = []
-        if (validationMode == null) {
+        if (validationMode) {
             versionsToBuild.add(version)
         } else {
             List<PerfConfig.Implementation> versions
