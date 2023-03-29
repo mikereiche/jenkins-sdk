@@ -61,6 +61,10 @@ class InitialiseSDKPerformer extends Stage {
                 def stage1 = new BuildDockerCppSDKPerformer(impl.version, impl.sha)
                 imageName = stage1.imageName
                 return produceStages(ctx, stage1, stage1.getImageName())
+            } else if (impl.language == "Ruby") {
+                def stage1 = new BuildDockerRubySDKPerformer(impl.version, impl.sha)
+                imageName = stage1.imageName
+                return produceStages(ctx, stage1, stage1.getImageName())
             } else {
                 throw new IllegalArgumentException("Unknown performer ${impl.language}")
             }

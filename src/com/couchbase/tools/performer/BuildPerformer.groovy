@@ -8,6 +8,7 @@ import com.couchbase.versions.DotNetVersions
 import com.couchbase.versions.GoVersions
 import com.couchbase.versions.NodeVersions
 import com.couchbase.versions.PythonVersions
+import com.couchbase.versions.RubyVersions
 import com.couchbase.versions.Versions
 import groovy.cli.picocli.CliBuilder
 
@@ -92,6 +93,10 @@ class BuildPerformer {
                 // 3.3.0 is earliest supported
                 def implementation = new PerfConfig.Implementation(".NET", "3.3.0", null)
                 versions = Versions.versions(env, implementation, ".NET", DotNetVersions.allReleases)
+            } else if (sdkRaw == "ruby") {
+                // 3.4.1 is the earliest supported
+                def implementation = new PerfConfig.Implementation("Ruby", "3.4.1", null)
+                versions = Versions.versions(env, implementation, "Ruby", RubyVersions.allReleases)
             } else {
                 logger.severe("Do not yet know how to validate " + sdkRaw)
             }
@@ -119,6 +124,8 @@ class BuildPerformer {
                     BuildDockerPythonPerformer.build(env, dir, vers, Optional.empty(), imageName, onlySource)
                 } else if (sdkRaw == "c++") {
                     BuildDockerCppPerformer.build(env, dir, vers, Optional.empty(), imageName, onlySource)
+                } else if (sdkRaw == "ruby") {
+                    BuildDockerRubyPerformer.build(env, dir, vers, Optional.empty(), imageName, onlySource)
                 } else {
                     logger.severe("Do not yet know how to build " + sdkRaw)
                 }
