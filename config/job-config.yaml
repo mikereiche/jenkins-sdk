@@ -191,6 +191,9 @@ matrix:
     - language: Node
       version: 4.2.X
 
+    - language: Ruby
+      version: 3.4.1
+
   workloads:
 
     # KV replaces
