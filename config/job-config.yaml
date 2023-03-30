@@ -298,28 +298,6 @@ matrix:
         - language: Go
           version: 2.5.3
 
-    # KV gets - experiment for testing different numbers of IO threads in the C++ SDK
-    - operations:
-        - op: get
-          bounds:
-            forSeconds: $forSeconds
-          docLocation:
-            method: pool
-            poolSize: $poolSize
-            poolSelectionStrategy: randomUniform
-      settings:
-        variables:
-          - name: poolSize
-            value: 10000
-          - name: experimentName
-            values: [ "numIOThreads" ]
-          - name: numIOThreads
-            type: tunable
-            values: [ '1', '2', '4', '8', '16', '32' ]
-      include:
-        - language: C++
-          version: snapshot
-
     # KV inserts - experiment for testing different numbers of IO threads in the C++ SDK
     - operations:
         - op: insert
