@@ -7,7 +7,13 @@ String GERRIT_REPO = 'ssh://review.couchbase.org:29418/transactions-fit-performe
 Boolean INSTALL_STELLAR_NEBULA = true
 // Checkout specific SN so we know we're performance testing the same thing.
 // Note: couchbase-jvm-clients contains its own version of SN, so will be building against that GRPC.  Watch out for GRPC incompatibilities...
-String STELLAR_NEBULA_SHA = "945b3d0e611ddb7549453fa30b22905cb4d33a9e"
+String STELLAR_NEBULA_SHA = "db0664f"
+
+Boolean SLEEP_ON_FAIL = false
+
+String AGENT_UBUNTU = "ubuntu16"
+String AGENT_MAC = "m1"
+String AGENT = AGENT_UBUNTU
 
 def runAWS(String command) {
     return sh(script: "aws ${command}", returnStdout: true)
@@ -43,14 +49,14 @@ void setupPrerequisitesUbuntu() {
 
 stage("run") {
 
-    // Running on Mac allows ssh-ing in, but it's not that useful as most work is done on the AWS node. And there's
-    // limited numbers of Mac agents.
-//    node("build-sdk-macosx-11.0") {
-//        String agentIp = sh(script: "ipconfig getifaddr en0", returnStdout: true).trim()
-//        echo "ssh couchbase@${agentIp}"
-////    }
+    node(AGENT) {
+        if (AGENT == AGENT_MAC) {
+            // Running on Mac allows ssh-ing in, but it's not that useful as most work is done on the AWS node (which we
+            // can always SSH onto). And there's limited numbers of Mac agents.
+            String agentIp = sh(script: "ipconfig getifaddr en0", returnStdout: true).trim()
+            echo "ssh couchbase@${agentIp}"
+        }
 
-    node("ubuntu16") {
         // Private repo, so cannot check out directly on AWS node.  Need to scp it over.
         dir ("transactions-fit-performer") {
             checkout([$class: 'GitSCM', userRemoteConfigs: [[url: "git@github.com:couchbaselabs/transactions-fit-performer.git"]]])
@@ -74,17 +80,26 @@ stage("run") {
                 withCredentials([string(credentialsId: 'TIMEDB_PWD', variable: 'TIMEDB_PWD')]) {
 
                     // setupPrerequisitesCentos8()
-                    // setupPrerequisitesMac()
-                    setupPrerequisitesUbuntu()
+                    if (AGENT == AGENT_MAC) {
+                        setupPrerequisitesMac()
+                    }
+                    else if (AGENT == AGENT_UBUNTU) {
+                        setupPrerequisitesUbuntu()
+                    }
 
                     // String instanceType = "c5.large" // for cheaper iteration
                     // String instanceType = "c5d.4xlarge"  // $0.768 an hour 16vCPU 32GB 400GB NVMe storage
                     String instanceType = "c5.4xlarge"  // $0.768 an hour 16vCPU 32GB
-                    String region = "us-east-2" // cheapest
-                    String imageId = "ami-02d1e544b84bf7502" // Amazon Linux 2
+                    String region = "us-west-1" // us-east-2 is the cheapest, but us-west-1 is where the OpenShift cluster is run (to be close to HQ)
+                    // String imageId = "ami-02d1e544b84bf7502"     // Amazon Linux 2 x86-64 on us-east-2
+                    // String imageId = "ami-03c7d01cf4dedc891"     // Amazon Linux 2 x86-64 on us-east-1
+                    String imageId = "ami-0583a1f1cd3c11ebc"        // Amazon Linux 2 x86-64 on us-west-1
                     String hdSizeGB = 100 // CBD-5001 - seeing issues with the default 8GB.  The --block-device-mappings DeviceName must match the AMI's.
+                    // String securityGroup = "sg-40ff4629"            // for us-east-2
+                    // String securityGroup = "sg-073bffa623008db9c"   // for us-east-1
+                    String securityGroup = "sg-e942db8d"            //  for us-west-1
 
-                    String instanceId = runAWS("ec2 run-instances --image-id ${imageId} --count 1 --instance-type ${instanceType} --key-name cbdyncluster --security-group-ids sg-40ff4629 --region ${region} --output text --query 'Instances[*].InstanceId' --block-device-mappings 'DeviceName=/dev/xvda,Ebs={VolumeSize=${hdSizeGB}}'").trim()
+                    String instanceId = runAWS("ec2 run-instances --image-id ${imageId} --count 1 --instance-type ${instanceType} --key-name cbdyncluster --security-group-ids ${securityGroup} --region ${region} --output text --query 'Instances[*].InstanceId' --block-device-mappings 'DeviceName=/dev/xvda,Ebs={VolumeSize=${hdSizeGB}}'").trim()
                     echo "Created AWS instance ${instanceId}"
                     String ip = null
 
@@ -172,9 +187,11 @@ stage("run") {
                     }
                     catch (err) {
                         // For debugging, can log into the agent (if Mac) or the AWS instance now
-                        // echo "http://${ip}:8091"
-                        // echo "ssh -i ~/keys/cbdyncluster.pem ec2-user@${ip}"
-                        // sleep(60 * 60 * 12) // in seconds.  Setting to give plenty of time for debugging an overnight run, but not be too expensive.
+                        if (SLEEP_ON_FAIL) {
+                            echo "http://${ip}:8091"
+                            echo "ssh -i ~/keys/cbdyncluster.pem ec2-user@${ip}"
+                            sleep(60 * 60 * 12) // in seconds.  Setting to give plenty of time for debugging an overnight run, but not be too expensive.
+                        }
                         throw err;
                     }
                     finally {
