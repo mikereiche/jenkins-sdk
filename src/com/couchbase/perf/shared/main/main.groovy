@@ -13,6 +13,7 @@ import com.couchbase.perf.shared.config.PerfConfig
 import com.couchbase.perf.shared.config.Run
 import com.couchbase.perf.shared.database.PerfDatabase
 import com.couchbase.perf.shared.database.RunFromDb
+import com.couchbase.perf.shared.stages.PruneDocker
 import com.couchbase.perf.shared.stages.StopDockerContainer
 import com.couchbase.stages.*
 import com.couchbase.stages.servers.InitialiseCluster
@@ -274,6 +275,7 @@ class Execute {
                         configFilenameAbs)
 
                 performerRuns.add(new StopDockerContainer(InitialiseSDKPerformer.CONTAINER_NAME))
+                performerRuns.add(new PruneDocker())
                 performerRuns.add(output)
 
                 clusterChildren.addAll(performerRuns)
