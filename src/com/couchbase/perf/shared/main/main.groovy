@@ -275,7 +275,9 @@ class Execute {
                         configFilenameAbs)
 
                 performerRuns.add(new StopDockerContainer(InitialiseSDKPerformer.CONTAINER_NAME))
-                performerRuns.add(new PruneDocker())
+                // Without this, get 'out of disk space' errors regularly
+                // Update: but, it appears to hang...
+                // performerRuns.add(new PruneDocker())
                 performerRuns.add(output)
 
                 clusterChildren.addAll(performerRuns)
