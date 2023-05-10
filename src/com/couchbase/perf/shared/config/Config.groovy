@@ -74,10 +74,6 @@ class PerfConfig {
         // "A" = driver, performer and cluster all running on same AWS node, in docker
         String topology
 
-        // "us-east-2"
-        // Only present on AWS
-        String region
-
         // "protostellar" or null (haven't set "couchbase" as it would require rerunning everything)
         String scheme
 
@@ -103,7 +99,6 @@ class PerfConfig {
                     "instance"  : instance,
                     "compaction": compaction,
                     "topology"  : topology,
-                    "region"    : region,
                     "scheme"    : scheme,
             ]
             if (!forDatabaseComparison) {
