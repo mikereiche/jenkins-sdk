@@ -94,7 +94,7 @@ stage("run") {
                     // String imageId = "ami-02d1e544b84bf7502"     // Amazon Linux 2 x86-64 on us-east-2
                     // String imageId = "ami-03c7d01cf4dedc891"     // Amazon Linux 2 x86-64 on us-east-1
                     String imageId = "ami-0583a1f1cd3c11ebc"        // Amazon Linux 2 x86-64 on us-west-1
-                    String hdSizeGB = 100 // CBD-5001 - seeing issues with the default 8GB.  The --block-device-mappings DeviceName must match the AMI's.
+                    String hdSizeGB = 400 // CBD-5001 - seeing issues with the default 8GB.  The --block-device-mappings DeviceName must match the AMI's.
                     // String securityGroup = "sg-40ff4629"            // for us-east-2
                     // String securityGroup = "sg-073bffa623008db9c"   // for us-east-1
                     String securityGroup = "sg-e942db8d"            //  for us-west-1
