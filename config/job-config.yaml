@@ -123,16 +123,6 @@ matrix:
     - language: Java
       version: snapshot
 
-    # https://review.couchbase.org/c/couchbase-jvm-clients/+/184600
-    # Current head of Protostellar fork
-    - language: Java
-      version: refs/changes/59/184959/1
-
-    # https://review.couchbase.org/c/couchbase-jvm-clients/+/184307
-    # CoreIoKvOps test - only supports KV gets
-    - language: Java
-      version: refs/changes/07/184307/8
-
       # If changing or adding any Gerrit patches, may need to make changes in ConfigParser
 
     - language: Scala
@@ -147,14 +137,15 @@ matrix:
     - language: Kotlin
       version: snapshot
 
-    - language: .NET
-      version: 3.3.X
-
-    - language: .NET
-      version: 3.4.X
-
-    - language: .NET
-      version: snapshot
+    # .NET not currently building
+#    - language: .NET
+#      version: 3.3.X
+#
+#    - language: .NET
+#      version: 3.4.X
+#
+#    - language: .NET
+#      version: snapshot
 
     # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
     # Go needs SDKQE-2831 to avoid 'bad scheme' errors
