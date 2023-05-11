@@ -165,13 +165,13 @@ class Execute {
 
         config.matrix.clusters.forEach(cluster -> {
 
-            String hostname = cluster.hostname
+            String hostnameRest = cluster.hostname_rest
             String adminUsername = "Administrator"
             String adminPassword = "password"
 
             try {
-                var resp1 = getContents("http://" + hostname + ":8091/pools/default", adminUsername, adminPassword)
-                var resp2 = getContents("http://" + hostname + ":8091/pools", adminUsername, adminPassword)
+                var resp1 = getContents(hostnameRest + "/pools/default", adminUsername, adminPassword)
+                var resp2 = getContents(hostnameRest + "/pools", adminUsername, adminPassword)
 
                 def jsonSlurper = new JsonSlurper()
 
@@ -196,7 +196,7 @@ class Execute {
                 }
             }
             catch (Throwable err) {
-                ctx.env.log("Could not connect to cluster ${hostname} with ${adminUsername}:${adminPassword}")
+                ctx.env.log("Could not connect to cluster ${hostnameRest} with ${adminUsername}:${adminPassword}")
                 throw err
             }
         })

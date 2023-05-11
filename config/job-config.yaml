@@ -75,17 +75,20 @@ matrix:
       # Update: now "two" clusters, for stellar-nebula testing
       # In future, may return to having jenkins-sdk control cluster creation (CBD-4948)
     - type: unmanaged
-      hostname: localhost
-      # When run by jenkins-sdk, jenkins-sdk will use `hostname`, and the driver will use `hostname_docker`.
+      connection_string_driver: couchbase://localhost
+      connection_string_performer: couchbase://localhost
+      hostname_rest: http://localhost:8091
+      # When run by jenkins-sdk, jenkins-sdk will use `connection_string`, and the driver will use `connection_string_docker`.
       # They need to be separate to allow the driver to connect to the cluster when both are running inside Docker.
-      hostname_docker: cbs
+      connection_string_driver_docker: couchbase://cbs
+      connection_string_performer_docker: couchbase://cbs
+      hostname_rest_docker: http://cbs:8091
       storage: couchstore
       replicas: 0
       # A number of other fields will get filled in dynamically, both by CI and by jenkins-sdk.  Uncomment the below
       # to help with localhost testing against a copy of the prod database.
       # Remember to also change top-level variables.
 #      topology: A
-#      region: us-east-2
 #      version: 7.1.1-3175-enterprise
 #      cpuCount: 16
 #      instance: c5.4xlarge
@@ -93,21 +96,21 @@ matrix:
 #      compaction: disabled
 #      memory: 28000
 
-      # Stellar Nebula testing - there is logic elsewhere that will only run this against a hardcoded list of performers
-      # that support SN.
-      # There's also hardcoded logic that will only run workloads that the Java SDK can currently support on Protostellar.
+      # Stellar Nebula Gateway testing.
       # This isn't a separate cluster, it's just the same cluster with Stellar Gateway running.  We record it as two
       # clusters so we end up with the desired separate set of database results.
     - type: unmanaged
-      hostname: localhost
-      hostname_docker: cbs
-      scheme: protostellar
+      connection_string_driver: protostellar://localhost
+      connection_string_performer: protostellar://localhost
+      connection_string_driver_docker: protostellar://cbs
+      connection_string_performer_docker: protostellar://cbs
+      hostname_rest: http://localhost:8091
+      hostname_rest_docker: http://cbs:8091
       storage: couchstore
       replicas: 0
-      # A number of other fields will get filled in dynamically, both by CI and by jenkins-sdk.  Uncomment the below
-      # to help with localhost testing against a copy of the prod database.
+#       A number of other fields will get filled in dynamically, both by CI and by jenkins-sdk.  Uncomment the below
+#       to help with localhost testing against a copy of the prod database.
 #      topology: A
-#      region: us-east-2
 #      version: 7.1.1-3175-enterprise
 #      cpuCount: 16
 #      instance: c5.4xlarge
@@ -115,6 +118,16 @@ matrix:
 #      compaction: disabled
 #      memory: 28000
 #      stellarNebulaSha: 945b3d0e611ddb7549453fa30b22905cb4d33a9e
+
+      # OpenShift+Protostellar+STG testing.
+    - type: unmanaged
+      connection_string_driver: protostellar://grpc-performance-testing.apps.cloud-native.fg1b.p1.openshiftapps.com:443
+      connection_string_performer: protostellar://grpc-performance-testing.apps.cloud-native.fg1b.p1.openshiftapps.com:443
+      hostname_rest: https://nsserver-performance-testing.apps.cloud-native.fg1b.p1.openshiftapps.com:443
+      # This refers to a particular resource in perf-driver
+      cert_path: "certs/openshift-performance-testing.crt"
+      storage: couchstore
+      replicas: 0
 
   implementations:
     - language: Java
@@ -219,9 +232,6 @@ matrix:
         variables:
           - name: poolSize
             value: 10000
-      exclude:
-        - language: Java
-          version: refs/changes/59/184959/1
 
     # KV gets - experiment for testing different horizontal scaling values
     - operations:
@@ -257,11 +267,6 @@ matrix:
         variables:
           - name: docNum
             value: 10000000
-      exclude:
-        - language: Java
-          version: refs/changes/59/184959/1
-        - language: Java
-          version: refs/changes/07/184307/7
 
     # Transactions
     - operations:
@@ -282,11 +287,11 @@ matrix:
           - name: poolSize
             value: 10000
       include:
-        # todo port this to use Include - though will need to support both AND and OR
         - language: Java
-          # todo support 3.3.0+
+          # Note this will include all versions from 3.3.0
           version: 3.3.0
         - language: Go
+          # Note this will include all versions from 2.5.3
           version: 2.5.3
 
     # KV inserts - experiment for testing different numbers of IO threads in the C++ SDK

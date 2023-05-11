@@ -57,8 +57,13 @@ class PerfConfig {
         Integer memory
         Integer cpuCount
         String type
-        String hostname
-        String hostname_docker
+        String connection_string_driver
+        String connection_string_performer
+        String connection_string_driver_docker
+        String connection_string_performer_docker
+        String hostname_rest
+        String hostname_rest_docker
+        String cert_path
         String storage
         Integer replicas
 
@@ -102,8 +107,13 @@ class PerfConfig {
                     "scheme"    : scheme,
             ]
             if (!forDatabaseComparison) {
-                out.put("hostname", hostname)
-                out.put("hostname_docker", hostname_docker)
+                out.put("connection_string_driver", connection_string_driver)
+                out.put("connection_string_driver_docker", connection_string_driver_docker)
+                out.put("connection_string_performer", connection_string_performer)
+                out.put("connection_string_performer_docker", connection_string_performer_docker)
+                out.put("hostname_rest", hostname_rest)
+                out.put("hostname_rest_docker", hostname_rest_docker)
+                out.put("cert_path", cert_path)
             }
             if (isProtostellar()) {
                 out.put("stellarNebulaSha", stellarNebulaSha)

@@ -46,21 +46,7 @@ class InitialiseCluster extends Stage {
     @Override
     void executeImpl(StageContext ctx) {}
 
-    String hostname() {
-        if (cluster.type == "unmanaged") {
-            return cluster.hostname
-        } else if (cluster.type == "gocaves") {
-            return ((StartGocaves) stages[0]).clusterIp()
-        } else {
-            throw new IllegalArgumentException("Unknown cluster type ${cluster.type}")
-        }
-    }
-
     String type() {
         return cluster.type
-    }
-
-    String hostname_docker() {
-        return cluster.hostname_docker
     }
 }
