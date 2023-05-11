@@ -34,26 +34,17 @@ class ConfigParser {
                 exclude = true
                 excludeReasons.add("SDK ${implementation.language} does not support Protostellar")
             }
-            else {
-                if (!implementation.isGerrit()) {
-                    exclude = true
-                    excludeReasons.add("Java can only support Protostellar in Gerrit changesets")
-                }
 
-                // Don't have a better way of doing this currently...
-                if (implementation.version == "refs/changes/07/184307/8") {
+            try {
+                def ver = ImplementationVersion.from(implementation.version)
+                if (ver.isBelow(ImplementationVersion.from("3.4.6"))) {
                     exclude = true
-                    excludeReasons.add("${implementation.version} doesn't support Protostellar")
+                    excludeReasons.add("Java SDK ${implementation.version} does not support current Protostellar")
                 }
-
-                // Java doesn't support all KV operations in Protostellar yet
-                for (final def op in workload.operations) {
-                    var supportedInJavaProtostellar = op.op == "get" || op.op == "insert" || op.op == "remove"
-                    if (!supportedInJavaProtostellar) {
-                        exclude = true
-                        excludeReasons.add("Java cannot yet support Protostellar with operation ${op}")
-                    }
-                }
+            }
+            catch (err) {
+                exclude = true
+                excludeReasons.add("Something went wrong: ${err}")
             }
         }
 
