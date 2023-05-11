@@ -79,16 +79,13 @@ class PerfConfig {
         // "A" = driver, performer and cluster all running on same AWS node, in docker
         String topology
 
-        // "protostellar" or null (haven't set "couchbase" as it would require rerunning everything)
-        String scheme
-
         // Only present if Protostellar
         String stellarNebulaSha
 
         // Any new fields here probably want adding into toJsonRaw below, and into the driver config, and includeVariablesThatApplyToThisRun
 
         boolean isProtostellar() {
-            return scheme == "protostellar"
+            return connection_string_performer.startsWith("protostellar")
         }
 
         @CompileDynamic
@@ -103,9 +100,16 @@ class PerfConfig {
                     "replicas"  : replicas,
                     "instance"  : instance,
                     "compaction": compaction,
-                    "topology"  : topology,
-                    "scheme"    : scheme,
+                    "topology"  : topology
             ]
+            // We need to write something to the database to distinguish Protostellar & OpenShift testing.  Using the
+            // performer's connection string.  It may actually be using connection_string_performer_docker, but we can't
+            // know that here, and it's not relevant for this purpose.
+            // There's a lot of existing tests that don't have this connectionString field, so we only check it for
+            // newer tests - e.g. Protostellar ones.
+            if (forDatabaseComparison && connection_string_performer.startsWith("protostellar")) {
+                out.put("connectionString", connection_string_performer)
+            }
             if (!forDatabaseComparison) {
                 out.put("connection_string_driver", connection_string_driver)
                 out.put("connection_string_driver_docker", connection_string_driver_docker)
