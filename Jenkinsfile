@@ -4,7 +4,7 @@ import java.util.stream.Collectors
 
 String GERRIT_REPO = 'ssh://review.couchbase.org:29418/transactions-fit-performer.git'
 
-Boolean INSTALL_STELLAR_NEBULA = true
+Boolean INSTALL_STELLAR_NEBULA = false
 // Checkout specific SN so we know we're performance testing the same thing.
 // Note: couchbase-jvm-clients contains its own version of SN, so will be building against that GRPC.  Watch out for GRPC incompatibilities...
 String STELLAR_NEBULA_SHA = "db0664f"

@@ -63,6 +63,12 @@ class ConfigParser {
                         }
                     }
                 }
+                if (x.protostellar !== null) {
+                    if (cluster.isProtostellar() == x.protostellar) {
+                        excludeReasons.add("Excluding because protostellar ${cluster.isProtostellar()} != ${x.protostellar}")
+                        exclude = true
+                    }
+                }
             }
         }
 
@@ -96,6 +102,19 @@ class ConfigParser {
                     } else {
                         // Missing version field will match all versions.
                         excludedByInclude = false
+                    }
+                }
+
+                if (x.protostellar != null) {
+                    if (cluster.isProtostellar() == x.protostellar) {
+                        excludedByInclude = false
+                    }
+                }
+
+                if (x.api != null) {
+                    def api = workload.settings().variables().find {it.value() == "api" }
+                    if (api != null) {
+                        excludedByInclude = !(x.api == api)
                     }
                 }
             }
