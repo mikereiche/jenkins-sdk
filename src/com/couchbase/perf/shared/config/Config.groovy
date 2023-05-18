@@ -107,7 +107,8 @@ class PerfConfig {
             // know that here, and it's not relevant for this purpose.
             // There's a lot of existing tests that don't have this connectionString field, so we only check it for
             // newer tests - e.g. Protostellar ones.
-            if (forDatabaseComparison && connection_string_performer.startsWith("protostellar")) {
+            // Update: now edited the database so all tests include it.
+            if (forDatabaseComparison) {
                 out.put("connectionString", connection_string_performer)
             }
             if (!forDatabaseComparison) {

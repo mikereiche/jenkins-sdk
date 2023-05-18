@@ -48,6 +48,7 @@ class ConfigParser {
             }
         }
 
+        // Excludes are OR-ed.  E.g. if any matches, it's excluded.
         if (workload.exclude != null) {
             for (x in workload.exclude) {
                 if (x.language == implementation.language) {
@@ -72,6 +73,7 @@ class ConfigParser {
             }
         }
 
+        // Includes are OR-ed.  E.g. if any matches, it's included.
         if (workload.include != null) {
             def excludedByInclude = true
 
