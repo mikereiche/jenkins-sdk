@@ -71,57 +71,6 @@ variables:
 
 matrix:
   clusters:
-      # Currently CI is hardcoded to look for one cluster written in a specific format, so it can replace the hostname
-      # Update: now "two" clusters, for stellar-nebula testing
-      # In future, may return to having jenkins-sdk control cluster creation (CBD-4948)
-#    - type: unmanaged
-#      connection_string_driver: couchbase://localhost
-#      connection_string_performer: couchbase://localhost
-#      hostname_rest: http://localhost:8091
-#      # When run by jenkins-sdk, jenkins-sdk will use `connection_string`, and the driver will use `connection_string_docker`.
-#      # They need to be separate to allow the driver to connect to the cluster when both are running inside Docker.
-#      connection_string_driver_docker: couchbase://cbs
-#      connection_string_performer_docker: couchbase://cbs
-#      hostname_rest_docker: http://cbs:8091
-#      storage: couchstore
-#      replicas: 0
-#      # A number of other fields will get filled in dynamically, both by CI and by jenkins-sdk.  Uncomment the below
-#      # to help with localhost testing against a copy of the prod database.
-#      # Remember to also change top-level variables.
-#      topology: A
-#      version: 7.1.1-3175-enterprise
-#      cpuCount: 16
-#      instance: c5.4xlarge
-#      nodeCount: 1
-#      compaction: disabled
-#      memory: 28000
-#
-#      # Stellar Nebula Gateway testing.
-#      # This isn't a separate cluster, it's just the same cluster with Stellar Gateway running.  We record it as two
-#      # clusters so we end up with the desired separate set of database results.
-#      # There is logic elsewhere that filters to the SDKs that actually support Protostellar.
-#    - type: unmanaged
-#      connection_string_driver: protostellar://localhost
-#      connection_string_performer: protostellar://localhost
-#      connection_string_driver_docker: protostellar://cbs
-#      connection_string_performer_docker: protostellar://cbs
-#      hostname_rest: http://localhost:8091
-#      hostname_rest_docker: http://cbs:8091
-#      storage: couchstore
-#      replicas: 0
-##       A number of other fields will get filled in dynamically, both by CI and by jenkins-sdk.  Uncomment the below
-##       to help with localhost testing against a copy of the prod database.
-#      topology: A
-#      version: 7.1.1-3175-enterprise
-#      cpuCount: 16
-#      instance: c5.4xlarge
-#      nodeCount: 1
-#      compaction: disabled
-#      memory: 28000
-#      stellarNebulaSha: 945b3d0e611ddb7549453fa30b22905cb4d33a9e
-
-      # OpenShift + Protostellar + STG testing.
-      # There is logic elsewhere that filters to the SDKs that actually support Protostellar.
     - type: unmanaged
       connection_string_driver: protostellar://grpc-performance-testing.apps.cloud-native.fg1b.p1.openshiftapps.com:443
       connection_string_performer: protostellar://grpc-performance-testing.apps.cloud-native.fg1b.p1.openshiftapps.com:443
