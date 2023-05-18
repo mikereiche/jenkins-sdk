@@ -147,12 +147,12 @@ stage("run") {
 
                         try {
                             // sed: look for the start of the cluster section; /a adds on the next line
-                            runSSH(ip, 'sed -i "/- type: unmanaged/a\\      instance: ' + instanceType + '" jenkins-sdk/config/job-config.yaml')
-                            runSSH(ip, 'sed -i "/- type: unmanaged/a\\      compaction: disabled" jenkins-sdk/config/job-config.yaml')
-                            runSSH(ip, 'sed -i "/- type: unmanaged/a\\      topology: A" jenkins-sdk/config/job-config.yaml')
-                            if (INSTALL_STELLAR_NEBULA) {
-                                runSSH(ip, 'sed -i "/- type: unmanaged/a\\      stellarNebulaSha: ' + STELLAR_NEBULA_SHA + '" jenkins-sdk/config/job-config.yaml')
-                            }
+                            // runSSH(ip, 'sed -i "/- type: unmanaged/a\\      instance: ' + instanceType + '" jenkins-sdk/config/job-config.yaml')
+                            // runSSH(ip, 'sed -i "/- type: unmanaged/a\\      compaction: disabled" jenkins-sdk/config/job-config.yaml')
+                            // runSSH(ip, 'sed -i "/- type: unmanaged/a\\      topology: A" jenkins-sdk/config/job-config.yaml')
+                            // if (INSTALL_STELLAR_NEBULA) {
+                            //     runSSH(ip, 'sed -i "/- type: unmanaged/a\\      stellarNebulaSha: ' + STELLAR_NEBULA_SHA + '" jenkins-sdk/config/job-config.yaml')
+                            // }
                             runSSH(ip, "cat jenkins-sdk/config/job-config.yaml")
                         }
                         catch (error) {
