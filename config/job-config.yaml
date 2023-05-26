@@ -147,95 +147,92 @@ matrix:
       replicas: 0
 
   implementations:
-#    - language: Java
-#      version: 3.X.X
+    - language: Java
+      version: 3.X.X
 
     - language: Java
       version: snapshot
 
       # If changing or adding any Gerrit patches, may need to make changes in ConfigParser
 
-#    - language: Scala
-#      version: 1.X.X
-#
-#    - language: Scala
-#      version: snapshot
-#
+    - language: Scala
+      version: 1.X.X
+
+    - language: Scala
+      version: snapshot
+
+    # Kotlin not currently building
 #    - language: Kotlin
 #      version: 1.X.X
 #
 #    - language: Kotlin
 #      version: snapshot
+
+    # .NET not currently building
+#    - language: .NET
+#      version: 3.3.X
 #
-#    # .NET not currently building
-##    - language: .NET
-##      version: 3.3.X
-##
-##    - language: .NET
-##      version: 3.4.X
-##
-##    - language: .NET
-##      version: snapshot
+#    - language: .NET
+#      version: 3.4.X
 #
-#    # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
-#    # Go needs SDKQE-2831 to avoid 'bad scheme' errors
-#    - language: Go
-#      version: 2.3.X
-#
-#    - language: Go
-#      version: 2.4.X
-#
-#    - language: Go
-#      version: 2.5.X
-#
-#    - language: Go
-#      version: 2.6.X
-#
-#    - language: Go
+#    - language: .NET
 #      version: snapshot
-#
-#    - language: Python
-#      version: snapshot
-#
-#    - language: Python
-#      version: 4.1.X
-#
-#    - language: C++
-#      version: snapshot
-#
-#    - language: C++
-#      version: 1.0.0-dp.4
-#
-#    - language: Node
-#      version: snapshot
-#
-#    - language: Node
-#      version: 4.2.X
-#
-#    - language: Ruby
-#      version: 3.4.1
+
+    # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
+    # Go needs SDKQE-2831 to avoid 'bad scheme' errors
+    - language: Go
+      version: 2.3.X
+
+    - language: Go
+      version: 2.4.X
+
+    - language: Go
+      version: 2.5.X
+
+    - language: Go
+      version: 2.6.X
+
+    - language: Go
+      version: snapshot
+
+    - language: Python
+      version: snapshot
+
+    - language: Python
+      version: 4.1.X
+
+    - language: C++
+      version: snapshot
+
+    - language: C++
+      version: 1.0.0-dp.4
+
+    - language: Node
+      version: snapshot
+
+    - language: Node
+      version: 4.2.X
+
+    - language: Ruby
+      version: 3.4.1
 
   workloads:
 
     # KV replaces
-#    - operations:
-#        - op: replace
-#          bounds:
-#            forSeconds: $forSeconds
-#          docLocation:
-#            method: pool
-#            poolSize: $poolSize
-#            poolSelectionStrategy: counter
-#      settings:
-#        variables:
-#          - name: poolSize
-#            value: 10000
-#      exclude:
-#        - language: Java
-#          version: refs/changes/59/184959/1
-#        - language: Java
-#          version: refs/changes/07/184307/7
-#        - protostellar: true
+    - operations:
+        - op: replace
+          bounds:
+            forSeconds: $forSeconds
+          docLocation:
+            method: pool
+            poolSize: $poolSize
+            poolSelectionStrategy: counter
+      settings:
+        variables:
+          - name: poolSize
+            value: 10000
+      exclude:
+        - protostellar: true
 
     # KV gets
     - operations:
@@ -252,151 +249,152 @@ matrix:
             value: 10000
 
 
-    # KV gets - test GRPC's build-in load balancing
-#    - operations:
-#        - op: get
-#          bounds:
-#            forSeconds: $forSeconds
-#          docLocation:
-#            method: pool
-#            poolSize: $poolSize
-#            poolSelectionStrategy: randomUniform
-#
-#      settings:
-#        variables:
-#          - name: poolSize
-#            value: 10000
-#
-#          # Just make it easier to find these results
-#          - name: experimentName
-#            value: "openShiftNumEndpoints"
-#
-#          - name: "com.couchbase.protostellar.numEndpoints"
-#            type: tunable
-#            include:
-#              - cluster:
-#                  scheme: protostellar
-#            values: [ "1", "2", "4", "8", "16", "32", "64" ]
-#
-#      exclude:
-#        - protostellar: false
-#        - api: "ASYNC"
-#
-#      include:
-#        - version: snapshot
-#
-#    # KV gets - experiment for testing different horizontal scaling values
-#    - operations:
-#        - op: get
-#          bounds:
-#            forSeconds: $forSeconds
-#          docLocation:
-#            method: pool
-#            poolSize: $poolSize
-#            poolSelectionStrategy: randomUniform
-#
-#      settings:
-#        variables:
-#          - name: poolSize
-#            value: 10000
-#          - name: horizontalScaling
-#            values: [1, 2, 4, 8, 16, 32]
-#          # Just make it easier to find these results
-#          - name: experimentName
-#            values: [ "horizontalScaling" ]
-#      include:
-#        # Expensive to run against every version of every SDK, so just test the latest.
-#        - version: snapshot
-#      exclude:
-#        - protostellar: true
-#
-#    # KV inserts
-#    - operations:
-#        - op: insert
-#          bounds:
-#            forSeconds: $forSeconds
-#          docLocation:
-#            method: uuid
-#      settings:
-#        variables:
-#          - name: docNum
-#            value: 10000000
-#      exclude:
-#        - protostellar: true
-#
-#    # Transactions
-#    - operations:
-#        - transaction:
-#            ops:
-#              - op: replace
-#                docLocation:
-#                  method: pool
-#                  poolSize: $poolSize
-#                  poolSelectionStrategy: randomUniform
-#              - op: insert
-#                docLocation:
-#                  method: uuid
-#            bounds:
-#              forSeconds: $forSeconds
-#      settings:
-#        variables:
-#          - name: poolSize
-#            value: 10000
-#      include:
-#        - language: Java
-#          # Note this will include all versions from 3.3.0
-#          version: 3.3.0
-#        - language: Go
-#          # Note this will include all versions from 2.5.3
-#          version: 2.5.3
-#      exclude:
-#        - protostellar: true
-#
-#    # KV inserts - experiment for testing different numbers of IO threads in the C++ SDK
-#    - operations:
-#        - op: insert
-#          bounds:
-#            forSeconds: $forSeconds
-#          docLocation:
-#            method: uuid
-#      settings:
-#        variables:
-#          - name: docNum
-#            value: 10000000
-#          - name: experimentName
-#            values: [ "numIOThreads" ]
-#          - name: numIOThreads
-#            type: tunable
-#            values: [ '1', '2', '4', '8', '16', '32' ]
-#      include:
-#        - language: C++
-#          version: snapshot
-#      exclude:
-#        - protostellar: true
-#
-#    # KV replaces - experiment for testing different numbers of IO threads in the C++ SDK
-#    - operations:
-#        - op: replace
-#          bounds:
-#            forSeconds: $forSeconds
-#          docLocation:
-#            method: pool
-#            poolSize: $poolSize
-#            poolSelectionStrategy: counter
-#      settings:
-#        variables:
-#          - name: poolSize
-#            value: 10000
-#          - name: experimentName
-#            values: [ "numIOThreads" ]
-#          - name: numIOThreads
-#            type: tunable
-#            values: [ '1', '2', '4', '8', '16', '32' ]
-#      include:
-#        - language: C++
-#          version: snapshot
-#      exclude:
-#        - protostellar: true
+    # KV gets - test different number of endpoints to Protostellar
+    - operations:
+        - op: get
+          bounds:
+            forSeconds: $forSeconds
+          docLocation:
+            method: pool
+            poolSize: $poolSize
+            poolSelectionStrategy: randomUniform
+
+      settings:
+        variables:
+          - name: poolSize
+            value: 10000
+
+          # Just make it easier to find these results
+          - name: experimentName
+            value: "openShiftNumEndpoints"
+
+          - name: "com.couchbase.protostellar.numEndpoints"
+            type: tunable
+            include:
+              - cluster:
+                  scheme: protostellar
+            values: [ "1", "2", "4", "8", "16", "32", "64" ]
+
+      exclude:
+        - protostellar: false
+        - api: "ASYNC"
+
+      include:
+        - language: Java
+          version: snapshot
+
+    # KV gets - experiment for testing different horizontal scaling values
+    - operations:
+        - op: get
+          bounds:
+            forSeconds: $forSeconds
+          docLocation:
+            method: pool
+            poolSize: $poolSize
+            poolSelectionStrategy: randomUniform
+
+      settings:
+        variables:
+          - name: poolSize
+            value: 10000
+          - name: horizontalScaling
+            values: [1, 2, 4, 8, 16, 32]
+          # Just make it easier to find these results
+          - name: experimentName
+            values: [ "horizontalScaling" ]
+      include:
+        # Expensive to run against every version of every SDK, so just test the latest.
+        - version: snapshot
+      exclude:
+        - protostellar: true
+
+    # KV inserts
+    - operations:
+        - op: insert
+          bounds:
+            forSeconds: $forSeconds
+          docLocation:
+            method: uuid
+      settings:
+        variables:
+          - name: docNum
+            value: 10000000
+      exclude:
+        - protostellar: true
+
+    # Transactions
+    - operations:
+        - transaction:
+            ops:
+              - op: replace
+                docLocation:
+                  method: pool
+                  poolSize: $poolSize
+                  poolSelectionStrategy: randomUniform
+              - op: insert
+                docLocation:
+                  method: uuid
+            bounds:
+              forSeconds: $forSeconds
+      settings:
+        variables:
+          - name: poolSize
+            value: 10000
+      include:
+        - language: Java
+          # Note this will include all versions from 3.3.0
+          version: 3.3.0
+        - language: Go
+          # Note this will include all versions from 2.5.3
+          version: 2.5.3
+      exclude:
+        - protostellar: true
+
+    # KV inserts - experiment for testing different numbers of IO threads in the C++ SDK
+    - operations:
+        - op: insert
+          bounds:
+            forSeconds: $forSeconds
+          docLocation:
+            method: uuid
+      settings:
+        variables:
+          - name: docNum
+            value: 10000000
+          - name: experimentName
+            values: [ "numIOThreads" ]
+          - name: numIOThreads
+            type: tunable
+            values: [ '1', '2', '4', '8', '16', '32' ]
+      include:
+        - language: C++
+          version: snapshot
+      exclude:
+        - protostellar: true
+
+    # KV replaces - experiment for testing different numbers of IO threads in the C++ SDK
+    - operations:
+        - op: replace
+          bounds:
+            forSeconds: $forSeconds
+          docLocation:
+            method: pool
+            poolSize: $poolSize
+            poolSelectionStrategy: counter
+      settings:
+        variables:
+          - name: poolSize
+            value: 10000
+          - name: experimentName
+            values: [ "numIOThreads" ]
+          - name: numIOThreads
+            type: tunable
+            values: [ '1', '2', '4', '8', '16', '32' ]
+      include:
+        - language: C++
+          version: snapshot
+      exclude:
+        - protostellar: true
 
 # Top-level variables can be overwritten on a per-workload basis.
 settings:
