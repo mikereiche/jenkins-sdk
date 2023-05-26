@@ -213,7 +213,10 @@ matrix:
       version: 4.2.X
 
     - language: Ruby
-      version: 3.4.1
+      version: 3.4.X
+
+    - language: Ruby
+      version: snapshot
 
   workloads:
 
