@@ -205,13 +205,7 @@ matrix:
       version: snapshot
 
     - language: C++
-      version: 1.0.0-dp.4
-
-    - language: C++
-      version: 1.0.0-dp.5
-
-    - language: C++
-      version: 1.0.0-dp.6
+      version: 1.X.X
 
     - language: Node
       version: snapshot
