@@ -29,14 +29,17 @@ class BuildDockerRubyPerformer {
                 }
 
                 def buildArgs = "SDK_BRANCH=main"
+                def dockerfile = "snapshot.Dockerfile"
+
                 if (sha.isPresent()) {
                     buildArgs = "SDK_REF=${sha.get()}"
                 } else if (sdkVersion.isPresent()) {
                     buildArgs = "SDK_VERSION=${sdkVersion.get()}"
+                    dockerfile = "release.Dockerfile"
                 }
 
                 if (!onlySource) {
-                    imp.execute("docker build -f performers/ruby/Dockerfile --build-arg $buildArgs -t $imageName .", false, true, true)
+                    imp.execute("docker build -f performers/ruby/dockerfiles/$dockerfile --build-arg $buildArgs -t $imageName .", false, true, true)
                 }
             }
         }

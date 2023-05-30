@@ -207,6 +207,12 @@ matrix:
     - language: C++
       version: 1.0.0-dp.4
 
+    - language: C++
+      version: 1.0.0-dp.5
+
+    - language: C++
+      version: 1.0.0-dp.6
+
     - language: Node
       version: snapshot
 
@@ -214,7 +220,10 @@ matrix:
       version: 4.2.X
 
     - language: Ruby
-      version: 3.4.1
+      version: 3.4.X
+
+    - language: Ruby
+      version: snapshot
 
   workloads:
 
