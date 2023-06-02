@@ -8,6 +8,8 @@ class BuildDockerNodePerformer {
     private static Boolean write_couchbase = false
 
     static void build(Environment imp, String path, VersionToBuild build, String imageName, boolean onlySource = false) {
+        imp.log("Building Node ${build}")
+
         if (build instanceof BuildGerrit) {
             throw new RuntimeException("Building Gerrit not currently supported for Node")
         }

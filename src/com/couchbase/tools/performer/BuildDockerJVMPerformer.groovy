@@ -23,6 +23,8 @@ class BuildDockerJVMPerformer {
      * @param build what to build
      */
     static void build(Environment imp, String path, String client, VersionToBuild build, String imageName, boolean onlySource = false) {
+        imp.log("Building ${client} ${build}")
+
         if (build instanceof BuildGerrit) {
             imp.tempDir {
                 // We need:

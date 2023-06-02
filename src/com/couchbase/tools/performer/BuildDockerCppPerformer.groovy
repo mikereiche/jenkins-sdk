@@ -19,6 +19,8 @@ class BuildDockerCppPerformer {
      * @param onlySource whether to skip the docker build
      */
     static void build(Environment imp, String path, VersionToBuild build, String imageName, boolean onlySource = false) {
+        imp.log("Building C++ ${build}")
+
         if (build instanceof BuildGerrit) {
             throw new RuntimeException("Building Gerrit not currently supported for C++")
         }

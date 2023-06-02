@@ -12,6 +12,8 @@ class BuildDockerDotNetPerformer {
      * @param build what to build
      */
     static void build(Environment imp, String path, VersionToBuild build, String imageName, boolean onlySource = false) {
+        imp.log("Building .NET ${build}")
+
         if (build instanceof BuildGerrit) {
             throw new RuntimeException("Building Gerrit not currently supported for .NET")
         }

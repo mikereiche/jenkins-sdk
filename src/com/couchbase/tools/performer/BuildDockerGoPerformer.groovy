@@ -12,6 +12,8 @@ class BuildDockerGoPerformer {
      * @param build what to build
      */
     static void build(Environment imp, String path, VersionToBuild build, String imageName, boolean onlySource = false) {
+        imp.log("Building Go ${build}")
+
         if (build instanceof BuildSha || build instanceof BuildShaVersion) {
             throw new RuntimeException("Building SHA not currently supported for Go")
         }
