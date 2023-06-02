@@ -131,7 +131,7 @@ class BuildPerformer {
                     BuildDockerCppPerformer.build(env, dir, vers, imageName, onlySource)
                 } else if (sdkRaw == "ruby") {
                     BuildDockerRubyPerformer.build(env, dir, vers, imageName, onlySource)
-                } else if (sdkRaw == ".net") {
+                } else if (sdkRaw == ".net" || sdkRaw == "dotnet") { // "dotnet" alias to support test-driver CI job
                     BuildDockerDotNetPerformer.build(env, dir, vers, imageName, onlySource)
                 } else {
                     logger.severe("Do not yet know how to build " + sdkRaw)
