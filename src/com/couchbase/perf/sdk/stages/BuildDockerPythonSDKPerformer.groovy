@@ -3,6 +3,7 @@ package com.couchbase.perf.sdk.stages
 import com.couchbase.context.StageContext
 import com.couchbase.stages.Stage
 import com.couchbase.tools.performer.BuildDockerPythonPerformer
+import com.couchbase.tools.performer.VersionToBuildUtil
 
 class BuildDockerPythonSDKPerformer extends Stage {
 
@@ -31,7 +32,7 @@ class BuildDockerPythonSDKPerformer extends Stage {
 
     @Override
     void executeImpl(StageContext ctx) {
-        BuildDockerPythonPerformer.build(ctx.env, ctx.sourceDir(), Optional.of(sdkVersion), Optional.ofNullable(sha), imageName)
+        BuildDockerPythonPerformer.build(ctx.env, ctx.sourceDir(), VersionToBuildUtil.from(sdkVersion, sha), imageName)
     }
 
     String getImageName(){

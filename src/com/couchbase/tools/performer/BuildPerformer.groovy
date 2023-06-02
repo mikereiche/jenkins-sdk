@@ -35,8 +35,8 @@ class BuildPerformer {
         // We only use "java-sdk" here to distinguish the SDK integrated version from the OG Java performer.
         cli.with {
             d(longOpt: 'directory', args: 1, required: true, 'Directory containing transactions-fit-performer')
-            s(longOpt: 'sdk', args: 1, required: true, 'SDK to build (java-sdk, scala, kotlin, go, python, c++)')
-            v(longOpt: 'version', args: 1, 'Version')
+            s(longOpt: 'sdk', args: 1, required: true, 'SDK to build (java-sdk, scala, kotlin, go, python, c++, .net, ruby)')
+            v(longOpt: 'version', args: 1, 'Version - skip to build main')
             i(longOpt: 'image', args: 1, required: true, 'Docker image name')
             o(longOpt: 'only-source', 'Only modify source, no Docker build')
             b(longOpt: 'build-validation', args: 1, 'Validation mode.  "auto" = build various versions of the SDK')
@@ -57,11 +57,16 @@ class BuildPerformer {
         boolean onlySource = options.o
         String imageName = options.i
         String dir = options.d
-        String validationMode = options.b
+        boolean validationMode = options.b
 
-        ArrayList<Optional<String>> versionsToBuild = []
-        if (validationMode) {
-            versionsToBuild.add(version)
+        ArrayList<VersionToBuild> versionsToBuild = []
+        if (!validationMode) {
+            if (version.isPresent()) {
+                versionsToBuild.add(new BuildVersion(version.get()))
+            }
+            else {
+                versionsToBuild.add(new BuildMain())
+            }
         } else {
             List<PerfConfig.Implementation> versions
 
@@ -104,13 +109,13 @@ class BuildPerformer {
             env.log("Got ${versions.size()} versions")
 
             versions.forEach(vers -> {
-                versionsToBuild.add(Optional.of(vers.version))
+                versionsToBuild.add(new BuildVersion(vers.version))
             })
         }
 
         versionsToBuild.forEach(vers -> env.log("Will build ${vers}"))
 
-        ArrayList<Optional<String>> successfullyBuilt = []
+        ArrayList<VersionToBuild> successfullyBuilt = []
 
         versionsToBuild.forEach(vers -> {
             env.log("Building ${vers}")
@@ -121,11 +126,13 @@ class BuildPerformer {
                 } else if (sdkRaw == "go") {
                     BuildDockerGoPerformer.build(env, dir, vers, imageName, onlySource)
                 } else if (sdkRaw == "python") {
-                    BuildDockerPythonPerformer.build(env, dir, vers, Optional.empty(), imageName, onlySource)
+                    BuildDockerPythonPerformer.build(env, dir, vers, imageName, onlySource)
                 } else if (sdkRaw == "c++") {
-                    BuildDockerCppPerformer.build(env, dir, vers, Optional.empty(), imageName, onlySource)
+                    BuildDockerCppPerformer.build(env, dir, vers, imageName, onlySource)
                 } else if (sdkRaw == "ruby") {
-                    BuildDockerRubyPerformer.build(env, dir, vers, Optional.empty(), imageName, onlySource)
+                    BuildDockerRubyPerformer.build(env, dir, vers, imageName, onlySource)
+                } else if (sdkRaw == ".net") {
+                    BuildDockerDotNetPerformer.build(env, dir, vers, imageName, onlySource)
                 } else {
                     logger.severe("Do not yet know how to build " + sdkRaw)
                 }

@@ -19,11 +19,6 @@ servers:
     #
     # If want to test JVM:
     # couchbase-jvm-clients
-    #
-    # If want to test .NET:
-    # couchbase-net-client
-    # WARNING: It will automatically delete and re-checkout the directory 'couchbase-net-client' under here   (if need to run .NET performer)
-    #          As the .NET performer requires this directory structure.
     source: /home/ec2-user
 
 # Generally only CI should be talking to production database.  For local performance testing, spin up a localhost database.

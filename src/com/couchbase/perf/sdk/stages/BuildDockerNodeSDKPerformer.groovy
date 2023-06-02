@@ -3,6 +3,7 @@ package com.couchbase.perf.sdk.stages
 import com.couchbase.context.StageContext
 import com.couchbase.stages.Stage
 import com.couchbase.tools.performer.BuildDockerNodePerformer
+import com.couchbase.tools.performer.VersionToBuildUtil
 
 
 class BuildDockerNodeSDKPerformer extends Stage {
@@ -32,7 +33,7 @@ class BuildDockerNodeSDKPerformer extends Stage {
     @Override
     protected void executeImpl(StageContext ctx) {
         ctx.env.log("Building node snapshot image")
-        BuildDockerNodePerformer.build(ctx.env, ctx.sourceDir(), Optional.of(sdkVersion), imageName, Optional.ofNullable(sha))
+        BuildDockerNodePerformer.build(ctx.env, ctx.sourceDir(), VersionToBuildUtil.from(sdkVersion, sha), imageName)
     }
 
     String getImageName() {

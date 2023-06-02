@@ -3,6 +3,9 @@ package com.couchbase.perf.sdk.stages
 import com.couchbase.context.StageContext
 import com.couchbase.stages.Stage
 import com.couchbase.tools.performer.BuildDockerCppPerformer
+import com.couchbase.tools.performer.BuildShaVersion
+import com.couchbase.tools.performer.VersionToBuild
+import com.couchbase.tools.performer.VersionToBuildUtil
 
 class BuildDockerCppSDKPerformer extends Stage {
 
@@ -18,7 +21,7 @@ class BuildDockerCppSDKPerformer extends Stage {
         this(genImageName(sdkVersion), sdkVersion, sha)
     }
 
-    BuildDockerCppSDKPerformer(String imageName, String sdkVersion, String sha) {
+    private BuildDockerCppSDKPerformer(String imageName, String sdkVersion, String sha) {
         this.sdkVersion = sdkVersion
         this.imageName = imageName
         this.sha = sha
@@ -31,7 +34,7 @@ class BuildDockerCppSDKPerformer extends Stage {
 
     @Override
     void executeImpl(StageContext ctx) {
-        BuildDockerCppPerformer.build(ctx.env, ctx.sourceDir(), Optional.of(sdkVersion), Optional.ofNullable(sha), imageName)
+        BuildDockerCppPerformer.build(ctx.env, ctx.sourceDir(), VersionToBuildUtil.from(sdkVersion, sha), imageName)
     }
 
     String getImageName(){

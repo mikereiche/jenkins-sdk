@@ -3,6 +3,7 @@ package com.couchbase.perf.sdk.stages
 import com.couchbase.context.StageContext
 import com.couchbase.stages.Stage
 import com.couchbase.tools.performer.BuildDockerJVMPerformer
+import com.couchbase.tools.performer.VersionToBuildUtil
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -31,7 +32,7 @@ class BuildDockerJVMSDKPerformer extends Stage {
     @Override
     void executeImpl(StageContext ctx) {
         try {
-            BuildDockerJVMPerformer.build(ctx.env, ctx.sourceDir(), client, Optional.of(sdkVersion), imageName)
+            BuildDockerJVMPerformer.build(ctx.env, ctx.sourceDir(), client, VersionToBuildUtil.from(sdkVersion, null), imageName)
         }
         catch (err) {
             ctx.env.log(err.toString())

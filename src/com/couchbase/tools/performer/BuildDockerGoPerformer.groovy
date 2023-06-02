@@ -9,17 +9,22 @@ import groovy.transform.CompileStatic
 class BuildDockerGoPerformer {
     /**
      * @param path absolute path to above 'transactions-fit-performer'
-     * @param sdkVersion '3.2.3'.  If not present, it indicates to just build master.
+     * @param build what to build
      */
-    static void build(Environment imp, String path, Optional<String> sdkVersion, String imageName, boolean onlySource = false) {
+    static void build(Environment imp, String path, VersionToBuild build, String imageName, boolean onlySource = false) {
+        if (build instanceof BuildSha || build instanceof BuildShaVersion) {
+            throw new RuntimeException("Building SHA not currently supported for Go")
+        }
+        if (build instanceof BuildGerrit) {
+            throw new RuntimeException("Building Gerrit not currently supported for Go")
+        }
+
         // Build context needs to be perf-sdk as we need the .proto files
         imp.dirAbsolute(path) {
             imp.dir('transactions-fit-performer') {
                 imp.dir('performers/go') {
-                    writeGoModFile(imp, sdkVersion)
-                    sdkVersion.ifPresent(v -> {
-                        TagProcessor.processTags(new File(imp.currentDir()), ImplementationVersion.from(v), false)
-                    })
+                    writeGoModFile(imp, build)
+                    TagProcessor.processTags(new File(imp.currentDir()), build)
                 }
                 if (!onlySource) {
                     imp.execute("docker build -f performers/go/Dockerfile -t $imageName .", false, true, true)
@@ -28,7 +33,7 @@ class BuildDockerGoPerformer {
         }
     }
 
-    static private List writeGoModFile(Environment imp, Optional<String> sdkVersion) {
+    static private List writeGoModFile(Environment imp, VersionToBuild build) {
         def goMod = new File("${imp.currentDir()}/go.mod")
         def lines = goMod.readLines()
 
@@ -37,8 +42,8 @@ class BuildDockerGoPerformer {
         for (int i = 0; i < lines.size(); i++) {
             def line = lines[i]
 
-            if (line.contains("couchbase/gocb/v2") && sdkVersion.isPresent()) {
-                goMod.append("\tgithub.com/couchbase/gocb/v2 v${sdkVersion.get()}\n")
+            if (line.contains("couchbase/gocb/v2") && build instanceof HasVersion) {
+                goMod.append("\tgithub.com/couchbase/gocb/v2 v${build.version()}\n")
             } else {
                 goMod.append(line + "\n")
             }

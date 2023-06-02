@@ -1,6 +1,11 @@
 package com.couchbase.tools.tags
 
-
+import com.couchbase.tools.performer.BuildGerrit
+import com.couchbase.tools.performer.BuildMain
+import com.couchbase.tools.performer.BuildSha
+import com.couchbase.tools.performer.BuildVersion
+import com.couchbase.tools.performer.HasVersion
+import com.couchbase.tools.performer.VersionToBuild
 import com.couchbase.versions.ImplementationVersion
 import groovy.cli.picocli.CliBuilder
 import groovy.transform.CompileStatic
@@ -56,7 +61,11 @@ class TagProcessor {
     }
 
     @CompileStatic
-    static boolean isMatch(String line, ImplementationVersion sdkVersion) {
+    static boolean isMatch(String line, VersionToBuild build) {
+        if (build instanceof BuildMain) return false
+
+        ImplementationVersion sdkVersion = (build as HasVersion).implementationVersion() as ImplementationVersion
+
         if (line.contains("&&")) {
             var split = line.split("&&")
             return match(split[0], sdkVersion) && match(split[1], sdkVersion)
@@ -65,9 +74,20 @@ class TagProcessor {
         return match(line, sdkVersion)
     }
 
+    /**
+     * @param curPath    a directory to recursively run the tags processing on all files below
+     * @param build      what to build
+     */
     @CompileStatic
-    public static void processTags(File curPath, ImplementationVersion sdkVersion, boolean restoreMode) {
-        curPath.listFiles().each {  File file ->
+    public static void processTags(File curPath, VersionToBuild build) {
+        // See comments on these two classes for why tags processing is skipped in these modes.
+        if (build instanceof BuildGerrit || build instanceof BuildSha) {
+            return
+        }
+
+        boolean restoreMode = build instanceof BuildMain
+
+        curPath.listFiles().each { File file ->
 
             if (file.isFile()) {
                 // logger.info("Inspecting file ${file.getAbsolutePath()}")
@@ -96,8 +116,7 @@ class TagProcessor {
                         needsOverwriting = true
                         if (!isSkipped) {
                             out.add(commentMarker + " [skipped] " + line)
-                        }
-                        else {
+                        } else {
                             // Line is already skipped, can just add it
                             out.add(line)
                         }
@@ -110,7 +129,7 @@ class TagProcessor {
 
                         if (isStart || isEnd || isSkip) {
                             boolean isLastLine = i == lines.size() - 1
-                            boolean match = isMatch(line, sdkVersion)
+                            boolean match = isMatch(line, build)
 
                             if (isStart || isEnd) {
                                 boolean include = restoreMode || match
@@ -162,9 +181,8 @@ class TagProcessor {
                     w.close()
 
                 }
-            }
-            else {
-                processTags(file, sdkVersion, restoreMode)
+            } else {
+                processTags(file, build)
             }
         }
     }
@@ -173,6 +191,7 @@ class TagProcessor {
         var handler = new ConsoleHandler();
         handler.setFormatter(new SimpleFormatter() {
             private static final String format = '[%1$tF %1$tT] [%2$-7s] %3$s %n'
+
             @Override
             public String formatMessage(LogRecord record) {
                 return String.format(format,
@@ -201,6 +220,11 @@ class TagProcessor {
             System.exit(-1)
         }
 
-        processTags(new File(options.d), ImplementationVersion.from(options.v), options.r)
+        if (options.r) {
+            processTags(new File(options.d), new BuildVersion(options.v))
+        }
+        else {
+            processTags(new File(options.d), new BuildMain())
+        }
     }
 }

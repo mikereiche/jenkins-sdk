@@ -3,6 +3,7 @@ package com.couchbase.perf.sdk.stages
 import com.couchbase.context.StageContext
 import com.couchbase.stages.Stage
 import com.couchbase.tools.performer.BuildDockerRubyPerformer
+import com.couchbase.tools.performer.VersionToBuildUtil
 
 class BuildDockerRubySDKPerformer extends Stage {
 
@@ -31,7 +32,7 @@ class BuildDockerRubySDKPerformer extends Stage {
 
     @Override
     void executeImpl(StageContext ctx) {
-        BuildDockerRubyPerformer.build(ctx.env, ctx.sourceDir(), Optional.of(sdkVersion), Optional.ofNullable(sha), imageName)
+        BuildDockerRubyPerformer.build(ctx.env, ctx.sourceDir(), VersionToBuildUtil.from(sdkVersion, sha), imageName)
     }
 
     String getImageName() {

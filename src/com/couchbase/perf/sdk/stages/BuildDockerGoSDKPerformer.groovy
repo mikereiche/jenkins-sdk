@@ -3,6 +3,7 @@ package com.couchbase.perf.sdk.stages
 import com.couchbase.context.StageContext
 import com.couchbase.stages.Stage
 import com.couchbase.tools.performer.BuildDockerGoPerformer
+import com.couchbase.tools.performer.VersionToBuildUtil
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -31,7 +32,7 @@ class BuildDockerGoSDKPerformer extends Stage{
 
     @Override
     void executeImpl(StageContext ctx) {
-        BuildDockerGoPerformer.build(ctx.env, ctx.sourceDir(), Optional.of(sdkVersion), imageName)
+        BuildDockerGoPerformer.build(ctx.env, ctx.sourceDir(), VersionToBuildUtil.from(sdkVersion, null), imageName)
     }
 
     String getImageName(){

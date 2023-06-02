@@ -20,11 +20,10 @@ class BuildDockerJVMPerformer {
     /**
      * @param path absolute path to above 'couchbase-jvm-clients'
      * @param client 'java', 'kotlin'
-     * @param sdkVersion '3.2.3' or 'refs/changes/94/184294/1'.  If not present, it indicates to just build master.
+     * @param build what to build
      */
-    static void build(Environment imp, String path, String client, Optional<String> sdkVersion, String imageName, boolean onlySource = false) {
-        var isGerrit = sdkVersion.isPresent() && sdkVersion.get().startsWith("refs/")
-        if (isGerrit) {
+    static void build(Environment imp, String path, String client, VersionToBuild build, String imageName, boolean onlySource = false) {
+        if (build instanceof BuildGerrit) {
             imp.tempDir {
                 // We need:
                 // 1. transactions-fit-performer and couchbase-jvm-clients to exist at the same level, since the Dockerfile from
@@ -42,7 +41,7 @@ class BuildDockerJVMPerformer {
                 imp.execute("git clone https://github.com/couchbase/couchbase-jvm-clients", false, true, true)
                 var temp = "temp-${UUID.randomUUID().toString().substring(0, 4)}"
                 imp.dir("couchbase-jvm-clients") {
-                    imp.execute("git fetch https://review.couchbase.org/couchbase-jvm-clients ${sdkVersion.get()}", false, true, true)
+                    imp.execute("git fetch https://review.couchbase.org/couchbase-jvm-clients ${build.gerrit()}", false, true, true)
                     imp.execute("git checkout FETCH_HEAD", false, true, true)
                     imp.execute("git log -n 1", false, true, true)
                     def file = new File("${imp.currentDir()}/java-fit-performer/Dockerfile")
@@ -69,12 +68,10 @@ class BuildDockerJVMPerformer {
         else {
             imp.dirAbsolute(path) {
                 imp.dir("couchbase-jvm-clients") {
-                    writeParentPomFile(imp, sdkVersion.isPresent())
+                    writeParentPomFile(imp, !(build instanceof BuildMain))
                     imp.dir("${client}-fit-performer") {
-                        sdkVersion.ifPresent(ver -> {
-                            writePerformerPomFile(imp, client + "-client" + (client == "scala" ? "_2.12" : ""), ver)
-                            TagProcessor.processTags(new File(imp.currentDir() + "/src"), ImplementationVersion.from(ver), false)
-                        })
+                        writePerformerPomFile(imp, client + "-client" + (client == "scala" ? "_2.12" : ""), build)
+                        TagProcessor.processTags(new File(imp.currentDir() + "/src"), build)
                     }
                 }
                 if (!onlySource) {
@@ -97,11 +94,14 @@ class BuildDockerJVMPerformer {
         def out = new ArrayList<String>()
         def commentFromLine = -1
         def commentUntilLine = -1
+        def commentedByBuilder = "COMMENTED OUT BY BUILDER"
 
         for (int i = 0; i < lines.size(); i++) {
             def line = lines[i]
             boolean alreadyCommented = line.size() > 0 && line.startsWith("<!--")
             boolean commentLine = false
+
+            def uncommentLine = false
 
             if (specificVersion) {
                 // Have to comment out the core-io dependency as it overrides the java-client's transitive dependency.
@@ -117,16 +117,23 @@ class BuildDockerJVMPerformer {
                 commentLine = (line.contains("<module>") && !line.contains("fit-performer"))
                         || (commentFromLine != -1 && (i >= commentFromLine && i <= commentUntilLine))
             }
+            else {
+                // Else, undo any changes we made earlier
+                uncommentLine = line.contains(commentedByBuilder)
+            }
 
-            // Have to uncomment the performers
-            def uncommentLine = line.contains("<module>") && line.contains("fit-performer")
+
+            // Always have to uncomment the performers
+            if (line.contains("<module>") && line.contains("fit-performer")) {
+                uncommentLine = true
+            }
 
             if (uncommentLine) {
-                line = line.replace("<!--", "").replace("!-->", "").replace("-->", "")
+                line = line.replace("<!-- ${commentedByBuilder} ", "").replace(" -->", "")
             }
 
             if (commentLine && !alreadyCommented) {
-                out.add("<!-- " + line + " !-->")
+                out.add("<!-- " + commentedByBuilder + " " + line + " -->")
             }
             else {
                 out.add(line)
@@ -141,7 +148,7 @@ class BuildDockerJVMPerformer {
     /**
      * Updates the performer's pom.xml to build with the SDK under test.
      */
-    private static List writePerformerPomFile(Environment imp, String lookingFor, String versionToInsert) {
+    private static List writePerformerPomFile(Environment imp, String lookingFor, VersionToBuild build) {
         def pom = new File("${imp.currentDir()}/pom.xml")
         imp.log("Updating ${pom.getAbsolutePath()}")
         def lines = pom.readLines()
@@ -151,12 +158,14 @@ class BuildDockerJVMPerformer {
             def line = lines[i]
 
             if (line.contains("<artifactId>${lookingFor}</artifactId>")) {
-                // Skip over any existing version
+                // Skip over any existing version (effectively removing it from the output)
                 if (lines[i + 1].contains("<version>")) {
                     i += 1
                 }
                 out.add(line)
-                out.add("            <version>" + versionToInsert + "</version>")
+                if (build instanceof HasVersion) {
+                    out.add("            <version>" + build.version() + "</version>")
+                }
             }
             else {
                 out.add(line)

@@ -7,14 +7,16 @@ import com.couchbase.versions.ImplementationVersion
 class BuildDockerNodePerformer {
     private static Boolean write_couchbase = false
 
-    static void build(Environment imp, String path, Optional<String> sdkVersion, String imageName, Optional<String> sha, boolean onlySource = false) {
+    static void build(Environment imp, String path, VersionToBuild build, String imageName, boolean onlySource = false) {
+        if (build instanceof BuildGerrit) {
+            throw new RuntimeException("Building Gerrit not currently supported for Node")
+        }
+
         imp.dirAbsolute(path) {
             imp.dir('transactions-fit-performer') {
                 imp.dir("performers/node") {
                     writePackageFile(imp, sdkVersion, sha)
-                    sdkVersion.ifPresent(v -> {
-                        TagProcessor.processTags(new File(imp.currentDir()), ImplementationVersion.from(v), false)
-                    })
+                    TagProcessor.processTags(new File(imp.currentDir()),  sdkVersion.map { ImplementationVersion.from(it) })
                 }
                 if (!onlySource) {
                     imp.log("building docker container")

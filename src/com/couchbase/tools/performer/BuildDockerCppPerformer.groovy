@@ -14,21 +14,22 @@ class BuildDockerCppPerformer {
     /**
      * @param imp        the build environment
      * @param path       absolute path to above 'transactions-fit-performer'
-     * @param sdkVersion (e.g. '1.0.0'). If not present (and sha is not present), it indicates to just build main.
-     * @param sha        (e.g. '20e862d'). If present, it indicates to build from specific commit
+     * @param build      what to build
      * @param imageName  the name of the docker image
      * @param onlySource whether to skip the docker build
      */
-    static void build(Environment imp, String path, Optional<String> sdkVersion, Optional<String> sha, String imageName, boolean onlySource = false) {
+    static void build(Environment imp, String path, VersionToBuild build, String imageName, boolean onlySource = false) {
+        if (build instanceof BuildGerrit) {
+            throw new RuntimeException("Building Gerrit not currently supported for C++")
+        }
+
         imp.dirAbsolute(path) {
             imp.dir('transactions-fit-performer') {
                 imp.dir('performers/cpp') {
-                    sdkVersion.ifPresent(v -> {
-                        TagProcessor.processTags(new File(imp.currentDir()), ImplementationVersion.from(v), false)
-                    })
+                    TagProcessor.processTags(new File(imp.currentDir()), build)
                 }
                 if (!onlySource) {
-                    String branch = getSdkBranch(sdkVersion, sha);
+                    String branch = getSdkBranch(build)
                     String cmd = "docker build -f ./performers/cpp/Dockerfile -t $imageName --build-arg SDK_BRANCH=$branch  ."
                     imp.execute(cmd, false, true, true)
                 }
@@ -36,20 +37,14 @@ class BuildDockerCppPerformer {
         }
     }
 
-    private static String getSdkBranch(Optional<String> sdkVersion, Optional<String> sha) {
+    private static String getSdkBranch(VersionToBuild build) {
         String res = "main"
-        sha.ifPresentOrElse(
-            (shaValue) -> {
-                res = shaValue
-            },
-            () -> {
-                sdkVersion.ifPresent(
-                    (versionValue) -> {
-                        res = "tags/${versionValue}"
-                    }
-                )
-            }
-        )
+        if (build instanceof HasSha) {
+            res = build.sha()
+        }
+        else if (build instanceof HasVersion) {
+            res = "tags/${build.version()}"
+        }
         return res
     }
 }
