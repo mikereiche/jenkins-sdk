@@ -118,14 +118,13 @@ matrix:
     - language: Scala
       version: snapshot
 
-    # Kotlin not currently building
-#    - language: Kotlin
-#      version: 1.X.X
-#
-#    - language: Kotlin
-#      version: snapshot
+    - language: Kotlin
+      version: 1.X.X
 
-    # .NET not currently building
+    - language: Kotlin
+      version: snapshot
+
+    # Temporarily removed .NET as requires patch
 #    - language: .NET
 #      version: 3.3.X
 #
