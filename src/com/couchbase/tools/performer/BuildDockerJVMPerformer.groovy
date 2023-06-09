@@ -5,6 +5,8 @@ import com.couchbase.tools.tags.TagProcessor
 import com.couchbase.versions.ImplementationVersion
 import groovy.transform.CompileStatic
 
+import java.nio.file.Files
+import java.nio.file.Path
 import java.util.stream.Collectors
 
 /**
@@ -69,6 +71,11 @@ class BuildDockerJVMPerformer {
         }
         else {
             imp.dirAbsolute(path) {
+                def required = Path.of(imp.currentDir(), "couchbase-jvm-clients")
+                if (!Files.exists(required)) {
+                    throw new RuntimeException("Path ${required} not found, cannot continue")
+                }
+
                 imp.dir("couchbase-jvm-clients") {
                     writeParentPomFile(imp, !(build instanceof BuildMain))
                     imp.dir("${client}-fit-performer") {
@@ -131,7 +138,11 @@ class BuildDockerJVMPerformer {
             }
 
             if (uncommentLine) {
-                line = line.replace("<!-- ${commentedByBuilder} ", "").replace(" -->", "")
+                line = line.replace("<!-- ${commentedByBuilder} ", "")
+                        // Handle existing commented lines in pom.xml
+                        .replace("<!-- ", "")
+                        .replace(" -->", "")
+                        .replace("-->", "")
             }
 
             if (commentLine && !alreadyCommented) {

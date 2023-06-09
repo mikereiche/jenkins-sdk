@@ -79,13 +79,19 @@ class TagProcessor {
      * @param build      what to build
      */
     @CompileStatic
-    public static void processTags(File curPath, VersionToBuild build) {
+    public static void processTags(File curPath, VersionToBuild build, boolean restoreMode = false) {
         // See comments on these two classes for why tags processing is skipped in these modes.
         if (build instanceof BuildGerrit || build instanceof BuildSha) {
             return
         }
 
-        boolean restoreMode = build instanceof BuildMain
+        // If building main there's nothing to do, since we don't know what version we're building.
+        // Note that if the source is currently set into e.g. 3.4.3 mode, then what we really want to do is to reset
+        // the code to 'main'.  So there is a bug here, as that's not done anywhere.  But it's unlikely to be a bug
+        // that impacts anyone: the functional tests only build master, and the perf tests only build specific versions or shas.
+        if (build instanceof BuildMain) {
+            return
+        }
 
         curPath.listFiles().each { File file ->
 
@@ -220,11 +226,11 @@ class TagProcessor {
             System.exit(-1)
         }
 
-        if (options.r) {
-            processTags(new File(options.d), new BuildVersion(options.v))
+        if (options.v) {
+            processTags(new File(options.d), new BuildVersion(options.v), options.r)
         }
         else {
-            processTags(new File(options.d), new BuildMain())
+            processTags(new File(options.d), new BuildMain(), options.r)
         }
     }
 }
