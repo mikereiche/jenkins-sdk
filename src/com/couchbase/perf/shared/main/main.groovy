@@ -323,8 +323,13 @@ class Execute {
         ctx.runsRequired = jc.variables.runsRequired
         String version = jcPrep(ctx, args)
         def allPerms = parseConfig(ctx)
-        PerfDatabase.migrate(ctx, args)
-        def db = PerfDatabase.compareRunsAgainstDb(ctx, allPerms, args)
+        def jdbc = "jdbc:postgresql://${ctx.jc.database.hostname}:${ctx.jc.database.port}/${ctx.jc.database.database}";
+        def dbPassword = jc.database.password
+        if (args.length > 0) {
+            dbPassword = args[0]
+        }
+        PerfDatabase.migrate(jdbc, jc.database.username, jc.database.password, env)
+        def db = PerfDatabase.compareRunsAgainstDb(jdbc, jc.database.username, jc.database.password, env, allPerms)
         def parsed2 = parseConfig2(ctx, db)
         def planned = plan(ctx, parsed2, jc)
         def root = new Stage() {

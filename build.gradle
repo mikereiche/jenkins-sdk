@@ -61,3 +61,10 @@ task buildPerformer(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = "com.couchbase.tools.performer.BuildPerformer"
 }
+
+task setupPerfDatabase(type: JavaExec) {
+    group = "Execution"
+    description = "Setup the performance database"
+    classpath = sourceSets.main.runtimeClasspath
+    main = "com.couchbase.tools.perf.database.SetupPerfDatabase"
+}
