@@ -3,10 +3,12 @@ package com.couchbase.tools.performer
 import com.couchbase.context.environments.Environment
 import com.couchbase.tools.tags.TagProcessor
 import com.couchbase.versions.ImplementationVersion
+import groovy.transform.CompileStatic
 
 class BuildDockerNodePerformer {
     private static Boolean write_couchbase = false
 
+    @CompileStatic
     static void build(Environment imp, String path, VersionToBuild build, String imageName, boolean onlySource = false) {
         imp.log("Building Node ${build}")
 
@@ -17,8 +19,8 @@ class BuildDockerNodePerformer {
         imp.dirAbsolute(path) {
             imp.dir('transactions-fit-performer') {
                 imp.dir("performers/node") {
-                    writePackageFile(imp, sdkVersion, sha)
-                    TagProcessor.processTags(new File(imp.currentDir()),  sdkVersion.map { ImplementationVersion.from(it) })
+                    writePackageFile(imp, build)
+                    TagProcessor.processTags(new File(imp.currentDir()), build)
                 }
                 if (!onlySource) {
                     imp.log("building docker container")
@@ -28,7 +30,8 @@ class BuildDockerNodePerformer {
         }
     }
 
-    private static void writePackageFile(Environment imp, Optional<String> sdkVersion, Optional<String> sha) {
+    @CompileStatic
+    private static void writePackageFile(Environment imp, VersionToBuild build) {
         def packageFile = new File("${imp.currentDir()}/package.json")
         def shaFile = new File("${imp.currentDir()}/sha.txt")
         def lines = packageFile.readLines()
@@ -39,31 +42,17 @@ class BuildDockerNodePerformer {
             for (int i = 0; i < lines.size(); i++) {
                 def line = lines[i]
 
-                if (line.contains("couchbase") && sdkVersion.isPresent()) {
-                    if (sha.isPresent()) { //True if using snapshot version
-                        shaFile.append(sha.get())
-                    } else {
-                        packageFile.append("\t\"couchbase\": \"^${sdkVersion.get()}\",\n")
+                if (line.contains("couchbase")) {
+                    if (build instanceof HasVersion) {
+                        if (build instanceof HasSha) { //True if using snapshot version
+                            shaFile.append(build.sha())
+                        } else {
+                            packageFile.append("\t\"couchbase\": \"^${build.version()}\",\n")
+                        }
                     }
-                } else {
-                    packageFile.append(line + "\n")
-                }
-            }
-        } else {
-            for (int i = 0; i < lines.size(); i++) {
-                def line = lines[i]
-
-                if (write_couchbase) {
-                    packageFile.append("\t\"couchbase\": \"^${sdkVersion.get()}\",\n")
-                    write_couchbase = false
-                }
-                if (line.contains("dependencies") && sdkVersion.isPresent()) {
-                    if (sha.isPresent()) {
-                        shaFile.append(sha.get())
-                    } else {
-                        write_couchbase = true
+                    else {
+                        packageFile.append(line + "\n")
                     }
-                    packageFile.append(line + "\n")
                 } else {
                     packageFile.append(line + "\n")
                 }

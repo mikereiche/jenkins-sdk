@@ -2,6 +2,9 @@ package com.couchbase.tools.performer
 
 import com.couchbase.versions.ImplementationVersion
 
+/**
+ * Abstracts over all the various ways we can build a performer against a specific SDK version.
+ */
 interface VersionToBuild {}
 
 class VersionToBuildUtil {
@@ -49,6 +52,8 @@ class BuildMain implements VersionToBuild {
  * SDK version it's associated with.  Generally this is not a problem, since building a specific sha is used for
  * building the latest snapshot, which generally does not require tagging.  If it ever does become a problem, then
  * finding a general solution will not be easy...
+ *
+ * If at all possible (e.g. if the version info is available), create a BuildShaVersion rather than a BuildSha.
  */
 record BuildSha(String sha) implements VersionToBuild, HasSha {
     @Override
