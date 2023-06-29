@@ -10,7 +10,14 @@ buildscript {
 
 plugins {
     id 'groovy'
+    id 'java-library'
  }
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
+}
 
 apply plugin: 'com.github.johnrengelman.shadow'
 
