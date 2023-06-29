@@ -24,3 +24,10 @@ See the comments on `BuilderPerformer` for more.
 ```
 ./gradlew buildPerformer --args="-d <some_path> -s kotlin -v 1.0.0 -i performer"
 ```
+
+# Setting up performance database
+Creates all required tables.
+
+```
+./gradlew setupPerfDatabase
+```
