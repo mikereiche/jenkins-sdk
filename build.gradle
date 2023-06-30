@@ -67,7 +67,6 @@ task buildPerformer(type: JavaExec) {
     description = "Build the Docker image for a performer"
     classpath = sourceSets.main.runtimeClasspath
     main = "com.couchbase.tools.performer.BuildPerformer"
-    maxHeapSize = "4G"
 }
 
 task setupPerfDatabase(type: JavaExec) {
