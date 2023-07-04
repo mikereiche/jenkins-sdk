@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import groovy.json.JsonGenerator
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import groovy.transform.Immutable
 import groovy.transform.ImmutableOptions
 import groovy.transform.ImmutableProperties
 import groovy.transform.RecordOptions
@@ -22,11 +23,11 @@ import groovy.yaml.YamlBuilder
 @CompileStatic
 @ToString(includeNames = true, includePackage = false)
 class PerfConfig {
-    Servers servers
-    Database database
-    Map<String, String> executables
-    Matrix matrix
-    Settings settings
+    public final Servers servers
+    public final Database database
+    public final Map<String, String> executables
+    public final Matrix matrix
+    public final Settings settings
 
     @ToString(includeNames = true, includePackage = false)
     static class Matrix {
@@ -173,8 +174,10 @@ class PerfConfig {
  *
  * Includes are AND-based - all Includes must be satisfied for the run to be included.
  */
-record Include(Implementation implementation,
-               PerfConfig.Cluster cluster) {}
+class Include {
+    public final Implementation implementation;
+    public final PerfConfig.Cluster cluster;
+}
 
 /**
  * Read from job-config.yaml.
@@ -185,13 +188,22 @@ record Include(Implementation implementation,
  *
  * include decides whether a variable is included - usually used to specify per-SDK tunables
  */
-@ImmutableOptions
-record Variable(String name,
-                Object value,
-                // "tunable" or null
-                String type = null,
-                List<Object> values = null,
-                List<Include> include = null) {
+class Variable {
+    public final String name;
+    public final Object value;
+    // "tunable" or null
+    public final String type;
+    public final List<Object> values = null;
+    public final List<Include> include = null;
+
+    Variable() {}
+
+    Variable(String name, Object value, String type) {
+        this.name = name
+        this.value = value
+        this.type = type
+    }
+
     // By this point the variables have been permuted and only value is present
     @CompileDynamic
     def asYaml() {
@@ -203,14 +215,33 @@ record Variable(String name,
     }
 }
 
-@ImmutableOptions
-record Settings(List<Variable> variables, Object grpc) {}
+class Settings {
+    public final List<Variable> variables;
+    public final Object grpc;
 
-@ImmutableOptions
-record Workload(Object operations,
-                Settings settings,
-                Object include,
-                Object exclude) {
+    Settings() {}
+
+    Settings(List<Variable> variables, Object grpc) {
+        this.variables = variables
+        this.grpc = grpc
+    }
+}
+
+class Workload {
+    Object operations;
+    Settings settings;
+    Object include;
+    Object exclude;
+
+    Workload() {}
+
+    Workload(Object operations, Settings settings, Object include, Object exclude) {
+        this.operations = operations
+        this.settings = settings
+        this.include = include
+        this.exclude = exclude
+    }
+
     @CompileDynamic
     def toJson() {
         // Some workload variables are used for meta purposes but we don't want to compare the database runs with them
@@ -223,9 +254,15 @@ record Workload(Object operations,
 @CompileStatic
 @ToString(includeNames = true, includePackage = false)
 class Run {
-    PerfConfig.Implementation impl
-    Workload workload
-    PerfConfig.Cluster cluster
+    public final PerfConfig.Implementation impl
+    public final Workload workload
+    public final PerfConfig.Cluster cluster
+
+    Run(PerfConfig.Implementation impl, Workload workload, PerfConfig.Cluster cluster) {
+        this.impl = impl
+        this.workload = workload
+        this.cluster = cluster
+    }
 
     @CompileDynamic
     def toJson() {

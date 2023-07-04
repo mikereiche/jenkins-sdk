@@ -129,11 +129,11 @@ class ConfigParser {
 
         // (Currently) need hardcoded logic to filter the APIs to what the performer supports, rather than using
         // performerCapsFetch - see CBD-5264.
-        var api = workload.settings().variables().find { it.name() == "api" }
+        var api = workload.settings.variables.find { it.name == "api" }
         if (api != null) {
-            boolean isOne = api.value() == "DEFAULT"
-            boolean isTwo = api.value() == "ASYNC"
-            boolean isThree = api.value() == "THREE"
+            boolean isOne = api.value == "DEFAULT"
+            boolean isTwo = api.value == "ASYNC"
+            boolean isThree = api.value == "THREE"
 
             boolean isTransactionWorkload = workload.operations.get(0).op == "transaction"
 
@@ -148,7 +148,7 @@ class ConfigParser {
 
             if ((isOne && !supportsOne) || (isTwo && !supportsTwo) || (isThree && !supportsThree)) {
                 exclude = true
-                excludeReasons.add("SDK ${implementation.language} does not support API ${api.value()}")
+                excludeReasons.add("SDK ${implementation.language} does not support API ${api.value}")
             }
         }
 
@@ -170,15 +170,15 @@ class ConfigParser {
 
         if (variables.size() == 1) {
             var v = variables.get(0)
-            if (v.values() != null) {
-                v.values().forEach(value -> {
+            if (v.values != null) {
+                v.values.forEach(value -> {
                     // null values are filtered out for good reasons that I now forget...
                     if (value != null) {
-                        out.add(Set.of(new Variable(v.name(), value, v.type())))
+                        out.add(Set.of(new Variable(v.name, value, v.type)))
                     }
                 })
-            } else if (v.value() != null) {
-                out.add(Set.of(new Variable(v.name(), v.value(), v.type())))
+            } else if (v.value != null) {
+                out.add(Set.of(new Variable(v.name, v.value, v.type)))
             }
 
         } else {
@@ -190,17 +190,17 @@ class ConfigParser {
                 var permsWithout = calculateVariablePermutations(ctx, variablesWithout)
 
                 permsWithout.forEach(without -> {
-                    if (v.values() != null) {
-                        v.values().forEach(value -> {
+                    if (v.values != null) {
+                        v.values.forEach(value -> {
                             if (value != null) {
-                                var newV = new Variable(v.name(), value, v.type())
+                                var newV = new Variable(v.name, value, v.type)
                                 var toAdd = new HashSet(without)
                                 toAdd.add(newV)
                                 out.add(toAdd)
                             }
                         })
-                    } else if (v.value() != null) {
-                        var newV = new Variable(v.name(), v.value(), v.type())
+                    } else if (v.value != null) {
+                        var newV = new Variable(v.name, v.value, v.type)
                         var toAdd = new HashSet(without)
                         toAdd.add(newV)
                         out.add(toAdd)
@@ -216,12 +216,12 @@ class ConfigParser {
      * Merges the top-level settings with the workload's settings.
      */
     static Settings merge(Settings top, Settings descended) {
-        var grpc = descended.grpc() == null
-                ? top.grpc()
-                : descended.grpc()
-        var variables = new ArrayList<Variable>(descended.variables())
-        top.variables().forEach(v -> {
-            if (!variables.stream().anyMatch({it.name() == v.name()})) {
+        var grpc = descended.grpc == null
+                ? top.grpc
+                : descended.grpc
+        var variables = new ArrayList<Variable>(descended.variables)
+        top.variables.forEach(v -> {
+            if (!variables.stream().anyMatch({it.name == v.name})) {
                 variables.add(v)
             }
         })
@@ -234,20 +234,16 @@ class ConfigParser {
             for (impl in config.matrix.implementations) {
                 for (workload in config.matrix.workloads) {
 
-                    var merged = merge(config.settings, workload.settings())
+                    var merged = merge(config.settings, workload.settings)
 
-                    var variablesThatApply = includeVariablesThatApplyToThisRun(ctx, cluster, impl, merged.variables())
+                    var variablesThatApply = includeVariablesThatApplyToThisRun(ctx, cluster, impl, merged.variables)
 
                     var perms = calculateVariablePermutations(ctx, variablesThatApply)
                     perms.forEach(perm -> {
-                        var newWorkload = new Workload(workload.operations(), new Settings(perm.toList(), merged.grpc()), workload.include(), workload.exclude())
+                        var newWorkload = new Workload(workload.operations, new Settings(perm.toList(), merged.grpc), workload.include, workload.exclude)
 
                         if (includeRun(ctx, newWorkload, impl, cluster)) {
-                            def run = new Run()
-                            run.cluster = cluster
-                            run.impl = impl
-                            run.workload = newWorkload
-
+                            def run = new Run(impl, newWorkload, cluster)
                             out.add(run)
                         }
                     })
@@ -262,32 +258,32 @@ class ConfigParser {
                                                              PerfConfig.Implementation implementation,
                                                              List<Variable> variables) {
         return variables.findAll {
-            if (it.include() == null) {
+            if (it.include == null) {
                 return true
             }
 
             var ret = true
 
-            for (def inc in it.include()) {
-                if (inc.implementation() != null) {
-                    if (inc.implementation().language != implementation.language
-                            || (inc.implementation().version != null && inc.implementation().version != implementation.version)) {
+            for (def inc in it.include) {
+                if (inc.implementation != null) {
+                    if (inc.implementation.language != implementation.language
+                            || (inc.implementation.version != null && inc.implementation.version != implementation.version)) {
                         ret = false
                     }
                 }
 
-                if (inc.cluster() != null) {
-                    if (inc.cluster().version != null && inc.cluster().version != cluster.version) ret = false
-                    if (inc.cluster().nodeCount != null && inc.cluster().nodeCount != cluster.nodeCount) ret = false
-                    if (inc.cluster().memory != null && inc.cluster().memory != cluster.memory) ret = false
-                    if (inc.cluster().cpuCount != null && inc.cluster().cpuCount != cluster.cpuCount) ret = false
-                    if (inc.cluster().type != null && inc.cluster().type != cluster.type) ret = false
-                    if (inc.cluster().storage != null && inc.cluster().storage != cluster.storage) ret = false
-                    if (inc.cluster().replicas != null && inc.cluster().replicas != cluster.replicas) ret = false
-                    if (inc.cluster().instance != null && inc.cluster().instance != cluster.instance) ret = false
-                    if (inc.cluster().compaction != null && inc.cluster().compaction != cluster.compaction) ret = false
-                    if (inc.cluster().topology != null && inc.cluster().topology != cluster.topology) ret = false
-                    if (inc.cluster().stellarNebulaSha != null && inc.cluster().stellarNebulaSha != cluster.stellarNebulaSha) ret = false
+                if (inc.cluster != null) {
+                    if (inc.cluster.version != null && inc.cluster.version != cluster.version) ret = false
+                    if (inc.cluster.nodeCount != null && inc.cluster.nodeCount != cluster.nodeCount) ret = false
+                    if (inc.cluster.memory != null && inc.cluster.memory != cluster.memory) ret = false
+                    if (inc.cluster.cpuCount != null && inc.cluster.cpuCount != cluster.cpuCount) ret = false
+                    if (inc.cluster.type != null && inc.cluster.type != cluster.type) ret = false
+                    if (inc.cluster.storage != null && inc.cluster.storage != cluster.storage) ret = false
+                    if (inc.cluster.replicas != null && inc.cluster.replicas != cluster.replicas) ret = false
+                    if (inc.cluster.instance != null && inc.cluster.instance != cluster.instance) ret = false
+                    if (inc.cluster.compaction != null && inc.cluster.compaction != cluster.compaction) ret = false
+                    if (inc.cluster.topology != null && inc.cluster.topology != cluster.topology) ret = false
+                    if (inc.cluster.stellarNebulaSha != null && inc.cluster.stellarNebulaSha != cluster.stellarNebulaSha) ret = false
                 }
             }
 
