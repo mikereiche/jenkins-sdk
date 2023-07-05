@@ -64,10 +64,10 @@ class OutputPerformerConfig extends Stage {
             def yaml = new YamlBuilder()
             yaml {
                 uuid UUID.randomUUID().toString()
-                operations(run.workload.operations())
+                operations(run.workload.operations)
                 settings {
-                    variables(run.workload.settings().variables().collect { it.asYaml() })
-                    grpc(run.workload.settings().grpc())
+                    variables(run.workload.settings.variables.collect { it.asYaml() })
+                    grpc(run.workload.settings.grpc)
                 }
             }
             yaml.content
