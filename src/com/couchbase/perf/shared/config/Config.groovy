@@ -174,6 +174,7 @@ class PerfConfig {
  *
  * Includes are AND-based - all Includes must be satisfied for the run to be included.
  */
+@ToString(includeNames = true, includePackage = false)
 class Include {
     public final Implementation implementation;
     public final PerfConfig.Cluster cluster;
@@ -188,6 +189,7 @@ class Include {
  *
  * include decides whether a variable is included - usually used to specify per-SDK tunables
  */
+@ToString(includeNames = true, includePackage = false)
 class Variable {
     public final String name;
     public final Object value;
@@ -215,6 +217,7 @@ class Variable {
     }
 }
 
+@ToString(includeNames = true, includePackage = false)
 class Settings {
     public final List<Variable> variables;
     public final Object grpc;
@@ -227,6 +230,7 @@ class Settings {
     }
 }
 
+@ToString(includeNames = true, includePackage = false)
 class Workload {
     Object operations;
     Settings settings;

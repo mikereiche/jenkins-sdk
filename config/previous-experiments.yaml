@@ -20,3 +20,108 @@ workloads:
     include:
       - language: C++
         version: snapshot
+
+      # KV gets - test different number of endpoints to Protostellar
+      - operations:
+          - op: get
+            bounds:
+              forSeconds: $forSeconds
+            docLocation:
+              method: pool
+              poolSize: $poolSize
+              poolSelectionStrategy: randomUniform
+
+        settings:
+          variables:
+            - name: poolSize
+              value: 10000
+
+            # Just make it easier to find these results
+            - name: experimentName
+              value: "openShiftNumEndpoints"
+
+            - name: "com.couchbase.protostellar.numEndpoints"
+              type: tunable
+              include:
+                - cluster:
+                    scheme: protostellar
+              values: [ "1", "2", "4", "8", "16", "32", "64" ]
+
+        exclude:
+          - protostellar: false
+          - api: "ASYNC"
+
+        include:
+          - language: Java
+            version: snapshot
+
+      # KV gets - experiment for testing different horizontal scaling values
+      - operations:
+          - op: get
+            bounds:
+              forSeconds: $forSeconds
+            docLocation:
+              method: pool
+              poolSize: $poolSize
+              poolSelectionStrategy: randomUniform
+
+        settings:
+          variables:
+            - name: poolSize
+              value: 10000
+            - name: horizontalScaling
+              values: [1, 2, 4, 8, 16, 32]
+            # Just make it easier to find these results
+            - name: experimentName
+              values: [ "horizontalScaling" ]
+        include:
+          # Expensive to run against every version of every SDK, so just test the latest.
+          - version: snapshot
+        exclude:
+          - protostellar: true
+
+      # KV inserts - experiment for testing different numbers of IO threads in the C++ SDK
+      - operations:
+          - op: insert
+            bounds:
+              forSeconds: $forSeconds
+            docLocation:
+              method: uuid
+        settings:
+          variables:
+            - name: docNum
+              value: 10000000
+            - name: experimentName
+              values: [ "numIOThreads" ]
+            - name: numIOThreads
+              type: tunable
+              values: [ '1', '2', '4', '8', '16', '32' ]
+        include:
+          - language: C++
+            version: snapshot
+        exclude:
+          - protostellar: true
+
+      # KV replaces - experiment for testing different numbers of IO threads in the C++ SDK
+      - operations:
+          - op: replace
+            bounds:
+              forSeconds: $forSeconds
+            docLocation:
+              method: pool
+              poolSize: $poolSize
+              poolSelectionStrategy: counter
+        settings:
+          variables:
+            - name: poolSize
+              value: 10000
+            - name: experimentName
+              values: [ "numIOThreads" ]
+            - name: numIOThreads
+              type: tunable
+              values: [ '1', '2', '4', '8', '16', '32' ]
+        include:
+          - language: C++
+            version: snapshot
+        exclude:
+          - protostellar: true

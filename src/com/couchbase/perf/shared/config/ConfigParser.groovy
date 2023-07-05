@@ -24,7 +24,12 @@ class ConfigParser {
      * Whether a possible run should actually be included.
      */
     @CompileDynamic
-    static boolean includeRun(StageContext ctx, Workload workload, PerfConfig.Implementation implementation, PerfConfig.Cluster cluster) {
+    static boolean includeRun(int idx, int count, StageContext ctx, Workload workload, PerfConfig.Implementation implementation, PerfConfig.Cluster cluster) {
+
+        if (idx % 10000 == 1) {
+            ctx.env.log("${idx} of ${count} ${workload} ${implementation} ${cluster}")
+        }
+
         boolean exclude = false
         var excludeReasons = []
 
@@ -153,8 +158,8 @@ class ConfigParser {
         }
 
         if (exclude) {
-            ctx.env.log("Excluding ${implementation.language} ${implementation.version} run ${workload} cluster ${cluster} because:")
-            excludeReasons.forEach(er -> ctx.env.log("   ${er}"))
+//            ctx.env.log("Excluding ${implementation.language} ${implementation.version} run ${workload} cluster ${cluster} because:")
+//            excludeReasons.forEach(er -> ctx.env.log("   ${er}"))
         }
 
         return !exclude
@@ -165,8 +170,8 @@ class ConfigParser {
      * If it's a range, we need to calculate all possible permutations.
      */
     @CompileStatic
-    static Set<Set<Variable>> calculateVariablePermutations(StageContext ctx, List<Variable> variables) {
-        Set<Set<Variable>> out = new HashSet<>()
+    static List<List<Variable>> calculateVariablePermutations(StageContext ctx, List<Variable> variables) {
+        List<List<Variable>> out = new ArrayList<>()
 
         if (variables.size() == 1) {
             var v = variables.get(0)
@@ -174,11 +179,15 @@ class ConfigParser {
                 v.values.forEach(value -> {
                     // null values are filtered out for good reasons that I now forget...
                     if (value != null) {
-                        out.add(Set.of(new Variable(v.name, value, v.type)))
+                        def toAdd = new ArrayList()
+                        toAdd.add(new Variable(v.name, value, v.type))
+                        out.add(toAdd)
                     }
                 })
             } else if (v.value != null) {
-                out.add(Set.of(new Variable(v.name, v.value, v.type)))
+                def toAdd = new ArrayList()
+                toAdd.add(new Variable(v.name, v.value, v.type))
+                out.add(toAdd)
             }
 
         } else {
@@ -194,14 +203,14 @@ class ConfigParser {
                         v.values.forEach(value -> {
                             if (value != null) {
                                 var newV = new Variable(v.name, value, v.type)
-                                var toAdd = new HashSet(without)
+                                var toAdd = new ArrayList(without)
                                 toAdd.add(newV)
                                 out.add(toAdd)
                             }
                         })
                     } else if (v.value != null) {
                         var newV = new Variable(v.name, v.value, v.type)
-                        var toAdd = new HashSet(without)
+                        var toAdd = new ArrayList(without)
                         toAdd.add(newV)
                         out.add(toAdd)
                     }
@@ -230,6 +239,24 @@ class ConfigParser {
 
     static List<Run> allPerms(StageContext ctx, PerfConfig config) {
         def out = new ArrayList<Run>()
+
+        def workloadCount = 0
+
+        for (cluster in config.matrix.clusters) {
+            for (impl in config.matrix.implementations) {
+                for (workload in config.matrix.workloads) {
+                    var merged = merge(config.settings, workload.settings)
+                    var variablesThatApply = includeVariablesThatApplyToThisRun(ctx, cluster, impl, merged.variables)
+                    var perms = calculateVariablePermutations(ctx, variablesThatApply)
+                    perms.forEach(perm -> {
+                        workloadCount += 1
+                    })
+                }
+            }
+        }
+
+        def idx = 0
+
         for (cluster in config.matrix.clusters) {
             for (impl in config.matrix.implementations) {
                 for (workload in config.matrix.workloads) {
@@ -242,7 +269,7 @@ class ConfigParser {
                     perms.forEach(perm -> {
                         var newWorkload = new Workload(workload.operations, new Settings(perm.toList(), merged.grpc), workload.include, workload.exclude)
 
-                        if (includeRun(ctx, newWorkload, impl, cluster)) {
+                        if (includeRun(idx++, workloadCount, ctx, newWorkload, impl, cluster)) {
                             def run = new Run(impl, newWorkload, cluster)
                             out.add(run)
                         }
