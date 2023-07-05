@@ -271,9 +271,9 @@ class Run {
     @CompileDynamic
     def toJson() {
         Map<String, Object> jsonVars = new HashMap<>()
-        if (workload.settings() != null && workload.settings().variables() != null) {
-            workload.settings().variables().forEach(var -> {
-                jsonVars.put(var.name(), var.value())
+        if (workload.settings != null && workload.settings.variables != null) {
+            workload.settings.variables.forEach(var -> {
+                jsonVars.put(var.name, var.value)
             })
         }
 
