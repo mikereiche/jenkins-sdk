@@ -39,15 +39,7 @@ class BuildDockerDotNetPerformer {
                 }
             }
             if (!onlySource) {
-                // The .NET performer intermittently fails to build, just retry it
-//                    for (int i = 0; i < 5; i++) {
-                try {
-                    imp.execute("docker build -f transactions-fit-performer/performers/dotnet/Couchbase.Transactions.FitPerformer/Dockerfile -t $imageName .", false, true, true)
-                }
-                catch (err) {
-                    imp.log(".NET performer failed to build, retrying")
-                }
-//                    }
+                imp.execute("docker build -f transactions-fit-performer/performers/dotnet/Couchbase.Transactions.FitPerformer/Dockerfile -t $imageName .", false, true, true)
             }
         }
     }
