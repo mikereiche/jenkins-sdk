@@ -189,7 +189,7 @@ class Include {
  *
  * include decides whether a variable is included - usually used to specify per-SDK tunables
  */
-@ToString(includeNames = true, includePackage = false)
+@ToString(includeNames = true, includePackage = false, includeFields = true)
 class Variable {
     public final String name;
     public final Object value;
@@ -205,7 +205,10 @@ class Variable {
         this.value = value
         this.type = type
     }
+}
 
+@ToString(includeNames = true, includePackage = false, includeFields = true, excludes = ["type"])
+record PermutedVariable(String name, Object value, String type) {
     // By this point the variables have been permuted and only value is present
     @CompileDynamic
     def asYaml() {
@@ -217,7 +220,7 @@ class Variable {
     }
 }
 
-@ToString(includeNames = true, includePackage = false)
+@ToString(includeNames = true, includePackage = false, includeFields = true)
 class Settings {
     public final List<Variable> variables;
     public final Object grpc;
@@ -230,7 +233,9 @@ class Settings {
     }
 }
 
-@ToString(includeNames = true, includePackage = false)
+record PermutedSettings(List<PermutedVariable> variables, Object grpc) {}
+
+@ToString(includeNames = true, includePackage = false, includeFields = true)
 class Workload {
     Object operations;
     Settings settings;
@@ -255,14 +260,24 @@ class Workload {
     }
 }
 
+record PermutedWorkload(Object operations, PermutedSettings settings, Object include, Object exclude) {
+    @CompileDynamic
+    def toJson() {
+        // Some workload variables are used for meta purposes but we don't want to compare the database runs with them
+        return [
+                "operations": operations
+        ]
+    }
+}
+
 @CompileStatic
-@ToString(includeNames = true, includePackage = false)
+@ToString(includeNames = true, includePackage = false, includeFields = true)
 class Run {
     public final PerfConfig.Implementation impl
-    public final Workload workload
+    public final PermutedWorkload workload
     public final PerfConfig.Cluster cluster
 
-    Run(PerfConfig.Implementation impl, Workload workload, PerfConfig.Cluster cluster) {
+    Run(PerfConfig.Implementation impl, PermutedWorkload workload, PerfConfig.Cluster cluster) {
         this.impl = impl
         this.workload = workload
         this.cluster = cluster
@@ -271,9 +286,9 @@ class Run {
     @CompileDynamic
     def toJson() {
         Map<String, Object> jsonVars = new HashMap<>()
-        if (workload.settings != null && workload.settings.variables != null) {
-            workload.settings.variables.forEach(var -> {
-                jsonVars.put(var.name, var.value)
+        if (workload.settings() != null && workload.settings().variables() != null) {
+            workload.settings().variables().forEach(var -> {
+                jsonVars.put(var.name(), var.value())
             })
         }
 

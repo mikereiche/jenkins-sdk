@@ -24,7 +24,7 @@ class ConfigParser {
      * Whether a possible run should actually be included.
      */
     @CompileDynamic
-    static boolean includeRun(int idx, int count, StageContext ctx, Workload workload, PerfConfig.Implementation implementation, PerfConfig.Cluster cluster) {
+    static boolean includeRun(int idx, int count, StageContext ctx, PermutedWorkload workload, PerfConfig.Implementation implementation, PerfConfig.Cluster cluster) {
 
         if (idx % 10000 == 1) {
             ctx.env.log("${idx} of ${count} ${workload} ${implementation} ${cluster}")
@@ -54,8 +54,8 @@ class ConfigParser {
         }
 
         // Excludes are OR-ed.  E.g. if any matches, it's excluded.
-        if (workload.exclude != null) {
-            for (x in workload.exclude) {
+        if (workload.exclude() != null) {
+            for (x in workload.exclude()) {
                 if (x.language == implementation.language) {
                     if (x.version != null) {
                         if (x.version == implementation.version) {
@@ -79,10 +79,10 @@ class ConfigParser {
         }
 
         // Includes are OR-ed.  E.g. if any matches, it's included.
-        if (workload.include != null) {
+        if (workload.include() != null) {
             def excludedByInclude = true
 
-            for (x in workload.include) {
+            for (x in workload.include()) {
                 // Missing language field will match all languages (useful for e.g. running against "snapshot" on all SDKs)
                 if (x.language == implementation.language || x.language == null) {
                     if (x.version != null) {
@@ -134,13 +134,13 @@ class ConfigParser {
 
         // (Currently) need hardcoded logic to filter the APIs to what the performer supports, rather than using
         // performerCapsFetch - see CBD-5264.
-        var api = workload.settings.variables.find { it.name == "api" }
+        var api = workload.settings().variables().find { it.name == "api" }
         if (api != null) {
-            boolean isOne = api.value == "DEFAULT"
-            boolean isTwo = api.value == "ASYNC"
-            boolean isThree = api.value == "THREE"
+            boolean isOne = api.value() == "DEFAULT"
+            boolean isTwo = api.value() == "ASYNC"
+            boolean isThree = api.value() == "THREE"
 
-            boolean isTransactionWorkload = workload.operations.get(0).op == "transaction"
+            boolean isTransactionWorkload = workload.operations().get(0).op == "transaction"
 
             boolean supportsOne = true
             boolean supportsTwo = implementation.language in ["Java"]
@@ -153,7 +153,7 @@ class ConfigParser {
 
             if ((isOne && !supportsOne) || (isTwo && !supportsTwo) || (isThree && !supportsThree)) {
                 exclude = true
-                excludeReasons.add("SDK ${implementation.language} does not support API ${api.value}")
+                excludeReasons.add("SDK ${implementation.language} does not support API ${api.value()}")
             }
         }
 
@@ -170,8 +170,8 @@ class ConfigParser {
      * If it's a range, we need to calculate all possible permutations.
      */
     @CompileStatic
-    static List<List<Variable>> calculateVariablePermutations(StageContext ctx, List<Variable> variables) {
-        List<List<Variable>> out = new ArrayList<>()
+    static Set<Set<PermutedVariable>> calculateVariablePermutations(StageContext ctx, List<Variable> variables) {
+        Set<Set<PermutedVariable>> out = new HashSet<>()
 
         if (variables.size() == 1) {
             var v = variables.get(0)
@@ -179,14 +179,14 @@ class ConfigParser {
                 v.values.forEach(value -> {
                     // null values are filtered out for good reasons that I now forget...
                     if (value != null) {
-                        def toAdd = new ArrayList()
-                        toAdd.add(new Variable(v.name, value, v.type))
+                        def toAdd = new HashSet<PermutedVariable>()
+                        toAdd.add(new PermutedVariable(v.name, value, v.type))
                         out.add(toAdd)
                     }
                 })
             } else if (v.value != null) {
-                def toAdd = new ArrayList()
-                toAdd.add(new Variable(v.name, v.value, v.type))
+                def toAdd = new HashSet<PermutedVariable>()
+                toAdd.add(new PermutedVariable(v.name, v.value, v.type))
                 out.add(toAdd)
             }
 
@@ -202,15 +202,15 @@ class ConfigParser {
                     if (v.values != null) {
                         v.values.forEach(value -> {
                             if (value != null) {
-                                var newV = new Variable(v.name, value, v.type)
-                                var toAdd = new ArrayList(without)
+                                var newV = new PermutedVariable(v.name, value, v.type)
+                                var toAdd = new HashSet<PermutedVariable>(without)
                                 toAdd.add(newV)
                                 out.add(toAdd)
                             }
                         })
                     } else if (v.value != null) {
-                        var newV = new Variable(v.name, v.value, v.type)
-                        var toAdd = new ArrayList(without)
+                        var newV = new PermutedVariable(v.name, v.value, v.type)
+                        var toAdd = new HashSet<PermutedVariable>(without)
                         toAdd.add(newV)
                         out.add(toAdd)
                     }
@@ -249,11 +249,15 @@ class ConfigParser {
                     var variablesThatApply = includeVariablesThatApplyToThisRun(ctx, cluster, impl, merged.variables)
                     var perms = calculateVariablePermutations(ctx, variablesThatApply)
                     perms.forEach(perm -> {
+                        // ctx.env.log("Potential permuations (not all will be run): ${config.matrix.clusters.size()} clusters * ${config.matrix.implementations.size()} implementations * ${config.matrix.workloads.size()} workloads * ${perms.size()} variable permuations")
+                        ctx.env.log("${cluster.connection_string_driver} ${impl} ${workload} ${perm}")
                         workloadCount += 1
                     })
                 }
             }
         }
+
+        ctx.env.log("Found ${workloadCount} potential runs, filtering...")
 
         def idx = 0
 
@@ -267,7 +271,7 @@ class ConfigParser {
 
                     var perms = calculateVariablePermutations(ctx, variablesThatApply)
                     perms.forEach(perm -> {
-                        var newWorkload = new Workload(workload.operations, new Settings(perm.toList(), merged.grpc), workload.include, workload.exclude)
+                        var newWorkload = new PermutedWorkload(workload.operations, new PermutedSettings(perm.toList(), merged.grpc), workload.include, workload.exclude)
 
                         if (includeRun(idx++, workloadCount, ctx, newWorkload, impl, cluster)) {
                             def run = new Run(impl, newWorkload, cluster)
@@ -277,6 +281,9 @@ class ConfigParser {
                 }
             }
         }
+
+        ctx.env.log("Filtered ${workloadCount} potential runs down to ${out.size()} actual runs, now checking which have already been run")
+
         return out
     }
 
