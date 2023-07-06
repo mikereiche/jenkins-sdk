@@ -23,7 +23,7 @@ class GoVersions {
         def allReleases = GoVersions.getAllReleases()
         def highest = ImplementationVersion.highest(allReleases)
         def patch = highest.patch + 1
-        def out = ImplementationVersion.from("${highest.major}.${highest.minor}.${patch}-${goModSha}")
+        def out = ImplementationVersion.from("${highest.major}.${highest.minor}.${patch}-0.${goModSha}")
         return out
     }
 
