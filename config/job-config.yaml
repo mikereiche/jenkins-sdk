@@ -121,8 +121,9 @@ matrix:
     - language: Kotlin
       version: 1.X.X
 
-    - language: Kotlin
-      version: snapshot
+
+#    - language: Kotlin
+#      version: snapshot
 
     # Temporarily removed .NET as requires patch
 #    - language: .NET
