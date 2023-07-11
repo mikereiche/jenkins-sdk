@@ -96,7 +96,7 @@ class TagProcessor {
         curPath.listFiles().each { File file ->
 
             if (file.isFile()) {
-                // logger.info("Inspecting file ${file.getAbsolutePath()}")
+                logger.info("Processing any tags in file ${file.getAbsolutePath()}")
 
                 boolean isPython = file.toString().endsWith(".py")
                 boolean isRuby = file.toString().endsWith(".rb")
