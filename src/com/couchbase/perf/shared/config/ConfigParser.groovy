@@ -77,6 +77,12 @@ class ConfigParser {
                         exclude = true
                     }
                 }
+                else if (x.gerrit != null) {
+                    if (implementation.gerrit != x.gerrit) {
+                        excludeReasons.add("Excluding because gerrit ${implementation.gerrit} != ${x.gerrit}")
+                        exclude = true
+                    }
+                }
                 else {
                     ctx.env.log("Warning: Exclude section ${x} with unknown property")
                 }
