@@ -231,7 +231,10 @@ matrix:
             include:
               - implementation:
                   version: refs/changes/87/192387/2
-            values: [ "true", "false ]
+            values: [ "true", "false" ]
+      exclude:
+        - protostellar: true
+        - api: "ASYNC"
 
     # KV inserts
     - operations:
