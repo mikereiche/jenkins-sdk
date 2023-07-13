@@ -105,6 +105,9 @@ matrix:
 
   implementations:
     - language: Java
+      version: refs/changes/87/192387/2
+
+    - language: Java
       version: 3.X.X
 
     - language: Java
@@ -206,6 +209,29 @@ matrix:
         variables:
           - name: poolSize
             value: 10000
+
+    - operations:
+        - op: get
+          bounds:
+            forSeconds: $forSeconds
+          docLocation:
+            method: pool
+            poolSize: $poolSize
+            poolSelectionStrategy: randomUniform
+      settings:
+        variables:
+          - name: poolSize
+            value: 10000
+          # Just make it easier to find these results
+          - name: experimentName
+            value: "tcpNoDelay"
+
+          - name: "com.couchbase.tcpNoDelay"
+            type: tunable
+            include:
+              - implementation:
+                  version: refs/changes/87/192387/2
+            values: [ "true", "false ]
 
     # KV inserts
     - operations:
