@@ -195,6 +195,8 @@ matrix:
             value: 10000
       exclude:
         - protostellar: true
+        - language: Java
+          version: refs/changes/87/192387/2
 
     # KV gets
     - operations:
@@ -209,6 +211,9 @@ matrix:
         variables:
           - name: poolSize
             value: 10000
+      exclude:
+        - language: Java
+          version: refs/changes/87/192387/2
 
     - operations:
         - op: get
@@ -229,8 +234,8 @@ matrix:
           - name: "com.couchbase.tcpNoDelay"
             type: tunable
             include:
-              - implementation:
-                  version: refs/changes/87/192387/2
+              - language: Java
+                version: refs/changes/87/192387/2
             values: [ "true", "false" ]
       exclude:
         - protostellar: true
@@ -249,6 +254,8 @@ matrix:
             value: 10000000
       exclude:
         - protostellar: true
+        - language: Java
+          version: refs/changes/87/192387/2
 
     # Transactions
     - operations:
@@ -277,6 +284,8 @@ matrix:
           version: 2.5.3
       exclude:
         - protostellar: true
+        - language: Java
+          version: refs/changes/87/192387/2
 
 # Top-level variables can be overwritten on a per-workload basis.
 settings:
