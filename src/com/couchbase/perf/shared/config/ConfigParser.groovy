@@ -56,24 +56,29 @@ class ConfigParser {
         // Excludes are OR-ed.  E.g. if any matches, it's excluded.
         if (workload.exclude() != null) {
             for (x in workload.exclude()) {
-                if (x.language == implementation.language) {
-                    if (x.version != null) {
-                        if (x.version == implementation.version) {
-                            excludeReasons.add("Excluding based on version ${x.version} ${implementation.version}")
-                            exclude = true
-                        }
-                    } else {
-                        if (implementation.language != x.language) {
-                            excludeReasons.add("Excluding based on language ${x.language} ${implementation.language}")
-                            exclude = true
+                if (x.language != null) {
+                    if (x.language == implementation.language) {
+                        if (x.version != null) {
+                            if (x.version == implementation.version) {
+                                excludeReasons.add("Excluding based on version ${x.version} ${implementation.version}")
+                                exclude = true
+                            }
+                        } else {
+                            if (implementation.language != x.language) {
+                                excludeReasons.add("Excluding based on language ${x.language} ${implementation.language}")
+                                exclude = true
+                            }
                         }
                     }
                 }
-                if (x.protostellar !== null) {
+                else if (x.protostellar != null) {
                     if (cluster.isProtostellar() == x.protostellar) {
                         excludeReasons.add("Excluding because protostellar ${cluster.isProtostellar()} != ${x.protostellar}")
                         exclude = true
                     }
+                }
+                else {
+                    ctx.env.log("Warning: Exclude section ${x} with unknown property")
                 }
             }
         }
