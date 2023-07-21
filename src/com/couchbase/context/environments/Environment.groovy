@@ -280,5 +280,9 @@ class Environment {
         def sd = sourceDirAbsolute()
         dirAbsolute(sd, closure)
     }
+
+    boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase().contains("win")
+    }
 }
 

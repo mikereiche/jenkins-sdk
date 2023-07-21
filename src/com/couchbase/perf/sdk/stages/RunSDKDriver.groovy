@@ -29,7 +29,7 @@ class RunSDKDriver extends Stage {
     void executeImpl(StageContext ctx) {
         // Make Docker happy on Windows
         def source = stageOutput.outputFilenameAbs()//.replace('\\', '/')
-        ctx.env.execute("docker run --rm --network perf -v ${source}:/app/run-config.yaml driver /app/run-config.yaml",
+        ctx.env.execute("${ctx.env.isWindows() ? "" : "timeout 24h "}docker run --rm --network perf -v ${source}:/app/run-config.yaml driver /app/run-config.yaml",
             false, false, true)
     }
 }
