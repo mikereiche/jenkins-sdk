@@ -94,14 +94,15 @@ matrix:
 
     # OpenShift ROSA + CNG + Protostellar testing.
     # To setup this cluster, the FIT situational testcode was used.
-    - type: unmanaged
-      connection_string_driver: protostellar://grpc-sdk-performance-testing.apps.operator-fit.1o92.p1.openshiftapps.com:443
-      connection_string_performer: protostellar://grpc-sdk-performance-testing.apps.operator-fit.1o92.p1.openshiftapps.com:443
-      hostname_rest: https://nsserver-sdk-performance-testing.apps.operator-fit.1o92.p1.openshiftapps.com:443
-      # This refers to a particular resource in perf-driver
-      cert_path: "certs/openshift-performance-testing.crt"
-      storage: couchstore
-      replicas: 0
+    # Temporarily removed as that cluster has been deleted and needs to be recreated.
+#    - type: unmanaged
+#      connection_string_driver: protostellar://grpc-sdk-performance-testing.apps.operator-fit.1o92.p1.openshiftapps.com:443
+#      connection_string_performer: protostellar://grpc-sdk-performance-testing.apps.operator-fit.1o92.p1.openshiftapps.com:443
+#      hostname_rest: https://nsserver-sdk-performance-testing.apps.operator-fit.1o92.p1.openshiftapps.com:443
+#      # This refers to a particular resource in perf-driver
+#      cert_path: "certs/openshift-performance-testing.crt"
+#      storage: couchstore
+#      replicas: 0
 
   implementations:
     - language: Java
