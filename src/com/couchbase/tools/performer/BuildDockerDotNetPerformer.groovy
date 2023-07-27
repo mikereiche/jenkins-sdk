@@ -21,7 +21,7 @@ class BuildDockerDotNetPerformer {
         // Build context needs to be perf-sdk as we need the .proto files
         imp.dirAbsolute(path) {
             imp.dir('transactions-fit-performer') {
-                imp.execute('git submodule update', false, false, true)
+                imp.execute('git submodule update --init --recursive', false, false, true)
                 imp.dir('performers/dotnet') {
                     // couchbase-net-client is a git submodule
                     imp.dir('couchbase-net-client') {
