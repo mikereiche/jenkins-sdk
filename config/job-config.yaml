@@ -257,7 +257,7 @@ matrix:
         - protostellar: true
         - gerrit: true
 
-    # Transactions
+    # Write transactions
     - operations:
         - transaction:
             ops:
@@ -281,6 +281,10 @@ matrix:
           version: 3.3.0
         - language: Go
           version: 2.5.3
+        - language: C++
+          version: snapshot
+        - language: .NET
+          version: snapshot
       exclude:
         - protostellar: true # As Protostellar doesn't support transactions
         - gerrit: true       # As we exclude these by default
@@ -300,9 +304,15 @@ matrix:
         variables:
           - name: poolSize
             value: 10000
-      # This is a new test so just running on snapshot for now
+      # This is a new test so just running on snapshot for now.  These languages because their performers support transactions.
       include:
         - language: Java
+          version: snapshot
+        - language: C++
+          version: snapshot
+        - language: Go
+          version: snapshot
+        - language: .NET
           version: snapshot
       exclude:
         - protostellar: true # As Protostellar doesn't support transactions
