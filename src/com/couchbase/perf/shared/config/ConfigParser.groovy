@@ -73,13 +73,13 @@ class ConfigParser {
                 }
                 else if (x.protostellar != null) {
                     if (cluster.isProtostellar() == x.protostellar) {
-                        excludeReasons.add("Excluding because protostellar ${cluster.isProtostellar()} != ${x.protostellar}")
+                        excludeReasons.add("Excluding because protostellar ${cluster.isProtostellar()} == ${x.protostellar}")
                         exclude = true
                     }
                 }
                 else if (x.gerrit != null) {
-                    if (implementation.gerrit != x.gerrit) {
-                        excludeReasons.add("Excluding because gerrit ${implementation.gerrit} != ${x.gerrit}")
+                    if (implementation.gerrit == x.gerrit) {
+                        excludeReasons.add("Excluding because gerrit ${implementation.gerrit} == ${x.gerrit}")
                         exclude = true
                     }
                 }
