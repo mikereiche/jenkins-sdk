@@ -280,11 +280,33 @@ matrix:
           # Note this will include all versions from 3.3.0
           version: 3.3.0
         - language: Go
-          # Note this will include all versions from 2.5.3
           version: 2.5.3
       exclude:
-        - protostellar: true
-        - gerrit: true
+        - protostellar: true # As Protostellar doesn't support transactions
+        - gerrit: true       # As we exclude these by default
+
+    # Read-only transactions
+    - operations:
+        - transaction:
+            ops:
+              - op: get
+                docLocation:
+                  method: pool
+                  poolSize: $poolSize
+                  poolSelectionStrategy: randomUniform
+            bounds:
+              forSeconds: $forSeconds
+      settings:
+        variables:
+          - name: poolSize
+            value: 10000
+      # This is a new test so just running on snapshot for now
+      include:
+        - language: Java
+          version: snapshot
+      exclude:
+        - protostellar: true # As Protostellar doesn't support transactions
+        - gerrit: true       # As we exclude these by default
 
 # Top-level variables can be overwritten on a per-workload basis.
 settings:
