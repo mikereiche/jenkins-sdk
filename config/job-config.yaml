@@ -129,14 +129,16 @@ matrix:
 #    - language: Kotlin
 #      version: snapshot
 
-    - language: .NET
-      version: 3.3.X
 
-    - language: .NET
-      version: 3.4.X
-
-    - language: .NET
-      version: snapshot
+# https://couchbase.slack.com/archives/C033YPWT6DC/p1692090337345279?thread_ts=1692029200.583649&cid=C033YPWT6DC
+#    - language: .NET
+#      version: 3.3.X
+#
+#    - language: .NET
+#      version: 3.4.X
+#
+#    - language: .NET
+#      version: snapshot
 
     # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
     # Go needs SDKQE-2831 to avoid 'bad scheme' errors
