@@ -2,7 +2,6 @@ package com.couchbase.tools.performer
 
 import com.couchbase.context.environments.Environment
 import com.couchbase.tools.tags.TagProcessor
-import com.couchbase.versions.ImplementationVersion
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -29,7 +28,7 @@ class BuildDockerGoPerformer {
                     TagProcessor.processTags(new File(imp.currentDir()), build)
                 }
                 if (!onlySource) {
-                    imp.execute("docker build -f performers/go/Dockerfile -t $imageName .", false, true, true)
+                    imp.execute("docker build -f performers/go/Dockerfile --platform=linux/amd64 -t $imageName .", false, true, true)
                 }
             }
         }
