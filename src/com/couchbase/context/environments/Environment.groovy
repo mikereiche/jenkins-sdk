@@ -284,5 +284,9 @@ class Environment {
     boolean isWindows() {
         return System.getProperty("os.name").toLowerCase().contains("win")
     }
+
+    boolean isMacOS() {
+        return System.getProperty("os.name").toLowerCase().contains("mac")
+    }
 }
 
