@@ -11,7 +11,7 @@ String STELLAR_NEBULA_SHA = "db0664f"
 
 Boolean SLEEP_ON_FAIL = false
 
-String AGENT_UBUNTU = "ubuntu16"
+String AGENT_UBUNTU = "ubuntu20"
 String AGENT_MAC = "m1"
 String AGENT = AGENT_UBUNTU
 
@@ -44,6 +44,7 @@ void setupPrerequisitesMac() {
 }
 
 void setupPrerequisitesUbuntu() {
+    sh(script: 'sudo apt-get -qq update', returnStdout: true)
     sh(script: 'sudo apt -qq install --assume-yes awscli', returnStdout: true)
 }
 
