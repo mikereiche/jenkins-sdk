@@ -95,7 +95,7 @@ class Execute {
                         ctx.env.log("Skipping go snapshot")
                     } else {
                         ctx.env.log("Found gomod entry for Go: ${snapshot}")
-                        implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot.toString(), null, null, true))
+                        implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, snapshot, null, null, true))
                     }
                 }
                 else if (implementation.language == "Python") {

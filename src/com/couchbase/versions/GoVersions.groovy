@@ -6,25 +6,11 @@ import groovy.transform.Memoized
 
 class GoVersions {
     @Memoized
-    static ImplementationVersion getLatestGoModEntry() {
-        def json = NetworkUtil.readJson("https://api.github.com/repos/couchbase/gocb/commits/master")
+    static String getLatestGoModEntry() {
+        def json = NetworkUtil.readJson("https://proxy.golang.org/github.com/couchbase/gocb/v2/@v/master.info")
 
-        def tagsJson = NetworkUtil.readJson("https://api.github.com/repos/couchbase/gocb/tags")
-        def latestTagSha = tagsJson[0].commit.sha
-
-        String sha = json.sha
-        if (sha == latestTagSha) {
-            return null
-        }
-
-        String commitDate = json.commit.committer.date
-        String goModSha = commitDate.replaceAll("[^0-9]", "") + "-" + sha.substring(0, 12)
-
-        def allReleases = GoVersions.getAllReleases()
-        def highest = ImplementationVersion.highest(allReleases)
-        def patch = highest.patch + 1
-        def out = ImplementationVersion.from("${highest.major}.${highest.minor}.${patch}-0.${goModSha}")
-        return out
+        def latestVersion = json.Version
+        return latestVersion.substring(1, latestVersion.length())
     }
 
     @Memoized
