@@ -116,7 +116,7 @@ class TagProcessor {
                     boolean isStart = line.contains(commentMarker + " [start:")
                     boolean isEnd = line.contains(commentMarker + " [end:")
                     boolean isSkip = line.contains(commentMarker + " [skip:")
-                    boolean isSkipped = line.startsWith(commentMarker + " [skipped] ")
+                    boolean isSkipped = line.startsWith(commentMarker + " [skipped]")
 
                     if (skipMode) {
                         needsOverwriting = true
@@ -129,7 +129,7 @@ class TagProcessor {
                     } else {
                         if (isSkipped) {
                             // Remove "// [skipped]
-                            line = line.substring(commentMarker.length() + 11)
+                            line = line.substring(commentMarker.length() + 10)
                             needsOverwriting = true
                         }
 
