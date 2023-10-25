@@ -126,8 +126,8 @@ matrix:
       version: 1.X.X
 
     # KCBC-127: Kotlin performer does not build against snapshot
-#    - language: Kotlin
-#      version: snapshot
+    - language: Kotlin
+      version: snapshot
 
 
 # https://couchbase.slack.com/archives/C033YPWT6DC/p1692090337345279?thread_ts=1692029200.583649&cid=C033YPWT6DC
