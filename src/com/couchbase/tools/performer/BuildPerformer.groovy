@@ -70,7 +70,7 @@ class BuildPerformer {
         } else {
             List<PerfConfig.Implementation> versions
 
-            if (sdkRaw == "java-sdk") {
+            if (sdkRaw == "java-sdk" || sdkRaw == "java") {
                 def implementation = new PerfConfig.Implementation("Java", "3.X.0", null)
                 versions = Versions.jvmVersions(env, implementation, "java-client")
             } else if (sdkRaw == "scala") {
@@ -87,7 +87,7 @@ class BuildPerformer {
                 // 4.1.0 is earliest supported
                 def implementation = new PerfConfig.Implementation("Python", "4.1.0", null)
                 versions = Versions.versions(env, implementation, "Python", PythonVersions.allReleases)
-            } else if (sdkRaw == "c++") {
+            } else if (sdkRaw == "c++" || sdkRaw == "cxx" || sdkRaw == "cpp") {
                 def implementation = new PerfConfig.Implementation("C++", "1.0.0", null)
                 versions = Versions.versions(env, implementation, "C++", CppVersions.allReleases)
             } else if (sdkRaw == "node") {
