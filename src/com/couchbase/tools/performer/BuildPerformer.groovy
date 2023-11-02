@@ -121,13 +121,13 @@ class BuildPerformer {
             env.log("Building ${vers}")
 
             try {
-                if (sdkRaw == "java-sdk" || sdkRaw == "scala" || sdkRaw == "kotlin") {
+                if (sdkRaw == "java-sdk" || sdkRaw == "java" || sdkRaw == "scala" || sdkRaw == "kotlin") {
                     BuildDockerJVMPerformer.build(env, dir, sdkRaw.replace("-sdk", ""), vers, imageName, onlySource)
                 } else if (sdkRaw == "go") {
                     BuildDockerGoPerformer.build(env, dir, vers, imageName, onlySource)
                 } else if (sdkRaw == "python") {
                     BuildDockerPythonPerformer.build(env, dir, vers, imageName, onlySource)
-                } else if (sdkRaw == "c++") {
+                } else if (sdkRaw == "c++" || sdkRaw == "cxx" || sdkRaw == "cpp") {
                     BuildDockerCppPerformer.build(env, dir, vers, imageName, onlySource)
                 } else if (sdkRaw == "ruby") {
                     BuildDockerRubyPerformer.build(env, dir, vers, imageName, onlySource)
