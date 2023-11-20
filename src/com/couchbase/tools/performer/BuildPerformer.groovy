@@ -6,6 +6,7 @@ import com.couchbase.tools.tags.TagProcessor
 import com.couchbase.versions.CppVersions
 import com.couchbase.versions.DotNetVersions
 import com.couchbase.versions.GoVersions
+import com.couchbase.versions.ImplementationVersion
 import com.couchbase.versions.NodeVersions
 import com.couchbase.versions.PythonVersions
 import com.couchbase.versions.RubyVersions
@@ -96,8 +97,11 @@ class BuildPerformer {
                 versions = Versions.versions(env, implementation, "Node", NodeVersions.allReleases)
             } else if (sdkRaw == ".net") {
                 // 3.3.0 is earliest supported
-                def implementation = new PerfConfig.Implementation(".NET", "3.3.0", null)
-                versions = Versions.versions(env, implementation, ".NET", DotNetVersions.allReleases)
+                def target = ImplementationVersion.from("3.3.0")
+                def vers = DotNetVersions.allReleases
+                        .findAll { it.isAbove(target) || it.equals(target) }
+                def implementation = new PerfConfig.Implementation(".NET", "3.X.0", null)
+                versions = Versions.versions(env, implementation, ".NET", vers)
             } else if (sdkRaw == "ruby") {
                 // 3.4.1 is the earliest supported
                 def implementation = new PerfConfig.Implementation("Ruby", "3.4.1", null)
