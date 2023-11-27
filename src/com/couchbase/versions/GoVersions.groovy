@@ -5,6 +5,8 @@ import groovy.transform.Memoized
 
 
 class GoVersions {
+    private final static String REPO = "couchbase/gocb"
+
     @Memoized
     static String getLatestGoModEntry() {
         def json = NetworkUtil.readJson("https://proxy.golang.org/github.com/couchbase/gocb/v2/@v/master.info")
@@ -15,19 +17,6 @@ class GoVersions {
 
     @Memoized
     static Set<ImplementationVersion> getAllReleases() {
-        def out = new HashSet<ImplementationVersion>()
-        def json = NetworkUtil.readJson("https://api.github.com/repos/couchbase/gocb/tags")
-
-        for (doc in json) {
-            String version = doc.name
-            try {
-                out.add(ImplementationVersion.from(version.substring(1, version.length())))
-            }
-            catch (err) {
-                System.err.println("Failed to add go version ${doc}")
-            }
-        }
-
-        return out
+        return GithubVersions.getAllReleases(REPO)
     }
 }

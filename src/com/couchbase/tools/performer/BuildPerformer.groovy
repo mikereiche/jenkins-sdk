@@ -71,43 +71,67 @@ class BuildPerformer {
         } else {
             List<PerfConfig.Implementation> versions
 
-            if (sdkRaw == "java-sdk" || sdkRaw == "java") {
-                def implementation = new PerfConfig.Implementation("Java", "3.X.0", null)
-                versions = Versions.jvmVersions(env, implementation, "java-client")
-            } else if (sdkRaw == "scala") {
-                def implementation = new PerfConfig.Implementation("Scala", "1.X.0", null)
-                versions = Versions.jvmVersions(env, implementation, "scala-client_2.12")
-            } else if (sdkRaw == "kotlin") {
-                def implementation = new PerfConfig.Implementation("Kotlin", "1.X.0", null)
-                versions = Versions.jvmVersions(env, implementation, "kotlin-client")
-            } else if (sdkRaw == "go") {
-                // 2.3.0 is earliest supported
-                def implementation = new PerfConfig.Implementation("Go", "2.3.0", null)
-                versions = Versions.versions(env, implementation, "Go", GoVersions.allReleases)
-            } else if (sdkRaw == "python") {
-                // 4.1.0 is earliest supported
-                def implementation = new PerfConfig.Implementation("Python", "4.1.0", null)
-                versions = Versions.versions(env, implementation, "Python", PythonVersions.allReleases)
-            } else if (sdkRaw == "c++" || sdkRaw == "cxx" || sdkRaw == "cpp") {
-                def implementation = new PerfConfig.Implementation("C++", "1.0.0", null)
-                versions = Versions.versions(env, implementation, "C++", CppVersions.allReleases)
-            } else if (sdkRaw == "node") {
-                // 4.2.0 is earliest supported
-                def implementation = new PerfConfig.Implementation("Node", "4.2.0", null)
-                versions = Versions.versions(env, implementation, "Node", NodeVersions.allReleases)
-            } else if (sdkRaw == ".net") {
-                // 3.3.0 is earliest supported
-                def target = ImplementationVersion.from("3.3.0")
-                def vers = DotNetVersions.allReleases
-                        .findAll { it.isAbove(target) || it.equals(target) }
-                def implementation = new PerfConfig.Implementation(".NET", "3.X.0", null)
-                versions = Versions.versions(env, implementation, ".NET", vers)
-            } else if (sdkRaw == "ruby") {
-                // 3.4.1 is the earliest supported
-                def implementation = new PerfConfig.Implementation("Ruby", "3.4.1", null)
-                versions = Versions.versions(env, implementation, "Ruby", RubyVersions.allReleases)
-            } else {
-                logger.severe("Do not yet know how to validate " + sdkRaw)
+            def sdk = SdkSynonyms.sdk(sdkRaw)
+
+            switch (sdk) {
+                case Sdk.JAVA:
+                    def implementation = new PerfConfig.Implementation("Java", "3.X.0", null)
+                    versions = Versions.jvmVersions(env, implementation, "java-client")
+                    break
+                case Sdk.SCALA:
+                    def implementation = new PerfConfig.Implementation("Scala", "1.X.0", null)
+                    versions = Versions.jvmVersions(env, implementation, "scala-client_2.12")
+                    break
+                case Sdk.KOTLIN:
+                    def implementation = new PerfConfig.Implementation("Kotlin", "1.X.0", null)
+                    versions = Versions.jvmVersions(env, implementation, "kotlin-client")
+                    break
+                case Sdk.GO:
+                    // 2.3.0 is earliest supported
+                    def target = ImplementationVersion.from("2.3.0")
+                    def vers = GoVersions.allReleases
+                            .findAll { it.isAbove(target) || it.equals(target) }
+                    def implementation = new PerfConfig.Implementation("Go", "2.X.0", null)
+                    versions = Versions.versions(env, implementation, "Go", GoVersions.allReleases)
+                    break
+                case Sdk.PYTHON:
+                    // 4.1.0 is earliest supported
+                    def target = ImplementationVersion.from("4.1.0")
+                    def vers = PythonVersions.allReleases
+                            .findAll { it.isAbove(target) || it.equals(target) }
+                    def implementation = new PerfConfig.Implementation("Python", "4.X.0", null)
+                    versions = Versions.versions(env, implementation, "Python", PythonVersions.allReleases)
+                    break
+                case Sdk.CPP:
+                    def implementation = new PerfConfig.Implementation("C++", "1.0.0", null)
+                    versions = Versions.versions(env, implementation, "C++", CppVersions.allReleases)
+                    break
+                case Sdk.NODE:
+                    // 4.2.0 is earliest supported
+                    def target = ImplementationVersion.from("4.2.0")
+                    def vers = NodeVersions.allReleases
+                            .findAll { it.isAbove(target) || it.equals(target) }
+                    def implementation = new PerfConfig.Implementation("Node", "4.X.0", null)
+                    versions = Versions.versions(env, implementation, "Node", NodeVersions.allReleases)
+                    break
+                case Sdk.DOTNET:
+                    // 3.3.0 is earliest supported
+                    def target = ImplementationVersion.from("3.3.0")
+                    def vers = DotNetVersions.allReleases
+                            .findAll { it.isAbove(target) || it.equals(target) }
+                    def implementation = new PerfConfig.Implementation(".NET", "3.X.0", null)
+                    versions = Versions.versions(env, implementation, ".NET", vers)
+                    break
+                case Sdk.RUBY:
+                    // 3.4.1 is the earliest supported
+                    def target = ImplementationVersion.from("3.4.1")
+                    def vers = DotNetVersions.allReleases
+                            .findAll { it.isAbove(target) || it.equals(target) }
+                    def implementation = new PerfConfig.Implementation("Ruby", "3.X.0", null)
+                    versions = Versions.versions(env, implementation, "Ruby", RubyVersions.allReleases)
+                    // Otherwise nothing will match until 3.5.0 release
+                    versions.add(target)
+                    break
             }
 
             env.log("Got ${versions.size()} versions")

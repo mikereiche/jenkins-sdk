@@ -9,10 +9,14 @@ import groovy.xml.slurpersupport.GPathResult
 class NetworkUtil {
     @CompileStatic
     public static String read(String url, int attempts = 5) {
+        return readRaw(url, attempts).getInputStream().getText()
+    }
+
+    @CompileStatic
+    public static URLConnection readRaw(String url, int attempts = 5) {
         while (true) {
             try {
-                def get = new URL(url).openConnection();
-                return get.getInputStream().getText()
+                return new URL(url).openConnection();
             }
             catch (err) {
                 attempts -= 1
