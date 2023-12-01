@@ -4,10 +4,9 @@ import java.util.stream.Collectors
 
 String GERRIT_REPO = 'ssh://review.couchbase.org:29418/transactions-fit-performer.git'
 
-Boolean INSTALL_STELLAR_NEBULA = false
-// Checkout specific SN so we know we're performance testing the same thing.
-// Note: couchbase-jvm-clients contains its own version of SN, so will be building against that GRPC.  Watch out for GRPC incompatibilities...
-String STELLAR_NEBULA_SHA = "db0664f"
+Boolean INSTALL_CLOUD_NATIVE_GATEWAY = true
+// Run specific CNG so we know we're performance testing the same thing.
+String CLOUD_NATIVE_GATEWAY_DOCKER_VERSION = "ghcr.io/cb-vanilla/cloud-native-gateway:0.2.0-141"
 
 Boolean SLEEP_ON_FAIL = false
 
@@ -68,17 +67,10 @@ stage("run") {
             }
         }
 
-        if (INSTALL_STELLAR_NEBULA) {
-            // Also a private repo
-            dir ("stellar-nebula") {
-                checkout([$class: 'GitSCM', branches: [[name: "945b3d0e611ddb7549453fa30b22905cb4d33a9e"]], userRemoteConfigs: [[url: "git@github.com:couchbase/stellar-nebula.git"]]])
-                sh(script: "git log -n 3")
-            }
-        }
-
         withAWS(credentials: 'aws-sdkqe') {
             withCredentials([file(credentialsId: 'abbdb61e-d9b7-47ea-b160-7ff840c97bda', variable: 'SSH_KEY_PATH')]) {
                 withCredentials([string(credentialsId: 'TIMEDB_PWD', variable: 'TIMEDB_PWD')]) {
+                withCredentials([string(credentialsId: 'github_container_registry_token', variable: 'GHCR_PASSWORD')]) {
 
                     // setupPrerequisitesCentos8()
                     if (AGENT == AGENT_MAC) {
@@ -111,9 +103,6 @@ stage("run") {
                         ip = waitForInstanceToBeReady(region, instanceId)
 
                         sh(script: 'scp -C -r -o "StrictHostKeyChecking=no" -i $SSH_KEY_PATH transactions-fit-performer ec2-user@' + ip + ":transactions-fit-performer")
-                        if (INSTALL_STELLAR_NEBULA) {
-                            sh(script: 'scp -C -r -o "StrictHostKeyChecking=no" -i $SSH_KEY_PATH stellar-nebula ec2-user@' + ip + ":stellar-nebula")
-                        }
 
                         // Setup Docker
                         runSSH(ip, "sudo yum update -y", true)
@@ -129,13 +118,6 @@ stage("run") {
                         runSSH(ip, "docker run -d --name cbs --network perf -p 8091-8096:8091-8096 -p 11210-11211:11210-11211 couchbase:7.1.1 >/dev/null 2>&1", true)
 
                         runSSH(ip, "sudo yum install -y git java-17-amazon-corretto-devel", true)
-                        if (INSTALL_STELLAR_NEBULA) {
-                            runSSH(ip, "sudo yum install -y go", true)
-                            runSSH(ip, "curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v3.19.6/protoc-3.19.6-linux-x86_64.zip")
-                            runSSH(ip, "unzip protoc-3.19.6-linux-x86_64.zip -d /home/ec2-user/.local")
-                            runSSH(ip, "go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28")
-                            runSSH(ip, "go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2")
-                        }
 
                         runSSH(ip, "git clone https://github.com/couchbaselabs/jenkins-sdk")
                         runSSH(ip, "git clone https://github.com/couchbase/couchbase-jvm-clients")
@@ -148,12 +130,12 @@ stage("run") {
 
                         try {
                             // sed: look for the start of the cluster section; /a adds on the next line
-                            // runSSH(ip, 'sed -i "/- type: unmanaged/a\\      instance: ' + instanceType + '" jenkins-sdk/config/job-config.yaml')
-                            // runSSH(ip, 'sed -i "/- type: unmanaged/a\\      compaction: disabled" jenkins-sdk/config/job-config.yaml')
-                            // runSSH(ip, 'sed -i "/- type: unmanaged/a\\      topology: A" jenkins-sdk/config/job-config.yaml')
-                            // if (INSTALL_STELLAR_NEBULA) {
-                            //     runSSH(ip, 'sed -i "/- type: unmanaged/a\\      stellarNebulaSha: ' + STELLAR_NEBULA_SHA + '" jenkins-sdk/config/job-config.yaml')
-                            // }
+                            runSSH(ip, 'sed -i "/- type: unmanaged/a\\      instance: ' + instanceType + '" jenkins-sdk/config/job-config.yaml')
+                            runSSH(ip, 'sed -i "/- type: unmanaged/a\\      compaction: disabled" jenkins-sdk/config/job-config.yaml')
+                            runSSH(ip, 'sed -i "/- type: unmanaged/a\\      topology: A" jenkins-sdk/config/job-config.yaml')
+                            if (INSTALL_CLOUD_NATIVE_GATEWAY) {
+                                runSSH(ip, 'sed -i "/- type: unmanaged/a\\      cloudNativeGatewayVersion: ' + CLOUD_NATIVE_GATEWAY_DOCKER_VERSION + '" jenkins-sdk/config/job-config.yaml')
+                            }
                             runSSH(ip, "cat jenkins-sdk/config/job-config.yaml")
                         }
                         catch (error) {
@@ -175,10 +157,10 @@ stage("run") {
                             // Note that per CBD-5001, this means we need to periodically compact manually
                             runSSH(ip, 'curl -u Administrator:password http://localhost:8091/controller/setAutoCompaction -d databaseFragmentationThreshold[percentage]="undefined" -d parallelDBAndViewCompaction=false')
 
-                            if (INSTALL_STELLAR_NEBULA) {
-                                runSSH(ip, 'cd stellar-nebula && PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" go generate')
-                                // Cluster definitely needs to be up before this or SN bails out
-                                runSSH(ip, 'cd stellar-nebula && PATH="/home/ec2-user/.local/bin:/home/ec2-user/go/bin:$PATH" go run ./cmd/dev --no-legacy < /dev/null > sn.log 2> sn.err.log &', false, true)
+                            if (INSTALL_CLOUD_NATIVE_GATEWAY) {
+                                runSSH(ip, "echo $GHCR_PASSWORD")
+                                runSSH(ip, "docker login ghcr.io -u qecouchbase --password $GHCR_PASSWORD")
+                                runSSH(ip, "docker run -d --network perf -p 8443:18098/tcp $CLOUD_NATIVE_GATEWAY_DOCKER_VERSION --cb-host cbs --self-sign")
                             }
                         }
 
@@ -197,6 +179,7 @@ stage("run") {
                     finally {
                         runAWS("ec2 terminate-instances --instance-ids ${instanceId} --region ${region}")
                     }
+                }
                 }
             }
         }

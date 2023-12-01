@@ -75,7 +75,7 @@ class PerfConfig {
         String topology
 
         // Only present if Protostellar
-        String stellarNebulaSha
+        String cloudNativeGatewayVersion
 
         // Any new fields here probably want adding into toJsonRaw below, and into the driver config, and includeVariablesThatApplyToThisRun
 
@@ -117,7 +117,7 @@ class PerfConfig {
                 out.put("insecure", insecure)
             }
             if (isCouchbase2()) {
-                out.put("stellarNebulaSha", stellarNebulaSha)
+                out.put("cloudNativeGatewayVersion", cloudNativeGatewayVersion)
             }
             return out
         }

@@ -332,7 +332,7 @@ class ConfigParser {
                     if (inc.cluster.instance != null && inc.cluster.instance != cluster.instance) ret = false
                     if (inc.cluster.compaction != null && inc.cluster.compaction != cluster.compaction) ret = false
                     if (inc.cluster.topology != null && inc.cluster.topology != cluster.topology) ret = false
-                    if (inc.cluster.stellarNebulaSha != null && inc.cluster.stellarNebulaSha != cluster.stellarNebulaSha) ret = false
+                    if (inc.cluster.cloudNativeGatewayVersion != null && inc.cluster.cloudNativeGatewayVersion != cluster.cloudNativeGatewayVersion) ret = false
                 }
             }
 
