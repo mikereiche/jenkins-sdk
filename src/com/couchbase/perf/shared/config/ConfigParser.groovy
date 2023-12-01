@@ -33,18 +33,22 @@ class ConfigParser {
         boolean exclude = false
         var excludeReasons = []
 
-        if (cluster.isProtostellar()) {
-            // Currently only specific SDKs can run Protostellar
-            if (implementation.language != "Java") {
+        if (cluster.isCouchbase2()) {
+            // Currently only specific SDKs can run Protostellar in mainline branch
+            if (!["Java", "Go", "Kotlin", "Scala"].contains(implementation.language)) {
                 exclude = true
                 excludeReasons.add("SDK ${implementation.language} does not support Protostellar")
             }
 
             try {
                 def ver = ImplementationVersion.from(implementation.version)
-                if (ver.isBelow(ImplementationVersion.from("3.4.6"))) {
+
+                if ((implementation.language == "Java" && ver.isBelow(ImplementationVersion.from("3.5.0")))
+                        || (implementation.language == "Kotlin" && ver.isBelow(ImplementationVersion.from("1.2.0")))
+                        || (implementation.language == "Scala" && ver.isBelow(ImplementationVersion.from("1.5.0")))
+                        || (implementation.language == "Go" && ver.isBelow(ImplementationVersion.from("2.7.0")))) {
                     exclude = true
-                    excludeReasons.add("Java SDK ${implementation.version} does not support current Protostellar")
+                    excludeReasons.add("${implementation.language} ${implementation.version} does not support current Protostellar")
                 }
             }
             catch (err) {
@@ -72,8 +76,8 @@ class ConfigParser {
                     }
                 }
                 else if (x.protostellar != null) {
-                    if (cluster.isProtostellar() == x.protostellar) {
-                        excludeReasons.add("Excluding because protostellar ${cluster.isProtostellar()} == ${x.protostellar}")
+                    if (cluster.isCouchbase2() == x.protostellar) {
+                        excludeReasons.add("Excluding because protostellar ${cluster.isCouchbase2()} == ${x.protostellar}")
                         exclude = true
                     }
                 }
@@ -124,7 +128,7 @@ class ConfigParser {
                 }
 
                 if (x.protostellar != null) {
-                    if (cluster.isProtostellar() == x.protostellar) {
+                    if (cluster.isCouchbase2() == x.protostellar) {
                         excludedByInclude = false
                     }
                 }
@@ -145,7 +149,7 @@ class ConfigParser {
 
         // (Currently) need hardcoded logic to filter the APIs to what the performer supports, rather than using
         // performerCapsFetch - see CBD-5264.
-        var api = workload.settings().variables().find { it.name == "api" }
+        var api = workload.settings().variables().find { it.name() == "api" }
         if (api != null) {
             boolean isOne = api.value() == "DEFAULT"
             boolean isTwo = api.value() == "ASYNC"
@@ -169,8 +173,8 @@ class ConfigParser {
         }
 
         if (exclude) {
-//            ctx.env.log("Excluding ${implementation.language} ${implementation.version} run ${workload} cluster ${cluster} because:")
-//            excludeReasons.forEach(er -> ctx.env.log("   ${er}"))
+            ctx.env.log("Excluding ${implementation.language} ${implementation.version} run ${workload} cluster ${cluster} because:")
+            excludeReasons.forEach(er -> ctx.env.log("   ${er}"))
         }
 
         return !exclude

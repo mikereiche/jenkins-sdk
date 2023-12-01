@@ -92,17 +92,19 @@ matrix:
 #      compaction: disabled
 #      memory: 28000
 
-    # OpenShift ROSA + CNG + Protostellar testing.
-    # To setup this cluster, the FIT situational testcode was used.
-    # Temporarily removed as that cluster has been deleted and needs to be recreated.
-#    - type: unmanaged
-#      connection_string_driver: protostellar://grpc-sdk-performance-testing.apps.operator-fit.1o92.p1.openshiftapps.com:443
-#      connection_string_performer: protostellar://grpc-sdk-performance-testing.apps.operator-fit.1o92.p1.openshiftapps.com:443
-#      hostname_rest: https://nsserver-sdk-performance-testing.apps.operator-fit.1o92.p1.openshiftapps.com:443
-#      # This refers to a particular resource in perf-driver
-#      cert_path: "certs/openshift-performance-testing.crt"
-#      storage: couchstore
-#      replicas: 0
+    # Localhost CNG couchbase2 testing.
+    # There is hard-coded filter logic elsewhere that ensures that only SDK versions that support couchbase2:// will run
+    # these tests.
+    - type: unmanaged
+      connection_string_driver: couchbase://localhost
+      connection_string_performer: couchbase2://localhost
+      hostname_rest: http://localhost:8091
+      hostname_rest_docker: http://cbs:8091
+      connection_string_driver_docker: couchbase://cbs
+      connection_string_performer_docker: couchbase://cbs
+      insecure: true
+      storage: couchstore
+      replicas: 0
 
   implementations:
     - language: Java

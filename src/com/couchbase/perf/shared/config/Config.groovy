@@ -1,17 +1,10 @@
 package com.couchbase.perf.shared.config
 
 import com.couchbase.perf.shared.config.PerfConfig.Implementation
-import com.fasterxml.jackson.annotation.JsonProperty
 import groovy.json.JsonGenerator
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import groovy.transform.Immutable
-import groovy.transform.ImmutableOptions
-import groovy.transform.ImmutableProperties
-import groovy.transform.RecordOptions
 import groovy.transform.ToString
-import groovy.yaml.YamlBuilder
-
 
 /**
  * The parsed job-config.yaml.
@@ -65,6 +58,7 @@ class PerfConfig {
         String hostname_rest
         String hostname_rest_docker
         String cert_path
+        Boolean insecure
         String storage
         Integer replicas
 
@@ -85,8 +79,8 @@ class PerfConfig {
 
         // Any new fields here probably want adding into toJsonRaw below, and into the driver config, and includeVariablesThatApplyToThisRun
 
-        boolean isProtostellar() {
-            return connection_string_performer.startsWith("protostellar")
+        boolean isCouchbase2() {
+            return connection_string_performer.startsWith("couchbase2")
         }
 
         @CompileDynamic
@@ -120,8 +114,9 @@ class PerfConfig {
                 out.put("hostname_rest", hostname_rest)
                 out.put("hostname_rest_docker", hostname_rest_docker)
                 out.put("cert_path", cert_path)
+                out.put("insecure", insecure)
             }
-            if (isProtostellar()) {
+            if (isCouchbase2()) {
                 out.put("stellarNebulaSha", stellarNebulaSha)
             }
             return out
