@@ -130,7 +130,7 @@ matrix:
       version: snapshot
 
 
-# https://couchbase.slack.com/archives/C033YPWT6DC/p1692090337345279?thread_ts=1692029200.583649&cid=C033YPWT6DC
+    # https://couchbase.slack.com/archives/C033YPWT6DC/p1692090337345279?thread_ts=1692029200.583649&cid=C033YPWT6DC
     - language: .NET
       version: 3.3.X
 
@@ -157,20 +157,15 @@ matrix:
     - language: Go
       version: snapshot
 
-    - language: Python
-      version: snapshot
-
-    - language: Python
-      version: 4.1.X
-
-    - language: C++
-      version: snapshot
-
-    - language: C++
-      version: 1.X.X
-
-    - language: Node
-      version: snapshot
+    # Temporarily removing due to CBD-5728
+#    - language: Python
+#      version: snapshot
+#
+#    - language: Python
+#      version: 4.1.X
+#
+#    - language: C++
+#      version: snapshot
 
     - language: Node
       version: 4.2.X
