@@ -6,10 +6,11 @@ import groovy.transform.Memoized
 
 class CppVersions {
     private final static String REPO = "couchbaselabs/couchbase-cxx-client"
+    private final static String BRANCH = "main"
 
     @Memoized
     static String getLatestSha() {
-        return GithubVersions.getLatestShaWithDatetime(REPO)
+        return GithubVersions.getLatestShaWithDatetime(REPO, BRANCH)
     }
 
     @Memoized

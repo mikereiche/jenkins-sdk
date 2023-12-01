@@ -4,17 +4,22 @@ import com.couchbase.tools.network.NetworkUtil
 import groovy.json.JsonSlurper
 
 class GithubVersions {
-    static String getLatestSha(String repo) {
-        def json = NetworkUtil.readJson("https://api.github.com/repos/${repo}/commits/master")
+    @Deprecated // SDKs should use getLatestShaWithDatetime so that results are chronologically sorted
+    static String getLatestSha(String repo, String branch) {
+        def json = NetworkUtil.readJson("https://api.github.com/repos/${repo}/commits/${branch}")
         String sha = json.sha
         return sha.substring(0, 6)
     }
 
     /**
      * Makes a more useful snapshot version by putting the datetime in, so it appears in chronological order in graphs etc.
+     *
+     * Note this has some limitations.  A snapshot for 3.4.5 is actually _after_ 3.4.5 is released, rather than the
+     * JVM definition of a SNAPSHOT build, which would come before 3.4.5 releases.  The latter is a more useful
+     * definition, but is hard to achieve.
      */
-    static String getLatestShaWithDatetime(String repo) {
-        def json = NetworkUtil.readJson("https://api.github.com/repos/${repo}/commits/master")
+    static String getLatestShaWithDatetime(String repo, String branch) {
+        def json = NetworkUtil.readJson("https://api.github.com/repos/${repo}/commits/${branch}")
         String sha = json.sha
         String commitDate = json.commit.committer.date
         String[] parts = commitDate.split("T")

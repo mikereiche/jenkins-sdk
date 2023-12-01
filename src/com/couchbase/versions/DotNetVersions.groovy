@@ -6,10 +6,11 @@ import groovy.transform.Memoized
 
 class DotNetVersions {
     private final static String REPO = "couchbase/couchbase-net-client"
+    private final static String BRANCH = "master"
 
     @Memoized
     static String getLatestSha() {
-        return GithubVersions.getLatestSha(REPO)
+        return GithubVersions.getLatestSha(REPO, BRANCH)
     }
 
     @Memoized

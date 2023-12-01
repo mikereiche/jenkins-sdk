@@ -117,49 +117,48 @@ matrix:
       version: snapshot
 
       # If changing or adding any Gerrit patches, may need to make changes in ConfigParser
-
-    - language: Scala
-      version: 1.X.X
-
-    - language: Scala
-      version: snapshot
-
-    - language: Kotlin
-      version: 1.X.X
-
-    # KCBC-127: Kotlin performer does not build against snapshot
-    - language: Kotlin
-      version: snapshot
-
-
-    # https://couchbase.slack.com/archives/C033YPWT6DC/p1692090337345279?thread_ts=1692029200.583649&cid=C033YPWT6DC
-    - language: .NET
-      version: 3.3.X
-
-    - language: .NET
-      version: 3.4.X
-
-    - language: .NET
-      version: snapshot
-
-    # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
-    # Go needs SDKQE-2831 to avoid 'bad scheme' errors
-    - language: Go
-      version: 2.3.X
-
-    - language: Go
-      version: 2.4.X
-
-    - language: Go
-      version: 2.5.X
-
-    - language: Go
-      version: 2.6.X
-
-    - language: Go
-      version: snapshot
-
-    # Temporarily removing due to CBD-5728
+#
+#    - language: Scala
+#      version: 1.X.X
+#
+#    - language: Scala
+#      version: snapshot
+#
+#    - language: Kotlin
+#      version: 1.X.X
+#
+#    # KCBC-127: Kotlin performer does not build against snapshot
+#    - language: Kotlin
+#      version: snapshot
+#
+#
+#    # https://couchbase.slack.com/archives/C033YPWT6DC/p1692090337345279?thread_ts=1692029200.583649&cid=C033YPWT6DC
+#    - language: .NET
+#      version: 3.3.X
+#
+#    - language: .NET
+#      version: 3.4.X
+#
+#    - language: .NET
+#      version: snapshot
+#
+#    # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
+#    # Go needs SDKQE-2831 to avoid 'bad scheme' errors
+#    - language: Go
+#      version: 2.3.X
+#
+#    - language: Go
+#      version: 2.4.X
+#
+#    - language: Go
+#      version: 2.5.X
+#
+#    - language: Go
+#      version: 2.6.X
+#
+#    - language: Go
+#      version: snapshot
+#
 #    - language: Python
 #      version: snapshot
 #
@@ -168,7 +167,7 @@ matrix:
 #
 #    - language: C++
 #      version: snapshot
-
+#
 #    - language: C++
 #      version: 1.X.X
 #
