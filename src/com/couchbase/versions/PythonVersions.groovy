@@ -6,7 +6,7 @@ import groovy.transform.Memoized
 
 class PythonVersions {
     private final static String REPO = "couchbase/couchbase-python-client"
-    private final static String BRANCH = "main"
+    private final static String BRANCH = "master"
 
     @Memoized
     static String getLatestSha() {
