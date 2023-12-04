@@ -108,9 +108,6 @@ matrix:
 
   implementations:
     - language: Java
-      version: refs/changes/87/192387/2
-
-    - language: Java
       version: 3.X.X
 
     - language: Java
@@ -200,9 +197,7 @@ matrix:
             value: 10000
       exclude:
         - protostellar: true
-        - gerrit: true
-        - language: Java
-          version: refs/changes/87/192387/2
+        - gerrit: true        # As Gerrit excluded by default
 
     # KV gets
     - operations:
@@ -220,6 +215,7 @@ matrix:
       exclude:
         - gerrit: true
 
+    # KV gets - experiment for testing different horizontal scaling values
     - operations:
         - op: get
           bounds:
@@ -228,23 +224,21 @@ matrix:
             method: pool
             poolSize: $poolSize
             poolSelectionStrategy: randomUniform
+
       settings:
         variables:
           - name: poolSize
             value: 10000
+          - name: horizontalScaling
+            values: [1, 2, 4, 8, 16, 32]
           # Just make it easier to find these results
           - name: experimentName
-            value: "tcpNoDelay"
-
-          - name: "com.couchbase.tcpNoDelay"
-            type: tunable
-            values: [ "true", "false" ]
-      exclude:
-        - protostellar: true
-        - api: "ASYNC"
+            values: [ "horizontalScaling" ]
       include:
-        - language: Java
-          version: refs/changes/87/192387/2
+        # Expensive to run against every version of every SDK, so just test the latest.
+        - version: snapshot
+      exclude:
+        - gerrit: true        # As Gerrit excluded by default
 
     # KV inserts
     - operations:
