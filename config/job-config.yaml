@@ -101,7 +101,7 @@ matrix:
       hostname_rest: http://localhost:8091
       hostname_rest_docker: http://cbs:8091
       connection_string_driver_docker: couchbase://cbs
-      connection_string_performer_docker: couchbase://cbs
+      connection_string_performer_docker: couchbase2://cbs
       insecure: true
       storage: couchstore
       replicas: 0
