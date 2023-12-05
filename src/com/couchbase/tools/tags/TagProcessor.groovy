@@ -158,7 +158,8 @@ class TagProcessor {
                                 }
 
                                 out.add(line)
-                                boolean includedAlready = isLastLine || !lines.get(i + 1).trim().startsWith(marker)
+                                // Trimming the marker for the startsWith() check because in Python it needs to have leading whitespace
+                                boolean includedAlready = isLastLine || !lines.get(i + 1).trim().startsWith(marker.trim())
                                 // logger.info("May need to modify ${file.getAbsolutePath()} ${versionRaw} include=${include} includedAlready=${includedAlready}")
                                 if (include && !includedAlready) {
                                     // Skip over the /*, e.g. don't include it in the output
