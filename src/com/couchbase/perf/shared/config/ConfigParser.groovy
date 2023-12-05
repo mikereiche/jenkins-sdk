@@ -45,7 +45,7 @@ class ConfigParser {
 
                 // couchbase2 support was available in some form for JVM SDKs from some 3.4.X, but due to CNG breakages,
                 // only 3.5.0+ should be used.  However since OTel is also used, JVMCBC-1442 and 3.5.1+ is required
-                if ((implementation.language == "Java" && ver.isBelow(ImplementationVersion.from("3.5.0")))
+                if ((implementation.language == "Java" && ver.isBelow(ImplementationVersion.from("3.5.1")))
                         || (implementation.language == "Kotlin" && ver.isBelow(ImplementationVersion.from("1.2.1")))
                         || (implementation.language == "Scala" && ver.isBelow(ImplementationVersion.from("1.5.1")))
                         || (implementation.language == "Go" && ver.isBelow(ImplementationVersion.from("2.7.0")))) {
