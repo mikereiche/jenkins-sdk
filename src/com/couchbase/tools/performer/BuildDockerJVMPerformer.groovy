@@ -80,8 +80,9 @@ class BuildDockerJVMPerformer {
                     writeParentPomFile(imp, !(build instanceof BuildMain))
                     imp.dir("${client}-fit-performer") {
                         writePerformerPomFile(imp, client + "-client" + (client == "scala" ? "_2.12" : ""), build)
-                        def tracingOpentelemetry = tracingOpentelemetryVersion(imp, build)
+                        def tracingOpentelemetry = tracingOpentelemetryVersion(imp, client, build)
                         if (tracingOpentelemetry != null) {
+                            imp.log("Updating performer's tracing-opentelemetry version to ${tracingOpentelemetry}")
                             writePerformerPomFile(imp, "tracing-opentelemetry", tracingOpentelemetry)
                         }
                         TagProcessor.processTags(new File(imp.currentDir() + "/src"), build)
@@ -97,13 +98,18 @@ class BuildDockerJVMPerformer {
         }
     }
 
-    private static VersionToBuild tracingOpentelemetryVersion(Environment imp, VersionToBuild build) {
+    private static VersionToBuild tracingOpentelemetryVersion(Environment imp, String client, VersionToBuild build) {
         if (build instanceof HasVersion) {
-            def out = "1.${build.implementationVersion().minor}.${build.implementationVersion().patch}"
-            imp.log("Updating performer's tracing-opentelemetry version to ${out}")
-            return new BuildVersion(out)
+            if (client == "java") {
+                if (build.implementationVersion().minor <= 1) {
+                    // Mapping is too complex
+                    return null
+                }
+                else {
+                    return new BuildVersion("1.${build.implementationVersion().minor - 1}.${build.implementationVersion().patch}")
+                }
+            }
         }
-        imp.log("Not updating tracing-opentelemetry version as not HasVersion")
         return null
     }
 
