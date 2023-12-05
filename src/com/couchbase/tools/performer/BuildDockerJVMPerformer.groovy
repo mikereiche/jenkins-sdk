@@ -106,7 +106,7 @@ class BuildDockerJVMPerformer {
                     return null
                 }
                 else {
-                    return new BuildVersion("1.${build.implementationVersion().minor - 1}.${build.implementationVersion().patch}")
+                    return new BuildVersion("1.${build.implementationVersion().minor - 2}.${build.implementationVersion().patch}")
                 }
             }
         }
