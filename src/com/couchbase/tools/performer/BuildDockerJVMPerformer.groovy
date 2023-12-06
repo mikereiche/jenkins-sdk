@@ -99,7 +99,10 @@ class BuildDockerJVMPerformer {
     }
 
     private static VersionToBuild tracingOpentelemetryVersion(Environment imp, String client, VersionToBuild build) {
-        if (build instanceof HasVersion) {
+        // We assume HasSha indicates a snapshot build, which we don't want to apply the rules below for since
+        // tracing-opentelemetry won't have been published yet.  We could use the SNAPSHOT build of it, but instead
+        // we'll just rely on the hardcoded version in the performer's pom.xml being up to date.
+        if (build instanceof HasVersion && !build instanceof HasSha) {
             if (client == "java") {
                 if (build.implementationVersion().minor <= 1) {
                     // Mapping is too complex
