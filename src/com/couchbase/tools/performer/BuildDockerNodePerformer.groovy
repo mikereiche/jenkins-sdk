@@ -2,11 +2,10 @@ package com.couchbase.tools.performer
 
 import com.couchbase.context.environments.Environment
 import com.couchbase.tools.tags.TagProcessor
-import com.couchbase.versions.ImplementationVersion
 import groovy.transform.CompileStatic
 
 class BuildDockerNodePerformer {
-    private static Boolean write_couchbase = false
+    private static String master = "master"
 
     @CompileStatic
     static void build(Environment imp, String path, VersionToBuild build, String imageName, boolean onlySource = false) {
@@ -38,35 +37,20 @@ class BuildDockerNodePerformer {
         packageFile.write("")
         shaFile.write("")
 
-        if (couchbaseInPackageFile(lines)) {
-            for (int i = 0; i < lines.size(); i++) {
-                def line = lines[i]
-
-                if (line.contains("couchbase")) {
-                    if (build instanceof HasVersion) {
-                        if (build instanceof HasSha) { //True if using snapshot version
-                            shaFile.append(build.sha())
-                        } else {
-                            packageFile.append("\t\"couchbase\": \"^${build.version()}\",\n")
-                        }
-                    }
-                    else {
-                        packageFile.append(line + "\n")
-                    }
+        for (String line : lines) {
+            if (line.contains("couchbase")) {
+                if (build instanceof BuildMain) {
+                    shaFile.append(master)
+                } else if (build instanceof HasSha) {
+                    shaFile.append(build.sha())
+                } else if (build instanceof HasVersion) {
+                    packageFile.append("\t\"couchbase\": \"^${build.version()}\",\n")
                 } else {
                     packageFile.append(line + "\n")
                 }
+            } else {
+                packageFile.append(line + "\n")
             }
         }
-    }
-
-    private static boolean couchbaseInPackageFile(List<String> lines) {
-        for (int i = 0; i < lines.size(); i++) {
-            def line = lines[i]
-            if(line.contains("couchbase")) {
-                return true
-            }
-        }
-        return false
     }
 }
