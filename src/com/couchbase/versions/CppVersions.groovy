@@ -21,7 +21,7 @@ class CppVersions {
 
     /**
      * Removes the versions that are not supported by the C++ Performer. Currently the unsupported versions are
-     * all 1.0.0-beta.X releases and 1.0.0-dp.X releases where X < 4
+     * all 1.0.0-beta.X releases and 1.0.0-dp.X releases where X < 10
      */
     private static Set<ImplementationVersion> withoutUnsupportedVersions(Set<ImplementationVersion> allVersions) {
         return allVersions.findAll( (v) -> {
@@ -29,7 +29,7 @@ class CppVersions {
 
             String[] parts = v.snapshot.substring(1).split("\\.")
             if (parts[0] == "dp") {
-                return Integer.parseInt(parts[1]) >= 4
+                return Integer.parseInt(parts[1]) >= 10
             } else return parts[0] != "beta"
         })
     }
