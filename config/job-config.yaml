@@ -121,10 +121,10 @@ matrix:
     - language: Scala
       version: snapshot
 
-    - language: Kotlin
-      version: 1.X.X
-
-    # KCBC-127: Kotlin performer does not build against snapshot
+    # Kotlin performer not building: https://couchbase.slack.com/archives/C033YPWT6DC/p1701947947253859?thread_ts=1701771863.911269&cid=C033YPWT6DC
+#    - language: Kotlin
+#      version: 1.X.X
+#
     - language: Kotlin
       version: snapshot
 
