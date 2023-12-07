@@ -119,7 +119,7 @@ class BuildPerformer {
                     def target = ImplementationVersion.from("3.3.0")
                     def skipVersion = new ImplementationVersion(3, 4, 10, "rc1")
                     def vers = DotNetVersions.allReleases
-                            .findAll { it.isAbove(target) || it.equals(target) && !it.equals(skipVersion)}
+                            .findAll { (it.isAbove(target) || it.equals(target)) && !it.equals(skipVersion)}
                     def implementation = new PerfConfig.Implementation(".NET", "3.X.0", null)
                     versions = Versions.versions(env, implementation, ".NET", vers)
                     break
