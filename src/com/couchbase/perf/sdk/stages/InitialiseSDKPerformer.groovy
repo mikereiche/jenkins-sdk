@@ -37,32 +37,32 @@ class InitialiseSDKPerformer extends Stage {
         }
         else {
             if (impl.language in ["Java", "Scala", "Kotlin"]) {
-                def stage1 = new BuildDockerJVMSDKPerformer(impl.language.toLowerCase(), impl.version)
+                def stage1 = new BuildDockerJVMSDKPerformer(impl.language.toLowerCase(), impl.version())
                 imageName = stage1.imageName
                 return produceStages(ctx, stage1, stage1.getImageName())
             }
             else if (impl.language == ".NET") {
-                def stage1 = new BuildDockerDotNetSDKPerformer(impl.version, impl.sha)
+                def stage1 = new BuildDockerDotNetSDKPerformer(impl.version(), impl.sha)
                 imageName = stage1.imageName
                 return produceStages(ctx, stage1, stage1.getImageName())
             } else if (impl.language == "Go"){
-                def stage1 = new BuildDockerGoSDKPerformer(impl.version)
+                def stage1 = new BuildDockerGoSDKPerformer(impl.version())
                 imageName = stage1.imageName
                 return produceStages(ctx, stage1, stage1.getImageName())
             } else if (impl.language == "Python"){
-                def stage1 = new BuildDockerPythonSDKPerformer(impl.version, impl.sha)
+                def stage1 = new BuildDockerPythonSDKPerformer(impl.version(), impl.sha)
                 imageName = stage1.imageName
                 return produceStages(ctx, stage1, stage1.getImageName())
             } else if (impl.language == "Node") {
-                def stage1 = new BuildDockerNodeSDKPerformer(impl.version, impl.sha)
+                def stage1 = new BuildDockerNodeSDKPerformer(impl.version(), impl.sha)
                 imageName = stage1.imageName
                 return produceStages(ctx, stage1, stage1.getImageName())
             } else if (impl.language == "C++") {
-                def stage1 = new BuildDockerCppSDKPerformer(impl.version, impl.sha)
+                def stage1 = new BuildDockerCppSDKPerformer(impl.version(), impl.sha)
                 imageName = stage1.imageName
                 return produceStages(ctx, stage1, stage1.getImageName())
             } else if (impl.language == "Ruby") {
-                def stage1 = new BuildDockerRubySDKPerformer(impl.version, impl.sha)
+                def stage1 = new BuildDockerRubySDKPerformer(impl.version(), impl.sha)
                 imageName = stage1.imageName
                 return produceStages(ctx, stage1, stage1.getImageName())
             } else {
@@ -86,7 +86,7 @@ class InitialiseSDKPerformer extends Stage {
         }
 
         if (ctx.performerServer == "localhost") {
-            stages.add(new StartDockerImagePerformer(imageName, CONTAINER_NAME, port, impl.version))
+            stages.add(new StartDockerImagePerformer(imageName, CONTAINER_NAME, port, impl.version()))
         } else {
             throw new IllegalArgumentException("Cannot handle running on performer remote server")
         }

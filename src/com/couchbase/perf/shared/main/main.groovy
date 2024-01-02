@@ -65,7 +65,11 @@ class Execute {
         List< PerfConfig.Implementation> implementationsToAdd = new ArrayList<>()
 
         config.matrix.implementations.forEach(implementation -> {
-            if (implementation.version == "snapshot") {
+            if (implementation.version() == "main" || implementation.version() == "master") {
+                // Useful for local development - just use whatever is present.
+                implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, "main", null, null, false))
+            }
+            else if (implementation.version() == "snapshot") {
                 if (implementation.language == "Java") {
                     def snapshot = JVMVersions.getLatestSnapshotBuild("java-client")
                     ctx.env.log("Found snapshot build for Java: ${snapshot}")
@@ -134,7 +138,7 @@ class Execute {
                     throw new UnsupportedOperationException("Cannot support snapshot builds with language ${implementation.language} yet")
                 }
             }
-            else if (implementation.version.contains('X')) {
+            else if (implementation.version().contains('X')) {
                 if (implementation.language == "Java") implementationsToAdd.addAll(jvmVersions(ctx.env, implementation, "java-client"))
                 else if (implementation.language == "Scala") implementationsToAdd.addAll(jvmVersions(ctx.env, implementation, "scala-client_2.12"))
                 else if (implementation.language == "Kotlin") implementationsToAdd.addAll(jvmVersions(ctx.env, implementation, "kotlin-client"))
@@ -148,16 +152,16 @@ class Execute {
                     throw new UnsupportedOperationException("Cannot support snapshot builds with language ${implementation.language} yet")
                 }
             }
-            else if (implementation.version.startsWith('refs/')) {
+            else if (implementation.isGerrit()) {
                 if (!["Java", "Scala", "Kotlin"].contains(implementation.language)) {
                     throw new UnsupportedOperationException("Gerrit builds not currently supported for " + implementation.language)
                 }
-                implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, implementation.version, null, null))
+                implementationsToAdd.add(new PerfConfig.Implementation(implementation.language, implementation.version(), null, null))
             }
             // If adding another special type here, remember to add it to removeIf below
         })
 
-        config.matrix.implementations.removeIf(v -> v.version == "snapshot" || v.version.contains('X') || v.version.startsWith('refs/'))
+        config.matrix.implementations.removeIf(v -> v.version() == "snapshot" || v.version().contains('X') || v.isGerrit())
         if (implementationsToAdd != null) {
             config.matrix.implementations.addAll(implementationsToAdd)
         }
@@ -258,7 +262,7 @@ class Execute {
                 def performerRuns = []
 
                 // We can perform multiple runs inside a single execution of a driver+performer pair.
-                runsForClusterAndPerformer.forEach(run -> new Log("Run ${++runIdx} of ${runsTotal} ${run.impl.language} ${run.impl.version}"))
+                runsForClusterAndPerformer.forEach(run -> new Log("Run ${++runIdx} of ${runsTotal} ${run.impl.language} ${run.impl.version()}"))
 
                 def performerStage = new InitialiseSDKPerformer(performer)
                 def runId = UUID.randomUUID().toString()
@@ -284,7 +288,7 @@ class Execute {
                 // ScopedStage because we want to bring performer up, run driver, bring performer down
                 clusterChildren.add(new ScopedStage(performerStage, [new RunSDKDriver(output)],
                         (err) -> {
-                            def jobName = "${performer.language} ${performer.version}"
+                            def jobName = "${performer.language} ${performer.version()}"
                             ctx.env.log("Job ${jobName} failed with err: ${err}")
                             failedJobs.add(jobName)
                             if (ctx.stopOnFailure()) {

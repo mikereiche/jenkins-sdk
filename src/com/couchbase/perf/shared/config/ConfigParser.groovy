@@ -40,22 +40,24 @@ class ConfigParser {
                 excludeReasons.add("SDK ${implementation.language} does not support Protostellar")
             }
 
-            try {
-                def ver = ImplementationVersion.from(implementation.version)
+            if (implementation.hasVersion()) {
+                try {
+                    def ver = ImplementationVersion.from(implementation.version())
 
-                // couchbase2 support was available in some form for JVM SDKs from some 3.4.X, but due to CNG breakages,
-                // only 3.5.0+ should be used.  However since OTel is also used, JVMCBC-1442 and 3.5.1+ is required
-                if ((implementation.language == "Java" && ver.isBelow(ImplementationVersion.from("3.5.1")))
-                        || (implementation.language == "Kotlin" && ver.isBelow(ImplementationVersion.from("1.2.1")))
-                        || (implementation.language == "Scala" && ver.isBelow(ImplementationVersion.from("1.5.1")))
-                        || (implementation.language == "Go" && ver.isBelow(ImplementationVersion.from("2.7.0")))) {
-                    exclude = true
-                    excludeReasons.add("${implementation.language} ${implementation.version} does not support current Protostellar")
+                    // couchbase2 support was available in some form for JVM SDKs from some 3.4.X, but due to CNG breakages,
+                    // only 3.5.0+ should be used.  However since OTel is also used, JVMCBC-1442 and 3.5.1+ is required
+                    if ((implementation.language == "Java" && ver.isBelow(ImplementationVersion.from("3.5.1")))
+                            || (implementation.language == "Kotlin" && ver.isBelow(ImplementationVersion.from("1.2.1")))
+                            || (implementation.language == "Scala" && ver.isBelow(ImplementationVersion.from("1.5.1")))
+                            || (implementation.language == "Go" && ver.isBelow(ImplementationVersion.from("2.7.0")))) {
+                        exclude = true
+                        excludeReasons.add("${implementation.language} ${implementation.version()} does not support current Protostellar")
+                    }
                 }
-            }
-            catch (err) {
-                exclude = true
-                excludeReasons.add("Something went wrong: ${err}")
+                catch (err) {
+                    exclude = true
+                    excludeReasons.add("Something went wrong: ${err}")
+                }
             }
         }
 
@@ -65,8 +67,8 @@ class ConfigParser {
                 if (x.language != null) {
                     if (x.language == implementation.language) {
                         if (x.version != null) {
-                            if (x.version == implementation.version) {
-                                excludeReasons.add("Excluding based on version ${x.version} ${implementation.version}")
+                            if (x.version == implementation.version()) {
+                                excludeReasons.add("Excluding based on version ${x.version} ${implementation.version()}")
                                 exclude = true
                             }
                         } else {
@@ -104,7 +106,7 @@ class ConfigParser {
                 if (x.language == implementation.language || x.language == null) {
                     if (x.version != null) {
                         if (x.version.startsWith("refs/")) {
-                            if (x.version == implementation.version) {
+                            if (x.version == implementation.version()) {
                                 excludedByInclude = false
                             }
                         }
@@ -115,8 +117,8 @@ class ConfigParser {
                         }
                         else {
                             def requiredVersion = ImplementationVersion.from(x.version)
-                            if (!implementation.isGerrit()) {
-                                def sdkVersion = ImplementationVersion.from(implementation.version)
+                            if (implementation.hasVersion()) {
+                                def sdkVersion = ImplementationVersion.from(implementation.version())
                                 var include = sdkVersion.isAbove(requiredVersion) || sdkVersion == requiredVersion
                                 if (include) {
                                     excludedByInclude = false
@@ -175,7 +177,7 @@ class ConfigParser {
         }
 
         if (exclude) {
-            ctx.env.log("Excluding ${implementation.language} ${implementation.version} run ${workload} cluster ${cluster} because:")
+            ctx.env.log("Excluding ${implementation.language} ${implementation.version()} run ${workload} cluster ${cluster} because:")
             excludeReasons.forEach(er -> ctx.env.log("   ${er}"))
         }
 
@@ -318,7 +320,7 @@ class ConfigParser {
             for (def inc in it.include) {
                 if (inc.implementation != null) {
                     if (inc.implementation.language != implementation.language
-                            || (inc.implementation.version != null && inc.implementation.version != implementation.version)) {
+                            || (inc.implementation.version() != null && inc.implementation.version() != implementation.version())) {
                         ret = false
                     }
                 }

@@ -128,7 +128,8 @@ class PerfConfig {
         // "Java"
         String language
 
-        // "3.3.3" or "3.3.3-6abad3" or "refs/changes/94/184294/1"
+        // "3.3.3" or "3.3.3-6abad3" (snapshot) or "refs/changes/94/184294/1" (gerrit) or "main"
+        // It's public to allow it to written by the JSON slurper, but for safety callers should use version()
         String version
 
         // "6abad3", nullable - used for some languages to handle snapshot builds
@@ -150,8 +151,24 @@ class PerfConfig {
             this.isSnapshot = isSnapshot
         }
 
+        String version() {
+            return version
+        }
+
         boolean isGerrit() {
             return version.startsWith("refs/")
+        }
+
+        boolean isMain() {
+            return version == "main"
+        }
+
+        boolean hasVersion() {
+            if (version == null) {
+                // Internal bug
+                throw new IllegalStateException("version field is somehow null and shouldn't be")
+            }
+            return !isGerrit() && !isMain()
         }
 
         @CompileDynamic

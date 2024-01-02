@@ -138,7 +138,7 @@ class BuildPerformer {
             env.log("Got ${versions.size()} versions")
 
             versions.forEach(vers -> {
-                versionsToBuild.add(new BuildVersion(vers.version))
+                versionsToBuild.add(new BuildVersion(vers.version()))
             })
         }
 

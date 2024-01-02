@@ -12,6 +12,9 @@ class VersionToBuildUtil {
         if (version.startsWith("refs/")) {
             return new BuildGerrit(version)
         }
+        else if (version == "main") {
+            return new BuildMain()
+        }
         else if (sha == null) {
             return new BuildVersion(version)
         }
