@@ -160,7 +160,7 @@ stage("run") {
                             if (INSTALL_CLOUD_NATIVE_GATEWAY) {
                                 runSSH(ip, "echo $GHCR_PASSWORD")
                                 runSSH(ip, "docker login ghcr.io -u qecouchbase --password $GHCR_PASSWORD")
-                                runSSH(ip, "docker run -d --network perf -p 8443:18098/tcp $CLOUD_NATIVE_GATEWAY_DOCKER_VERSION --cb-host cbs --self-sign")
+                                runSSH(ip, "docker run -d --name cng --network perf -p 8443:18098/tcp $CLOUD_NATIVE_GATEWAY_DOCKER_VERSION --cb-host cbs --self-sign")
                             }
                         }
 
