@@ -67,19 +67,45 @@ variables:
 
 matrix:
   clusters:
+    # Currently CI is hardcoded to look for one cluster written in a specific format, so it can replace the hostname.
+    # Update: now "two" clusters, for stellar-nebula testing
+    # In future, may return to having jenkins-sdk control cluster creation (CBD-4948)
+    - type: unmanaged
+      connection_string_driver: couchbase://localhost
+      connection_string_performer: couchbase://localhost
+      hostname_rest: http://localhost:8091
+      # When run by jenkins-sdk, jenkins-sdk will use `connection_string`, and the driver will use `connection_string_docker`.
+      # They need to be separate to allow the driver to connect to the cluster when both are running inside Docker.
+      connection_string_driver_docker: couchbase://cbs
+      connection_string_performer_docker: couchbase://cbs
+      hostname_rest_docker: http://cbs:8091
+      storage: couchstore
+      replicas: 0
+       A number of other fields will get filled in dynamically, both by CI and by jenkins-sdk.  Uncomment the below
+       to help with localhost testing against a copy of the prod database.
+       Remember to also change top-level variables.
+      topology: A
+      version: 7.1.1-3175-enterprise
+      cpuCount: 16
+      instance: c5.4xlarge
+      nodeCount: 1
+      compaction: disabled
+      memory: 28000
+
     # Localhost CNG couchbase2 testing.
     # There is hard-coded filter logic elsewhere that ensures that only SDK versions that support couchbase2:// will run
     # these tests.
-    - type: unmanaged
-      connection_string_driver: couchbase://localhost
-      connection_string_performer: couchbase2://localhost
-      hostname_rest: http://localhost:8091
-      hostname_rest_docker: http://cbs:8091
-      connection_string_driver_docker: couchbase://cbs
-      connection_string_performer_docker: couchbase2://cng
-      insecure: true
-      storage: couchstore
-      replicas: 0
+    # Removing for now due to ING-716
+#    - type: unmanaged
+#      connection_string_driver: couchbase://localhost
+#      connection_string_performer: couchbase2://localhost
+#      hostname_rest: http://localhost:8091
+#      hostname_rest_docker: http://cbs:8091
+#      connection_string_driver_docker: couchbase://cbs
+#      connection_string_performer_docker: couchbase2://cng
+#      insecure: true
+#      storage: couchstore
+#      replicas: 0
 
   implementations:
     - language: Java
@@ -87,16 +113,13 @@ matrix:
 
       # If changing or adding any Gerrit patches, may need to make changes in ConfigParser
 
-#    - language: Scala
-#      version: 1.X.X
-#
-#    - language: Scala
-#      version: snapshot
-#
-#    # Kotlin performer not building: https://couchbase.slack.com/archives/C033YPWT6DC/p1701947947253859?thread_ts=1701771863.911269&cid=C033YPWT6DC
-##    - language: Kotlin
-##      version: 1.X.X
-##
+    - language: Scala
+      version: 1.X.X
+
+    - language: Scala
+      version: snapshot
+
+    # Kotlin performer not building: https://couchbase.slack.com/archives/C033YPWT6DC/p1701947947253859?thread_ts=1701771863.911269&cid=C033YPWT6DC
 #    - language: Kotlin
 #      version: snapshot
 #
@@ -139,17 +162,59 @@ matrix:
 #    - language: C++
 #      version: 1.X.X
 #
-#    - language: Node
+#    - language: Kotlin
 #      version: snapshot
-#
-#    - language: Node
-#      version: 4.2.X
-#
-#    - language: Ruby
-#      version: 3.4.X
-#
-#    - language: Ruby
-#      version: snapshot
+
+    # https://couchbase.slack.com/archives/C033YPWT6DC/p1692090337345279?thread_ts=1692029200.583649&cid=C033YPWT6DC
+    - language: .NET
+      version: 3.3.X
+
+    - language: .NET
+      version: 3.4.X
+
+    - language: .NET
+      version: snapshot
+
+    # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
+    # Go needs SDKQE-2831 to avoid 'bad scheme' errors
+    - language: Go
+      version: 2.3.X
+
+    - language: Go
+      version: 2.4.X
+
+    - language: Go
+      version: 2.5.X
+
+    - language: Go
+      version: 2.6.X
+
+    - language: Go
+      version: snapshot
+
+    - language: Python
+      version: snapshot
+
+    - language: Python
+      version: 4.1.X
+
+    - language: C++
+      version: snapshot
+
+    - language: C++
+      version: 1.X.X
+
+    - language: Node
+      version: snapshot
+
+    - language: Node
+      version: 4.2.X
+
+    - language: Ruby
+      version: 3.4.X
+
+    - language: Ruby
+      version: snapshot
 
   workloads:
 
