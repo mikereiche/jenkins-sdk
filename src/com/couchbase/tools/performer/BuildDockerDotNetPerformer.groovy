@@ -21,6 +21,13 @@ class BuildDockerDotNetPerformer {
         // Build context needs to be perf-sdk as we need the .proto files
         imp.dirAbsolute(path) {
             imp.dir('transactions-fit-performer') {
+                //The project file needs to be modified if the checked out .NET client does not have Protostellar.
+                //Since the FitPerformer repository is only checked out once, two saves must be present.
+                if (sdkVersion.isBelow(ImplementationVersion.from("3.4.14-rc1"))){
+                    imp.execute("cp Couchbase.Transactions.FitPerformer/ProjectFiles/NoPSProjectFile.xml Couchbase.Transactions.FitPerformer/Couchbase.Transactions.FitPerformer.csproj", false, false, true)
+                } else {
+                    imp.execute("cp Couchbase.Transactions.FitPerformer/ProjectFiles/PSProjectFile.xml Couchbase.Transactions.FitPerformer/Couchbase.Transactions.FitPerformer.csproj", false, false, true)
+                }
                 imp.execute('git submodule update --init --recursive', false, false, true)
                 imp.dir('performers/dotnet') {
                     // couchbase-net-client is a git submodule
