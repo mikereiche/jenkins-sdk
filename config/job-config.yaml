@@ -74,23 +74,23 @@ matrix:
       connection_string_driver: couchbase://localhost
       connection_string_performer: couchbase://localhost
       hostname_rest: http://localhost:8091
-      # When run by jenkins-sdk, jenkins-sdk will use `connection_string`, and the driver will use `connection_string_docker`.
-      # They need to be separate to allow the driver to connect to the cluster when both are running inside Docker.
+    # When run by jenkins-sdk, jenkins-sdk will use `connection_string`, and the driver will use `connection_string_docker`.
+    # They need to be separate to allow the driver to connect to the cluster when both are running inside Docker.
       connection_string_driver_docker: couchbase://cbs
       connection_string_performer_docker: couchbase://cbs
       hostname_rest_docker: http://cbs:8091
       storage: couchstore
       replicas: 0
-       A number of other fields will get filled in dynamically, both by CI and by jenkins-sdk.  Uncomment the below
-       to help with localhost testing against a copy of the prod database.
-       Remember to also change top-level variables.
-      topology: A
-      version: 7.1.1-3175-enterprise
-      cpuCount: 16
-      instance: c5.4xlarge
-      nodeCount: 1
-      compaction: disabled
-      memory: 28000
+    # A number of other fields will get filled in dynamically, both by CI and by jenkins-sdk.  Uncomment the below
+    # to help with localhost testing against a copy of the prod database.
+    # Remember to also change top-level variables.
+    # topology: A
+    # version: 7.1.1-3175-enterprise
+    # cpuCount: 16
+    # instance: c5.4xlarge
+    # nodeCount: 1
+    # compaction: disabled
+    # memory: 28000
 
     # Localhost CNG couchbase2 testing.
     # There is hard-coded filter logic elsewhere that ensures that only SDK versions that support couchbase2:// will run
