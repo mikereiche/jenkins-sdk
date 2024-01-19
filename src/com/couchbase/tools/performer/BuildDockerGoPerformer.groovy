@@ -24,31 +24,22 @@ class BuildDockerGoPerformer {
         imp.dirAbsolute(path) {
             imp.dir('transactions-fit-performer') {
                 imp.dir('performers/go') {
-                    writeGoModFile(imp, build)
                     TagProcessor.processTags(new File(imp.currentDir()), build)
                 }
+                var version = "master"
+                if (build instanceof HasSha) {
+                    version = build.sha()
+                }
+                else if (build instanceof HasVersion) {
+                    version = "v${build.version()}"
+                }
+                else if (build instanceof BuildMain) {
+                    version = "master"
+                }
                 if (!onlySource) {
-                    imp.execute("docker build -f performers/go/Dockerfile --platform=linux/amd64 -t $imageName .", false, true, true)
+                    imp.execute("docker build -f performers/go/Dockerfile --platform=linux/amd64 --build-arg SDK_VERSION=${version} -t $imageName .", false, true, true)
                 }
             }
         }
-    }
-
-    static private List writeGoModFile(Environment imp, VersionToBuild build) {
-        def goMod = new File("${imp.currentDir()}/go.mod")
-        def lines = goMod.readLines()
-
-        goMod.write("")
-
-        for (int i = 0; i < lines.size(); i++) {
-            def line = lines[i]
-
-            if (line.contains("couchbase/gocb/v2") && build instanceof HasVersion) {
-                goMod.append("\tgithub.com/couchbase/gocb/v2 v${build.version()}\n")
-            } else {
-                goMod.append(line + "\n")
-            }
-        }
-
     }
 }
