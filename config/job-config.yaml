@@ -204,11 +204,11 @@ matrix:
     - language: C++
       version: 1.X.X
 
-    - language: Node
-      version: snapshot
-
-    - language: Node
-      version: 4.2.X
+#    - language: Node
+#      version: snapshot
+#
+#    - language: Node
+#      version: 4.2.X
 
     - language: Ruby
       version: 3.4.X
