@@ -190,6 +190,9 @@ matrix:
       version: 2.6.X
 
     - language: Go
+      version: 2.7.X
+
+    - language: Go
       version: snapshot
 
     - language: Python
