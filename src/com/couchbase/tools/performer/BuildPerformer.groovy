@@ -37,7 +37,8 @@ class BuildPerformer {
         cli.with {
             d(longOpt: 'directory', args: 1, required: true, 'Directory containing transactions-fit-performer')
             s(longOpt: 'sdk', args: 1, required: true, 'SDK to build (java-sdk, scala, kotlin, go, python, c++, .net, ruby)')
-            v(longOpt: 'version', args: 1, 'Version - skip to build main')
+            v(longOpt: 'version', args: 1, 'Version - skip to build main - only used for tag processing if commit-sha is provided')
+            c(longOpt: 'commit-sha', args: 1, 'SHA - SDK commit SHA to build - skip to build main')
             i(longOpt: 'image', args: 1, required: true, 'Docker image name')
             o(longOpt: 'only-source', 'Only modify source, no Docker build')
             b(longOpt: 'build-validation', args: 1, 'Validation mode.  "auto" = build various versions of the SDK')
@@ -55,6 +56,7 @@ class BuildPerformer {
         String sdkRaw = options.s.toLowerCase().trim()
         def env = new Environment()
         Optional<String> version = options.v ? Optional.of(options.v) : Optional.empty()
+        Optional<String> sha = options.c ? Optional.of(options.c) : Optional.empty()
         boolean onlySource = options.o
         String imageName = options.i
         String dir = options.d
@@ -62,10 +64,13 @@ class BuildPerformer {
 
         ArrayList<VersionToBuild> versionsToBuild = []
         if (!validationMode) {
-            if (version.isPresent()) {
+            if (version.isPresent() && sha.isPresent()) {
+                versionsToBuild.add(new BuildShaVersion(version.get(), sha.get()));
+            } else if (sha.isPresent()) {
+                versionsToBuild.add(new BuildSha(sha.get()));
+            } else if (version.isPresent()) {
                 versionsToBuild.add(new BuildVersion(version.get()))
-            }
-            else {
+            } else {
                 versionsToBuild.add(new BuildMain())
             }
         } else {
