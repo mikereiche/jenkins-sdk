@@ -42,6 +42,7 @@ class BuildPerformer {
             i(longOpt: 'image', args: 1, required: true, 'Docker image name')
             o(longOpt: 'only-source', 'Only modify source, no Docker build')
             b(longOpt: 'build-validation', args: 1, 'Validation mode.  "auto" = build various versions of the SDK')
+            g(longOpt: 'gerrit-ref', args: 1, 'Gerrit Changeset. e.g. "refs/changes/99/999999/1"')
         }
 
         cli.usage()
@@ -57,6 +58,7 @@ class BuildPerformer {
         def env = new Environment()
         Optional<String> version = options.v ? Optional.of(options.v) : Optional.empty()
         Optional<String> sha = options.c ? Optional.of(options.c) : Optional.empty()
+        Optional<String> gerrit = options.g ? Optional.of(options.g) : Optional.empty()
         boolean onlySource = options.o
         String imageName = options.i
         String dir = options.d
@@ -70,6 +72,8 @@ class BuildPerformer {
                 versionsToBuild.add(new BuildSha(sha.get()));
             } else if (version.isPresent()) {
                 versionsToBuild.add(new BuildVersion(version.get()))
+            } else if (gerrit.isPresent()) {
+                versionsToBuild.add(new BuildGerrit(gerrit.get()))
             } else {
                 versionsToBuild.add(new BuildMain())
             }

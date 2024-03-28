@@ -14,32 +14,32 @@ class BuildDockerDotNetPerformer {
     static void build(Environment imp, String path, VersionToBuild build, String imageName, boolean onlySource = false) {
         imp.log("Building .NET ${build}")
 
-        if (build instanceof BuildGerrit) {
-            throw new RuntimeException("Building Gerrit not currently supported for .NET")
-        }
-
         // Build context needs to be perf-sdk as we need the .proto files
         imp.dirAbsolute(path) {
             imp.dir('transactions-fit-performer') {
                 imp.execute('git submodule update --init --recursive', false, false, true)
                 imp.dir('performers/dotnet') {
                     // couchbase-net-client is a git submodule
-                    imp.dir('couchbase-net-client') {
-                        if (build instanceof BuildMain) {
-                            imp.execute("git checkout master", false, false, true)
-                        }
-                        else if (build instanceof HasSha) {
-                            imp.execute("git checkout ${build.sha()}", false, false, true)
-                        }
-                        else if (build instanceof HasVersion) {
-                            imp.execute("git checkout tags/${build.version()}", false, false, true)
-                        }
-                    }
                     TagProcessor.processTags(new File(imp.currentDir()), build)
                 }
             }
             if (!onlySource) {
-                imp.execute("docker build -f transactions-fit-performer/performers/dotnet/Couchbase.Transactions.FitPerformer/Dockerfile -t $imageName .", false, true, true)
+                var dockerfile = "Dockerfile_NET8"
+                if (build instanceof HasVersion && build.implementationVersion().isBelow(ImplementationVersion.from("3.4.10"))){
+                    dockerfile = "Dockerfile_NET6"
+                }
+                if (build instanceof BuildMain) {
+                    imp.execute("docker build -f transactions-fit-performer/performers/dotnet/Couchbase.Transactions.FitPerformer/$dockerfile -t $imageName .", false, true, true)
+                }
+                else if (build instanceof BuildGerrit) {
+                    imp.execute("docker build -f transactions-fit-performer/performers/dotnet/Couchbase.Transactions.FitPerformer/$dockerfile -t $imageName --build-arg BUILD_GERRIT=${build.gerrit()} .", false, true, true)
+                }
+                else if (build instanceof HasSha) {
+                    imp.execute("docker build -f transactions-fit-performer/performers/dotnet/Couchbase.Transactions.FitPerformer/$dockerfile -t $imageName --build-arg SDK_BRANCH=${build.sha()} .", false, true, true)
+                }
+                else if (build instanceof HasVersion) {
+                    imp.execute("docker build -f transactions-fit-performer/performers/dotnet/Couchbase.Transactions.FitPerformer/$dockerfile -t $imageName --build-arg SDK_BRANCH=tags/${build.version()} .", false, true, true)
+                }
             }
         }
     }
