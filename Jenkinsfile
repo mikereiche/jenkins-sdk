@@ -92,7 +92,7 @@ stage("run") {
                     // String securityGroup = "sg-073bffa623008db9c"   // for us-east-1
                     String securityGroup = "sg-e942db8d"            //  for us-west-1
 
-                    String instanceId = runAWS("ec2 run-instances --image-id ${imageId} --count 1 --instance-type ${instanceType} --key-name cbdyncluster --security-group-ids ${securityGroup} --region ${region} --output text --query 'Instances[*].InstanceId' --block-device-mappings 'DeviceName=/dev/xvda,Ebs={VolumeSize=${hdSizeGB}}'").trim()
+                    String instanceId = runAWS("ec2 run-instances --image-id ${imageId} --count 1 --instance-type ${instanceType} --key-name cbdyncluster --security-group-ids ${securityGroup} --region ${region} --output text --query 'Instances[*].InstanceId' --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=fit-perf}]' --block-device-mappings 'DeviceName=/dev/xvda,Ebs={VolumeSize=${hdSizeGB}}'").trim()
                     echo "Created AWS instance ${instanceId}"
                     String ip = null
 
@@ -228,7 +228,12 @@ String waitForInstanceToBeReady(String region, String instanceId) {
 
 void removeOldInstances(String region) {
     try {
-        String oldInstancesRaw = runAWS("ec2 describe-instances --region ${region} --filters \"Name='tag:project',Values=sdk-performance\" --output text --query 'Reservations[*].Instances[*].InstanceId'").trim()
+        String oldInstancesRaw = runAWS("""ec2 describe-instances \\
+            --region ${region} \\
+            --filters "Name=tag:Name,Values=fit-perf" \\
+            --query "Reservations[].Instances[?LaunchTime<='\$(date --date='-2 days' '+%Y-%m-%d')'].InstanceId" \\
+            --output text
+            """).trim()
         echo oldInstancesRaw
         List<String> oldInstances = oldInstancesRaw.split('\n').toList()
         oldInstances.each { if (!it.trim().isEmpty()) runAWS("ec2 terminate-instances --instance-ids ${it.trim()} --region ${region}") }
