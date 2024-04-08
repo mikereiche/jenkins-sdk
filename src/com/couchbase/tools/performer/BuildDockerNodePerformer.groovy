@@ -44,7 +44,7 @@ class BuildDockerNodePerformer {
                 } else if (build instanceof HasSha) {
                     shaFile.append(build.sha())
                 } else if (build instanceof HasVersion) {
-                    packageFile.append("\t\"couchbase\": \"^${build.version()}\",\n")
+                    packageFile.append("\t\"couchbase\": \"${build.version()}\",\n")
                 } else {
                     packageFile.append(line + "\n")
                 }
