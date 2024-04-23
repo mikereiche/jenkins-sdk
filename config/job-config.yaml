@@ -122,58 +122,16 @@ matrix:
     # Kotlin performer not building: https://couchbase.slack.com/archives/C033YPWT6DC/p1701947947253859?thread_ts=1701771863.911269&cid=C033YPWT6DC
 #    - language: Kotlin
 #      version: snapshot
-#
-#    # https://couchbase.slack.com/archives/C033YPWT6DC/p1692090337345279?thread_ts=1692029200.583649&cid=C033YPWT6DC
-#    - language: .NET
-#      version: 3.3.X
-#
-#    - language: .NET
-#      version: 3.4.X
-#
-#    - language: .NET
-#      version: snapshot
-#
-#    # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
-#    # Go needs SDKQE-2831 to avoid 'bad scheme' errors
-#    - language: Go
-#      version: 2.3.X
-#
-#    - language: Go
-#      version: 2.4.X
-#
-#    - language: Go
-#      version: 2.5.X
-#
-#    - language: Go
-#      version: 2.6.X
-#
-#    - language: Go
-#      version: snapshot
-#
-#    - language: Python
-#      version: snapshot
-#
-#    - language: Python
-#      version: 4.1.X
-#
-#    - language: C++
-#      version: snapshot
-#
-#    - language: C++
-#      version: 1.X.X
-#
-#    - language: Kotlin
-#      version: snapshot
 
-    # .NET removed because https://couchbase.slack.com/archives/C05LNBVQRE3/p1709834402140709?thread_ts=1709829711.040379&cid=C05LNBVQRE3
-    #    - language: .NET
-    #      version: 3.3.X
+    # https://couchbase.slack.com/archives/C033YPWT6DC/p1692090337345279?thread_ts=1692029200.583649&cid=C033YPWT6DC
+    - language: .NET
+      version: 3.3.X
 
-    #    - language: .NET
-    #      version: 3.4.X
+    - language: .NET
+      version: 3.4.X
 
-    #    - language: .NET
-    #      version: snapshot
+    - language: .NET
+      version: snapshot
 
     # Earliest version the Go performer can compile is 2.3.0 (possibly earlier)
     # Go needs SDKQE-2831 to avoid 'bad scheme' errors
