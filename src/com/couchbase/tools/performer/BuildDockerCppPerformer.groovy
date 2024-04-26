@@ -18,7 +18,7 @@ class BuildDockerCppPerformer {
      * @param imageName  the name of the docker image
      * @param onlySource whether to skip the docker build
      */
-    static void build(Environment imp, String path, VersionToBuild build, String imageName, boolean onlySource = false) {
+    static void build(Environment imp, String path, VersionToBuild build, String imageName, boolean onlySource = false, Map<String, String> dockerBuildArgs = [:]) {
         imp.log("Building C++ ${build}")
 
         if (build instanceof BuildGerrit) {
@@ -30,9 +30,12 @@ class BuildDockerCppPerformer {
                 imp.dir('performers/cpp') {
                     TagProcessor.processTags(new File(imp.currentDir()), build)
                 }
+
+                def serializedBuildArgs = dockerBuildArgs.collect((k, v) -> "--build-arg $k=$v").join(" ")
+
                 if (!onlySource) {
                     String branch = getSdkBranch(build)
-                    String cmd = "docker build -f ./performers/cpp/Dockerfile -t $imageName --build-arg SDK_BRANCH=$branch  ."
+                    String cmd = "docker build -f ./performers/cpp/Dockerfile -t $imageName --build-arg SDK_BRANCH=$branch $serializedBuildArgs ."
                     imp.execute(cmd, false, true, true)
                 }
             }

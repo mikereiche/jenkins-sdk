@@ -19,7 +19,7 @@ class BuildDockerPythonPerformer {
      * @param imageName  the name of the docker image
      * @param onlySource whether to skip the docker build
      */
-    static void build(Environment imp, String path, VersionToBuild build, String imageName, boolean onlySource = false) {
+    static void build(Environment imp, String path, VersionToBuild build, String imageName, boolean onlySource = false, Map<String, String> dockerBuildArgs = [:]) {
         imp.log("Building Python ${build}")
 
         if (build instanceof BuildGerrit) {
@@ -32,8 +32,11 @@ class BuildDockerPythonPerformer {
                     writePythonRequirementsFile(imp, build)
                     TagProcessor.processTags(new File(imp.currentDir()), build)
                 }
+
+                def serializedBuildArgs = dockerBuildArgs.collect((k, v) -> "--build-arg $k=$v").join(" ")
+
                 if (!onlySource) {
-                    imp.execute("docker build -f ./performers/python/Dockerfile -t $imageName .", false, true, true)
+                    imp.execute("docker build -f ./performers/python/Dockerfile -t $imageName $serializedBuildArgs .", false, true, true)
                 }
             }
         }
