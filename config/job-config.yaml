@@ -151,6 +151,9 @@ matrix:
       version: 2.7.X
 
     - language: Go
+      version: 2.8.X
+
+    - language: Go
       version: snapshot
 
     - language: Python
@@ -158,6 +161,9 @@ matrix:
 
     - language: Python
       version: 4.1.X
+
+    - language: Python
+      version: 4.2.X
 
     - language: C++
       version: snapshot
@@ -171,8 +177,14 @@ matrix:
     - language: Node
       version: 4.2.X
 
+    - language: Node
+      version: 4.3.X
+
     - language: Ruby
       version: 3.4.X
+
+    - language: Ruby
+      version: 3.5.X
 
     - language: Ruby
       version: snapshot
