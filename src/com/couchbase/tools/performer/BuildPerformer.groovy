@@ -43,6 +43,7 @@ class BuildPerformer {
             o(longOpt: 'only-source', 'Only modify source, no Docker build')
             b(longOpt: 'build-validation', args: 1, 'Validation mode.  "auto" = build various versions of the SDK')
             g(longOpt: 'gerrit-ref', args: 1, 'Gerrit Changeset. e.g. "refs/changes/99/999999/1"')
+            a(longOpt: 'docker-build-args', args: 1, 'Docker build arguments. e.g. "ARG1=foo ARG2=bar"')
         }
 
         cli.usage()
@@ -55,6 +56,7 @@ class BuildPerformer {
         }
 
         String sdkRaw = options.s.toLowerCase().trim()
+        def sdk = SdkSynonyms.sdk(sdkRaw)
         def env = new Environment()
         Optional<String> version = options.v ? Optional.of(options.v) : Optional.empty()
         Optional<String> sha = options.c ? Optional.of(options.c) : Optional.empty()
@@ -63,6 +65,19 @@ class BuildPerformer {
         String imageName = options.i
         String dir = options.d
         boolean validationMode = options.b
+
+        Map<String, String> dockerBuildArgs = new HashMap<>()
+        if (options.a) {
+            if (!(sdk in [Sdk.CPP, Sdk.PYTHON, Sdk.RUBY])) {
+                logger.severe("The docker-build-args parameter cannot be set for the ${sdk.name()} SDK.")
+                System.exit(-1)
+            }
+
+            for (String pair in options.a.split()) {
+                def parts = pair.split("=")
+                dockerBuildArgs.put(parts[0], parts[1])
+            }
+        }
 
         ArrayList<VersionToBuild> versionsToBuild = []
         if (!validationMode) {
@@ -79,8 +94,6 @@ class BuildPerformer {
             }
         } else {
             List<PerfConfig.Implementation> versions
-
-            def sdk = SdkSynonyms.sdk(sdkRaw)
 
             switch (sdk) {
                 case Sdk.JAVA:
@@ -159,19 +172,19 @@ class BuildPerformer {
             env.log("Building ${vers}")
 
             try {
-                if (sdkRaw == "java-sdk" || sdkRaw == "java" || sdkRaw == "scala" || sdkRaw == "kotlin") {
+                if (sdk == Sdk.JAVA || sdk == Sdk.KOTLIN || sdk == Sdk.SCALA) {
                     BuildDockerJVMPerformer.build(env, dir, sdkRaw.replace("-sdk", ""), vers, imageName, onlySource)
-                } else if (sdkRaw == "go") {
+                } else if (sdk == Sdk.GO) {
                     BuildDockerGoPerformer.build(env, dir, vers, imageName, onlySource)
-                } else if (sdkRaw == "python") {
-                    BuildDockerPythonPerformer.build(env, dir, vers, imageName, onlySource)
-                } else if (sdkRaw == "c++" || sdkRaw == "cxx" || sdkRaw == "cpp") {
-                    BuildDockerCppPerformer.build(env, dir, vers, imageName, onlySource)
-                } else if (sdkRaw == "ruby") {
-                    BuildDockerRubyPerformer.build(env, dir, vers, imageName, onlySource)
-                } else if (sdkRaw == ".net" || sdkRaw == "dotnet") { // "dotnet" alias to support test-driver CI job
+                } else if (sdk == Sdk.PYTHON) {
+                    BuildDockerPythonPerformer.build(env, dir, vers, imageName, onlySource, dockerBuildArgs)
+                } else if (sdk == Sdk.CPP) {
+                    BuildDockerCppPerformer.build(env, dir, vers, imageName, onlySource, dockerBuildArgs)
+                } else if (sdk == Sdk.RUBY) {
+                    BuildDockerRubyPerformer.build(env, dir, vers, imageName, onlySource, dockerBuildArgs)
+                } else if (sdk == Sdk.DOTNET) { // "dotnet" alias to support test-driver CI job
                     BuildDockerDotNetPerformer.build(env, dir, vers, imageName, onlySource)
-                } else if (sdkRaw == "node") {
+                } else if (sdk == Sdk.NODE) {
                     BuildDockerNodePerformer.build(env, dir, vers, imageName, onlySource)
                 } else {
                     logger.severe("Do not yet know how to build " + sdkRaw)
