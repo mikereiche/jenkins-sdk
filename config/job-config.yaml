@@ -290,8 +290,6 @@ matrix:
           version: 2.5.3
         - language: C++
           version: snapshot
-        - language: .NET
-          version: snapshot
       exclude:
         - protostellar: true # As Protostellar doesn't support transactions
         - gerrit: true       # As we exclude these by default
@@ -318,8 +316,6 @@ matrix:
         - language: C++
           version: snapshot
         - language: Go
-          version: snapshot
-        - language: .NET
           version: snapshot
       exclude:
         - protostellar: true # As Protostellar doesn't support transactions
