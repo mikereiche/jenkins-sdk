@@ -29,21 +29,28 @@ class BuildDockerRubyPerformer {
                     TagProcessor.processTags(new File(imp.currentDir()), build)
                 }
 
-                def buildArgs = "--build-arg SDK_BRANCH=main"
                 def dockerfile = "snapshot.Dockerfile"
 
-
                 if (build instanceof HasSha) {
-                    buildArgs = "--build-arg SDK_REF=${build.sha()}"
-                } else if (build instanceof HasVersion) {
-                    buildArgs = "--build-arg SDK_VERSION=${build.version()}"
+                    dockerBuildArgs.put("SDK_REF", build.sha().toString())
+                }
+                else if (build instanceof HasVersion) {
+                    dockerBuildArgs.put("SDK_VERSION", build.version().toString())
+                    if (build.implementationVersion().isBelow(ImplementationVersion.from("3.5.0"))) {
+                        dockerBuildArgs.put("SDK_GEM_SOURCE", "https://packages.couchbase.com/clients/ruby/sdk-${build.version()}/couchbase-${build.version()}-x86_64-linux-3.2.0.gem".toString())
+                    } else {
+                        dockerBuildArgs.put("SDK_GEM_SOURCE", "https://packages.couchbase.com/clients/ruby/sdk-${build.version()}/couchbase-${build.version()}-x86_64-linux.gem".toString())
+                    }
                     dockerfile = "release.Dockerfile"
                 }
+                else if (build instanceof BuildMain) {
+                    dockerBuildArgs.put("SDK_BRANCH", "main")
+                }
 
-                buildArgs += " " + dockerBuildArgs.collect((k, v) -> "--build-arg $k=$v").join(" ")
+                def serializedBuildArgs = dockerBuildArgs.collect((k, v) -> "--build-arg $k=$v").join(" ")
 
                 if (!onlySource) {
-                    imp.execute("docker build -f performers/ruby/dockerfiles/$dockerfile $buildArgs -t $imageName .", false, true, true)
+                    imp.execute("docker build -f performers/ruby/dockerfiles/$dockerfile $serializedBuildArgs -t $imageName .", false, true, true)
                 }
             }
         }
