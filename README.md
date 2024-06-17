@@ -8,12 +8,15 @@ See https://github.com/couchbaselabs/transactions-fit-performer/blob/master/perf
 # CLI tools
 
 ## Tags
-See the comments on `TagProcessor` for more.
+A pre-processor conditionally comments-out bits of code depending on a target SDK version.
+The pre-processor directives are referred to as "tags". See the [Tag Syntax Guide](TAG_SYNTAX.md).
+
+To run `TagProcessor` from the command line using Gradle:
 ```
 ./gradlew tags --args="-d <some_path> -v 3.0.0"
 ```
 
-To restore the code use the -r flag:
+To restore the code to its "pre-preprocessed" state, use the -r flag:
 ```
 ./gradlew tags --args="-d <some_path> -v 3.0.0 -r"
 ```
