@@ -108,6 +108,10 @@ class BuildPerformer {
                     def implementation = new PerfConfig.Implementation("Kotlin", "1.X.0", null)
                     versions = Versions.jvmVersions(env, implementation, "kotlin-client")
                     break
+                case Sdk.JAVA_COLUMNAR:
+                    def implementation = new PerfConfig.Implementation("Java-Columnar", "1.X.0", null)
+                    versions = Versions.jvmVersions(env, implementation, "java-columnar-client")
+                    break
                 case Sdk.GO:
                     // 2.3.0 is earliest supported
                     def target = ImplementationVersion.from("2.3.0")
@@ -172,7 +176,7 @@ class BuildPerformer {
             env.log("Building ${vers}")
 
             try {
-                if (sdk == Sdk.JAVA || sdk == Sdk.KOTLIN || sdk == Sdk.SCALA) {
+                if (sdk == Sdk.JAVA || sdk == Sdk.KOTLIN || sdk == Sdk.SCALA || sdk == Sdk.JAVA_COLUMNAR) {
                     BuildDockerJVMPerformer.build(env, dir, sdkRaw.replace("-sdk", ""), vers, imageName, onlySource)
                 } else if (sdk == Sdk.GO) {
                     BuildDockerGoPerformer.build(env, dir, vers, imageName, onlySource)
