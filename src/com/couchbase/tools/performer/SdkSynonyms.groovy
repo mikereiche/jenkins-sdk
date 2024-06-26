@@ -10,7 +10,8 @@ enum Sdk {
     RUBY,
     NODE,
     GO,
-    PHP
+    PHP,
+    JAVA_COLUMNAR
 }
 
 class SdkSynonyms {
@@ -25,6 +26,7 @@ class SdkSynonyms {
         else if (isNode(input)) return Sdk.NODE
         else if (isGo(input)) return Sdk.GO
         else if (isPHP(input)) return Sdk.PHP
+        else if (isJavaCol(input)) return Sdk.JAVA_COLUMNAR
         else throw new RuntimeException("Cannot parse SDK ${input}")
     }
 
@@ -70,5 +72,10 @@ class SdkSynonyms {
     public static boolean isPHP(String input) {
         return input.equalsIgnoreCase("php")
     }
+
+    public static boolean isJavaCol(String input) {
+        return input.equalsIgnoreCase("java-columnar")
+    }
+
 
 }
