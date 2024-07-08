@@ -5,7 +5,7 @@ import groovy.transform.Memoized
 
 
 class CppVersions {
-    private final static String REPO = "couchbaselabs/couchbase-cxx-client"
+    private final static String REPO = "couchbase/couchbase-cxx-client"
     private final static String BRANCH = "main"
 
     @Memoized
