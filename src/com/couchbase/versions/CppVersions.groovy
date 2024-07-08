@@ -25,7 +25,7 @@ class CppVersions {
      */
     private static Set<ImplementationVersion> withoutUnsupportedVersions(Set<ImplementationVersion> allVersions) {
         return allVersions.findAll( (v) -> {
-            if (!(v.major == 1 && v.minor == 0 && v.patch == 0)) return true
+            if (!(v.major == 1 && v.minor == 0 && v.patch == 0) || v.snapshot == null) return true
 
             String[] parts = v.snapshot.substring(1).split("\\.")
             if (parts[0] == "dp") {
