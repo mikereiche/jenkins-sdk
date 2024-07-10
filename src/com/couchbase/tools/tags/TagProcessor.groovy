@@ -30,10 +30,17 @@ class TagProcessor {
     }
 
     @CompileStatic
-    public static void processTags(File rootDirectory, ImplementationVersion version) {
+    public static void processTags(File rootDirectory, ImplementationVersion version, Optional<Pattern> filePathFilter = Optional.empty()) {
         def warnings = new ArrayList()
 
         rootDirectory.traverse(type: FileType.FILES) { file ->
+            if (filePathFilter.present) {
+                var matcher = filePathFilter.get().matcher(file.toString())
+                if (!matcher.matches()) {
+                    return
+                }
+            }
+
             // Let developers opt in to the single-line comment implementation
             if (hasIfTags(file)) {
                 logger.info("Processing any tags in file ${file.getAbsolutePath()} using V1 ('if', 'else', nested tags)")
@@ -60,9 +67,10 @@ class TagProcessor {
     /**
      * @param rootDirectory a directory to recursively run the tags processing on all files below
      * @param build what to build
+     * @param an optional filter for the files that should be processed
      */
     @CompileStatic
-    public static void processTags(File rootDirectory, VersionToBuild build) {
+    public static void processTags(File rootDirectory, VersionToBuild build, Optional<Pattern> filePathFilter = Optional.empty()) {
         // See comments on these two classes for why tags processing is skipped in these modes.
         if (build instanceof BuildGerrit || build instanceof BuildSha) {
             return
@@ -77,7 +85,7 @@ class TagProcessor {
         }
 
         def version = ImplementationVersion.from(((HasVersion) build).version())
-        processTags(rootDirectory, version)
+        processTags(rootDirectory, version, filePathFilter)
     }
 
     static void configureLogging(Logger logger) {
