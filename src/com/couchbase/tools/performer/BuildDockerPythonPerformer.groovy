@@ -7,6 +7,7 @@ import groovy.transform.CompileStatic
 
 import java.security.cert.CertificateEncodingException
 import java.util.logging.Logger
+import java.util.regex.Pattern
 
 @CompileStatic
 class BuildDockerPythonPerformer {
@@ -30,7 +31,7 @@ class BuildDockerPythonPerformer {
             imp.dir('transactions-fit-performer') {
                 imp.dir('performers/python') {
                     writePythonRequirementsFile(imp, build)
-                    TagProcessor.processTags(new File(imp.currentDir()), build)
+                    TagProcessor.processTags(new File(imp.currentDir()), build, Optional.of(Pattern.compile(".*\\.py")))
                 }
 
                 def serializedBuildArgs = dockerBuildArgs.collect((k, v) -> "--build-arg $k=$v").join(" ")
