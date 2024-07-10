@@ -4,6 +4,7 @@ import com.couchbase.context.environments.Environment
 import com.couchbase.tools.tags.TagProcessor
 import com.couchbase.versions.ImplementationVersion
 import groovy.transform.CompileStatic
+import java.util.regex.Pattern
 
 @CompileStatic
 class BuildDockerDotNetPerformer {
@@ -18,14 +19,14 @@ class BuildDockerDotNetPerformer {
         imp.dirAbsolute(path) {
             imp.dir('transactions-fit-performer') {
                 //No need to use the submodule as the Dockerfile deletes it and runs a fresh clone
-                imp.dir('performers/dotnet') {
+                imp.dir('performers/dotnet/Couchbase.Transactions.FitPerformer') {
                     // couchbase-net-client is a git submodule
-                    TagProcessor.processTags(new File(imp.currentDir()), build)
+                    TagProcessor.processTags(new File(imp.currentDir()), build, Optional.of(Pattern.compile(".*\\.cs")))
                 }
             }
             if (!onlySource) {
                 var dockerfile = "Dockerfile_NET8"
-                if (build instanceof HasVersion && build.implementationVersion().isBelow(ImplementationVersion.from("3.4.10"))){
+                if (build instanceof HasVersion && build.implementationVersion().isBelow(ImplementationVersion.from("3.4.14"))){
                     dockerfile = "Dockerfile_NET6"
                 }
                 if (build instanceof BuildMain) {
