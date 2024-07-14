@@ -26,6 +26,8 @@ class BuildDockerJVMPerformer {
      */
     static void build(Environment imp, String path, String client, VersionToBuild build, String imageName, boolean onlySource = false) {
         imp.log("Building ${client} ${build}")
+        path = (new File(path)).getAbsolutePath()
+        imp.log("Absolute path =  ${path}")
 
         if (build instanceof BuildGerrit) {
             imp.tempDir {
