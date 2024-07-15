@@ -26,6 +26,8 @@ class BuildDockerJVMPerformer {
      */
     static void build(Environment imp, String path, String client, VersionToBuild build, String imageName, boolean onlySource = false) {
         imp.log("Building ${client} ${build}")
+        path = (new File(path)).getAbsolutePath()
+        imp.log("Absolute path =  ${path}")
 
         if (build instanceof BuildGerrit) {
             imp.tempDir {
@@ -60,12 +62,8 @@ class BuildDockerJVMPerformer {
                             .collect(Collectors.toList())
                     file.write(modified.join("\n"))
                 }
-                path = (new File(path)).getAbsolutePath()
-                imp.log("Absolute path =  ${path}")
                 imp.execute("mv couchbase-jvm-clients ${path}/couchbase-jvm-clients-${temp}")
-                imp.execute("ls -l ${path}/couchbase-jvm-clients-${temp}", false, true, true)
                 imp.dirAbsolute("${path}/couchbase-jvm-clients-${temp}") {
-                //imp.dir("${path}/couchbase-jvm-clients-${temp}") {
                     writeParentPomFile(imp, false)
                 }
                 imp.dirAbsolute(path) {
